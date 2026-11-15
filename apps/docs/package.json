@@ -1,0 +1,55 @@
+{
+  "name": "docs",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack --port 3002",
+    "build": "next build",
+    "start": "next start --port 3002",
+    "lint": "eslint",
+    "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-sdk/react": "^4.0.177",
+    "@radix-ui/react-presence": "^1.1.11",
+    "ai": "^7.0.173",
+    "class-variance-authority": "^0.7.1",
+    "flexsearch": "^0.8.212",
+    "fumadocs-core": "^16.19.2",
+    "fumadocs-mdx": "^15.6.2",
+    "fumadocs-ui": "^16.19.2",
+    "geist": "^1.9.2",
+    "hast-util-to-jsx-runtime": "^2.3.7",
+    "lucide-react": "^1.73.0",
+    "next": "16.4.6",
+    "posthog-js": "^1.449.2",
+    "posthog-node": "^5.73.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "remark": "^15.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-rehype": "^11.1.2",
+    "tailwind-merge": "^3.7.0",
+    "unist-util-visit": "^5.2.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.5",
+    "@types/hast": "^3.0.5",
+    "@types/mdx": "^2.0.14",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "16.4.6",
+    "prettier": "^3.10.1",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "tailwindcss": "^4.3.5",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}

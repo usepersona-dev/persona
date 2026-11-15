@@ -1,0 +1,341 @@
+[
+  {
+    "id": "dropConstraint.personas.personas_parent_id_fkey",
+    "label": "Drop constraint \"personas_parent_id_fkey\" on \"personas\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "personas_parent_id_fkey",
+        "table": "personas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"personas_parent_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personas_parent_id_fkey",
+          "public",
+          "\"public\".\"personas\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"personas_parent_id_fkey\" on \"personas\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop constraint \"personas_parent_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"personas\" DROP CONSTRAINT \"personas_parent_id_fkey\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"personas_parent_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personas_parent_id_fkey",
+          "public",
+          "\"public\".\"personas\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"personas_parent_id_fkey\" on \"personas\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropConstraint.personas.personas_snapshot_id_fkey",
+    "label": "Drop constraint \"personas_snapshot_id_fkey\" on \"personas\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "personas_snapshot_id_fkey",
+        "table": "personas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"personas_snapshot_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personas_snapshot_id_fkey",
+          "public",
+          "\"public\".\"personas\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"personas_snapshot_id_fkey\" on \"personas\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop constraint \"personas_snapshot_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"personas\" DROP CONSTRAINT \"personas_snapshot_id_fkey\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"personas_snapshot_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personas_snapshot_id_fkey",
+          "public",
+          "\"public\".\"personas\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"personas_snapshot_id_fkey\" on \"personas\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropIndex.personas.personas_parent_id_idx_ab33b399",
+    "label": "Drop index \"personas_parent_id_idx_ab33b399\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "personas_parent_id_idx_ab33b399",
+        "table": "personas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"personas_parent_id_idx_ab33b399\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"personas_parent_id_idx_ab33b399\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"personas_parent_id_idx_ab33b399\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"personas_parent_id_idx_ab33b399\"",
+        "sql": "DROP INDEX \"public\".\"personas_parent_id_idx_ab33b399\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"personas_parent_id_idx_ab33b399\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"personas_parent_id_idx_ab33b399\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"personas_parent_id_idx_ab33b399\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropColumn.personas.parent_id",
+    "label": "Drop column \"parent_id\" from \"personas\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "parent_id",
+        "table": "personas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"parent_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "personas",
+          "parent_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"parent_id\" on \"personas\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"parent_id\"",
+        "sql": "ALTER TABLE \"public\".\"personas\" DROP COLUMN \"parent_id\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"parent_id\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "personas",
+          "parent_id"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"parent_id\" on \"personas\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropIndex.personas.personas_snapshot_id_idx_901ededa",
+    "label": "Drop index \"personas_snapshot_id_idx_901ededa\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "personas_snapshot_id_idx_901ededa",
+        "table": "personas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"personas_snapshot_id_idx_901ededa\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"personas_snapshot_id_idx_901ededa\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"personas_snapshot_id_idx_901ededa\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"personas_snapshot_id_idx_901ededa\"",
+        "sql": "DROP INDEX \"public\".\"personas_snapshot_id_idx_901ededa\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"personas_snapshot_id_idx_901ededa\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"personas_snapshot_id_idx_901ededa\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"personas_snapshot_id_idx_901ededa\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropColumn.personas.snapshot_id",
+    "label": "Drop column \"snapshot_id\" from \"personas\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "snapshot_id",
+        "table": "personas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"snapshot_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "personas",
+          "snapshot_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"snapshot_id\" on \"personas\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"snapshot_id\"",
+        "sql": "ALTER TABLE \"public\".\"personas\" DROP COLUMN \"snapshot_id\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"snapshot_id\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "personas",
+          "snapshot_id"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"snapshot_id\" on \"personas\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropTable.snapshots",
+    "label": "Drop table \"snapshots\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "snapshots"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"snapshots\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"snapshots\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"snapshots\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"snapshots\"",
+        "sql": "DROP TABLE \"public\".\"snapshots\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"snapshots\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"snapshots\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"snapshots\""
+        }
+      }
+    ]
+  }
+]

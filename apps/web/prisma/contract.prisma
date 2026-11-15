@@ -1,0 +1,615 @@
+// use prisma-8
+
+type OrganizationMember {
+  membershipId   String
+  userId         String
+  email          String
+  firstName      String?
+  lastName       String?
+  imageUrl       String?
+  role           String
+  clerkCreatedAt String?
+}
+
+type OrganizationInvitation {
+  invitationId   String
+  email          String
+  role           String
+  status         String
+  clerkCreatedAt String?
+}
+
+type SkillFile {
+  path     String
+  contents String
+}
+
+type CredentialField {
+  name   String
+  secret Boolean
+}
+
+type SecretValue {
+  name  String
+  value String
+}
+
+type SkillOrigin {
+  kind OriginKind
+  id   String?
+}
+
+type RunResult {
+  summary String
+  notify  Boolean
+}
+
+type PersonaModel {
+  model String
+  when  String
+}
+
+type TokenUsage {
+  model             String
+  provider          String?
+  inputTokens       Int
+  cachedInputTokens Int
+  cacheWriteTokens  Int
+  outputTokens      Int
+  reasoningTokens   Int
+  marketCost        Decimal?
+  gatewayCost       Decimal?
+}
+
+type BrowserUsage {
+  browserId    String
+  model        String
+  inputTokens  Int
+  outputTokens Int
+  marketCost   Decimal
+}
+
+type SandboxUsage {
+  sandboxId  String
+  runMs      Int
+  cpuMs      Int
+  totalRunMs Int
+  totalCpuMs Int
+  memoryMb   Int
+  marketCost Decimal
+}
+
+enum RunStatus {
+  @@type("pg/text@1")
+  running   = "running"
+  completed = "completed"
+  failed    = "failed"
+}
+
+enum RunSource {
+  @@type("pg/text@1")
+  automation = "automation"
+  webhook    = "webhook"
+  trigger    = "trigger"
+}
+
+enum OriginKind {
+  @@type("pg/text@1")
+  custom = "custom"
+  hub    = "hub"
+  agent  = "agent"
+}
+
+enum Channel {
+  @@type("pg/text@1")
+  whatsapp      = "whatsapp"
+  whatsapp_v2   = "whatsapp_v2"
+  whatsapp_meta = "whatsapp_meta"
+  telegram      = "telegram"
+}
+
+enum SessionStatus {
+  @@type("pg/text@1")
+  running = "running"
+  waiting = "waiting"
+  ended   = "ended"
+  failed  = "failed"
+}
+
+enum MessageRole {
+  @@type("pg/text@1")
+  user      = "user"
+  assistant = "assistant"
+  system    = "system"
+}
+model User {
+  id              String                     @id @onCreate(cuid(2))
+  authId          String                     @unique @map("auth_id")
+  organizationIds String[]                   @map("organization_ids")
+  email           String
+  firstName       String?                    @map("first_name")
+  lastName        String?                    @map("last_name")
+  imageUrl        String?                    @map("image_url")
+  createdAt       TimestamptzString          @default(now()) @map("created_at")
+  updatedAt       DateTime(as: string) @onCreate(now()) @onUpdate(now()) @map("updated_at")
+
+  @@map("users")
+}
+
+model Organization {
+  id             String                     @id @onCreate(cuid(2))
+  orgId          String                     @unique @map("org_id")
+  name           String
+  slug           String?
+  imageUrl       String?                    @map("image_url")
+  membersCount   Int                        @default(0) @map("members_count")
+  clerkCreatedAt TimestamptzString?         @map("clerk_created_at")
+  members        OrganizationMember[]
+  invitations    OrganizationInvitation[]
+  createdAt      TimestamptzString          @default(now()) @map("created_at")
+  updatedAt      DateTime(as: string) @onCreate(now()) @onUpdate(now()) @map("updated_at")
+
+  @@map("organizations")
+}
+
+model Project {
+  id           String                     @id @onCreate(cuid(2))
+  orgId        String                     @map("org_id")
+  organization Organization               @relation(fields: [orgId], references: [orgId], onDelete: Cascade)
+  userId       String                     @map("user_id")
+  user         User                       @relation(fields: [userId], references: [authId])
+  name         String
+  description  String?
+  imageUrl     String?                    @map("image_url")
+  createdAt    TimestamptzString          @default(now()) @map("created_at")
+  updatedAt    DateTime(as: string) @onCreate(now()) @onUpdate(now()) @map("updated_at")
+
+  @@map("projects")
+}
+
+model ApiKey {
+  id           String                     @id @onCreate(cuid(2))
+  orgId        String                     @map("org_id")
+  organization Organization               @relation(fields: [orgId], references: [orgId], onDelete: Cascade)
+  userId       String                     @map("user_id")
+  user         User                       @relation(fields: [userId], references: [authId])
+  name         String
+  keyHash      String                     @unique @map("key_hash")
+  keyPrefix    String                     @map("key_prefix")
+  lastUsedAt   TimestamptzString?         @map("last_used_at")
+  createdAt    TimestamptzString          @default(now()) @map("created_at")
+  updatedAt    DateTime(as: string) @onCreate(now()) @onUpdate(now()) @map("updated_at")
+
+  @@map("api_keys")
+}
+
+
+
+model Persona {
+  id                String                     @id @onCreate(cuid(2))
+  projectId         String                     @map("project_id")
+  project           Project                    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  orgId             String                     @map("org_id")
+  organization      Organization               @relation(fields: [orgId], references: [orgId], onDelete: Cascade)
+  name              String
+  imageUrl          String?                    @map("image_url")
+  model             String?
+  models            PersonaModel[]             @default([])
+  composioSessionId String?                    @map("composio_session_id")
+  createdAt         TimestamptzString          @default(now()) @map("created_at")
+  updatedAt         DateTime(as: string) @onCreate(now()) @onUpdate(now()) @map("updated_at")
+
+  @@map("personas")
+}
+
+model Instruction {
+  id        String                     @id @onCreate(cuid(2))
+  personaId String                     @map("persona_id")
+  persona   Persona                    @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  name      String
+  content   String
+  enabled   Boolean                    @default(true)
+  createdAt TimestamptzString          @default(now()) @map("created_at")
+  updatedAt DateTime(as: string) @onCreate(now()) @onUpdate(now()) @map("updated_at")
+
+  @@unique([personaId, name])
+  @@map("instructions")
+}
+
+model Note {
+  id        String                     @id @onCreate(cuid(2))
+  personaId String                     @map("persona_id")
+  persona   Persona                    @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  title     String
+  content   String
+  createdAt TimestamptzString          @default(now()) @map("created_at")
+  updatedAt DateTime(as: string) @onCreate(now()) @onUpdate(now()) @map("updated_at")
+
+  @@index([personaId, updatedAt])
+  @@map("notes")
+}
+
+model Skill {
+  id          String                     @id @onCreate(cuid(2))
+  personaId   String                     @map("persona_id")
+  persona     Persona                    @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  name        String
+  description String
+  markdown    String
+  files       SkillFile[]
+  enabled     Boolean                    @default(true)
+  origin      SkillOrigin
+  createdAt   TimestamptzString          @default(now()) @map("created_at")
+  updatedAt   DateTime(as: string) @onCreate(now()) @onUpdate(now()) @map("updated_at")
+
+  @@unique([personaId, name])
+  @@map("skills")
+}
+
+model Connection {
+  id          String                     @id @onCreate(cuid(2))
+  personaId   String                     @map("persona_id")
+  persona     Persona                    @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  name        String
+  url         String
+  description String
+  enabled     Boolean                    @default(true)
+  createdAt   TimestamptzString          @default(now()) @map("created_at")
+  updatedAt   DateTime(as: string) @onCreate(now()) @onUpdate(now()) @map("updated_at")
+
+  @@unique([personaId, name])
+  @@map("connections")
+}
+
+model Credential {
+  id          String                     @id @onCreate(cuid(2))
+  personaId   String                     @map("persona_id")
+  persona     Persona                    @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  fields      CredentialField[]
+  createdAt   TimestamptzString          @default(now()) @map("created_at")
+  updatedAt   DateTime(as: string) @onCreate(now()) @onUpdate(now()) @map("updated_at")
+
+  @@index([personaId, title])
+  @@map("credentials")
+}
+
+model Browser {
+  id        String             @id
+  personaId String             @map("persona_id")
+  persona   Persona            @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  task      String
+  createdAt TimestamptzString  @default(now()) @map("created_at")
+  closedAt  TimestamptzString? @map("closed_at")
+
+  @@index([personaId])
+  @@map("browsers")
+}
+
+// One eve session, as eve's events report it: which persona and chat it belongs to, where it stands, and when it last ran. The address is eve's continuation token of the chat; sessions eve starts by id (the web app) have none.
+model Session {
+  id         String             @id
+  personaId  String             @map("persona_id")
+  persona    Persona            @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  userId     String             @default("unknown") @map("user_id")
+  channel    String             @default("unknown")
+  address    String?
+  status     SessionStatus      @default(running)
+  lastTurnAt TimestamptzString? @map("last_turn_at")
+  createdAt  TimestamptzString  @default(now()) @map("created_at")
+  endedAt    TimestamptzString? @map("ended_at")
+  messages   Message[]
+
+  @@index([personaId])
+  @@index([address])
+  @@map("sessions")
+}
+
+// One message of a session, as eve emitted it: what the person sent (user), what the persona wrote (assistant), or a note from the app when a turn failed or the chat was cleared (system). A persona row a chat tool sent names that tool, and the person received it; a persona row without a tool is the persona's own text, which nobody received. The id is eve's event id, with the tool call id for a chat tool's row.
+model Message {
+  id        String            @id
+  sessionId String            @map("session_id")
+  session   Session           @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  turnId    String            @map("turn_id")
+  role      MessageRole
+  tool      String?
+  text      String
+  files     Jsonb?
+  createdAt TimestamptzString @map("created_at")
+
+  @@index([sessionId, createdAt])
+  @@map("messages")
+}
+
+// One row per thing an organization used
+model Usage {
+  id        String            @id
+  orgId     String            @map("org_id")
+  projectId String            @map("project_id")
+  personaId String            @map("persona_id")
+  sessionId String?           @map("session_id")
+  credits   Decimal
+  tokens    TokenUsage?
+  browser   BrowserUsage?
+  sandbox   SandboxUsage?
+  at        TimestamptzString @default(now())
+
+  @@index([orgId, at, credits])
+  @@index([projectId, at])
+  @@index([sessionId, at])
+  @@map("usage")
+}
+
+model File {
+  id          String                     @id @onCreate(cuid(2))
+  personaId   String                     @map("persona_id")
+  persona     Persona                    @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  name        String
+  contentType String                     @map("content_type")
+  size        Int
+  public      Boolean                    @default(false)
+  createdAt   TimestamptzString          @default(now()) @map("created_at")
+  updatedAt   DateTime(as: string) @onCreate(now()) @onUpdate(now()) @map("updated_at")
+
+  @@index([personaId, createdAt])
+  @@map("files")
+}
+
+model Schedule {
+  id        String                     @id @onCreate(cuid(2))
+  personaId String                     @map("persona_id")
+  persona   Persona                    @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  linkId    String?                    @map("link_id")
+  link      Link?                      @relation(fields: [linkId], references: [id], onDelete: SetNull)
+  name      String
+  prompt    String
+  cron      String?
+  at        TimestamptzString?
+  timezone  String                     @default("UTC")
+  enabled   Boolean                    @default(true)
+  nextRunAt TimestamptzString?         @map("next_run_at")
+  createdAt TimestamptzString          @default(now()) @map("created_at")
+  updatedAt DateTime(as: string) @onCreate(now()) @onUpdate(now()) @map("updated_at")
+  runs      Run[]
+
+  @@index([enabled, nextRunAt])
+  @@map("schedules")
+}
+
+model Webhook {
+  id        String                     @id @onCreate(cuid(2))
+  personaId String                     @map("persona_id")
+  persona   Persona                    @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  linkId    String?                    @map("link_id")
+  link      Link?                      @relation(fields: [linkId], references: [id], onDelete: SetNull)
+  name      String
+  prompt    String
+  secret    String                     @unique @default(sql`(gen_random_uuid())::text`)
+  enabled   Boolean                    @default(true)
+  createdAt TimestamptzString          @default(now()) @map("created_at")
+  updatedAt DateTime(as: string) @onCreate(now()) @onUpdate(now()) @map("updated_at")
+  runs      Run[]
+
+  @@map("webhooks")
+}
+
+// A Composio trigger the persona set on one of its connected apps. Its events wait five minutes from the first, then one run does the task for all of them and reports to the chat (agent/schedules/start.ts).
+// The id is Composio's; Composio keeps one trigger per account, type and settings
+model Trigger {
+  id        String                     @id
+  personaId String                     @map("persona_id")
+  persona   Persona                    @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  linkId    String?                    @map("link_id")
+  link      Link?                      @relation(fields: [linkId], references: [id], onDelete: SetNull)
+  name      String
+  prompt    String
+  slug      String
+  accountId String                     @map("account_id")
+  enabled   Boolean                    @default(true)
+  createdAt TimestamptzString          @default(now()) @map("created_at")
+  updatedAt DateTime(as: string) @onCreate(now()) @onUpdate(now()) @map("updated_at")
+  runs      Run[]
+  events    TriggerEvent[]
+
+  @@map("triggers")
+}
+
+// One event Composio sent for a trigger, keyed by Composio's id, so an event sent again is kept once. It waits with no run until its trigger's run takes it
+model TriggerEvent {
+  id        String            @id
+  triggerId String            @map("trigger_id")
+  trigger   Trigger           @relation(fields: [triggerId], references: [id], onDelete: Cascade)
+  runId     String?           @map("run_id")
+  run       Run?              @relation(fields: [runId], references: [id], onDelete: Cascade)
+  data      Jsonb
+  createdAt TimestamptzString @default(now()) @map("created_at")
+
+  @@map("trigger_events")
+}
+
+// One run of a persona on its own, whatever started it: an automation coming due, a webhook being called or a trigger firing.
+// The run keeps its title and the chat it reports to from when it started, so ending and reporting need nothing from what started it.
+model Run {
+  id           String             @id @onCreate(cuid(2))
+  personaId    String             @map("persona_id")
+  persona      Persona            @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  source       RunSource
+  title        String
+  linkId       String?            @map("link_id")
+  link         Link?              @relation(fields: [linkId], references: [id], onDelete: SetNull)
+
+  // if source is automation
+  scheduleId   String?            @map("schedule_id")
+  schedule     Schedule?          @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
+  scheduledFor TimestamptzString? @map("scheduled_for")
+
+  // if source is webhook
+  webhookId    String?            @map("webhook_id")
+  webhook      Webhook?           @relation(fields: [webhookId], references: [id], onDelete: SetNull)
+
+  // if source is trigger
+  triggerId    String?            @map("trigger_id")
+  trigger      Trigger?           @relation(fields: [triggerId], references: [id], onDelete: SetNull)
+  eventId      String?            @unique @map("event_id")
+  events       TriggerEvent[]
+
+  status       RunStatus          @default(running)
+  sessionId    String?            @map("session_id")
+  result       RunResult?
+  createdAt    TimestamptzString  @default(now()) @map("created_at")
+  claimedAt    TimestamptzString  @default(now()) @map("claimed_at")
+  endedAt      TimestamptzString? @map("ended_at")
+
+  @@unique([scheduleId, scheduledFor])
+  @@index([status, claimedAt])
+  @@map("runs")
+}
+
+// One of a project's own WhatsApp numbers at Zernio: an empty line first, then a number bought onto it (numberId) or one the person brings through Meta's sign-up, which a sync fills in. Either gets its account once Meta's sign-up connects the number (accountId).
+// Each line has its own Zernio profile: Zernio pins a bought number to the profile it was bought on and connects the number from there, and a profile can refuse a second WhatsApp number (one_whatsapp_per_profile).
+model WhatsappLine {
+  id        String            @id @onCreate(cuid(2))
+  projectId String            @map("project_id")
+  project   Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  profileId String            @unique @map("profile_id")
+  numberId  String?           @unique @map("number_id")
+  accountId String?           @unique @map("account_id")
+  number    String?
+  createdAt TimestamptzString @default(now()) @map("created_at")
+
+  @@map("whatsapp_lines")
+}
+
+// A WhatsApp number straight on Meta's Cloud API, in a customer's own Meta account, with its keys on the row: the system user's token, the app's secret, our webhook verify token, and the PIN when we registered the number
+model MetaLine {
+  id            String            @id @onCreate(cuid(2))
+  projectId     String            @map("project_id")
+  project       Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  phoneNumberId String            @unique @map("phone_number_id")
+  wabaId        String            @map("waba_id")
+  appId         String            @map("app_id")
+  number        String
+  name          String
+  accessToken   String            @map("access_token")
+  appSecret     String            @map("app_secret")
+  verifyToken   String            @map("verify_token")
+  pin           String?
+  createdAt     TimestamptzString @default(now()) @map("created_at")
+
+  @@map("meta_lines")
+}
+
+model TelegramBot {
+  id        String            @id @onCreate(cuid(2))
+  projectId String            @map("project_id")
+  project   Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  botId     String            @unique @map("bot_id")
+  username  String
+  name      String
+  createdAt TimestamptzString @default(now()) @map("created_at")
+
+  @@map("telegram_bots")
+}
+
+model Link {
+  id            String             @id @onCreate(cuid(2))
+  channel       Channel
+  line          String
+  externalId    String             @map("external_id")
+  personaId     String             @map("persona_id")
+  persona       Persona            @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  label         String?
+  phone         String?
+  lastMessageAt TimestamptzString? @map("last_message_at")
+  createdAt     TimestamptzString  @default(now()) @map("created_at")
+
+  @@unique([channel, line, externalId])
+  @@map("links")
+}
+
+model LinkCode {
+  code      String            @id
+  personaId String            @map("persona_id")
+  persona   Persona           @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  expiresAt TimestamptzString @map("expires_at")
+  createdAt TimestamptzString @default(now()) @map("created_at")
+
+  @@map("link_codes")
+}
+
+model CollectLink {
+  code         String            @id
+  credentialId String            @map("credential_id")
+  credential   Credential        @relation(fields: [credentialId], references: [id], onDelete: Cascade)
+  expiresAt    TimestamptzString @map("expires_at")
+  createdAt    TimestamptzString @default(now()) @map("created_at")
+
+  @@map("collect_links")
+}
+
+model Secret {
+  ownerId String        @id @map("owner_id")
+  values  SecretValue[]
+
+  @@map("secrets")
+}
+
+// The Chat SDK's state for the WhatsApp and Telegram chats (@chat-adapter/state-pg), copied with `prisma contract infer` from the tables the SDK makes itself. Our migrations own them: the channels run the SDK's adapter with autoCreateSchema: false, as its docs say for migration-owned schemas.
+// After a Chat SDK update that changes them, tests/unit/chat-state-tables.test.ts fails: copy the change here and plan a migration
+model ChatStateSubscription {
+  keyPrefix String                 @map("key_prefix")
+  threadId  String                 @map("thread_id")
+  createdAt DateTime(precision: 6) @default(now()) @map("created_at")
+
+  @@id([keyPrefix, threadId], map: "chat_state_subscriptions_pkey")
+  @@map("chat_state_subscriptions")
+}
+
+model ChatStateLock {
+  keyPrefix String                 @map("key_prefix")
+  threadId  String                 @map("thread_id")
+  token     String
+  expiresAt DateTime(precision: 6) @map("expires_at")
+  updatedAt DateTime(precision: 6) @default(now()) @map("updated_at")
+
+  @@id([keyPrefix, threadId], map: "chat_state_locks_pkey")
+  @@index([expiresAt], map: "chat_state_locks_expires_idx")
+  @@map("chat_state_locks")
+}
+
+model ChatStateCache {
+  keyPrefix String                  @map("key_prefix")
+  cacheKey  String                  @map("cache_key")
+  value     String
+  expiresAt DateTime(precision: 6)? @map("expires_at")
+  updatedAt DateTime(precision: 6)  @default(now()) @map("updated_at")
+
+  @@id([keyPrefix, cacheKey], map: "chat_state_cache_pkey")
+  @@index([expiresAt], map: "chat_state_cache_expires_idx")
+  @@map("chat_state_cache")
+}
+
+model ChatStateList {
+  keyPrefix String                  @map("key_prefix")
+  listKey   String                  @map("list_key")
+  seq       BigInt                  @default(autoincrement())
+  value     String
+  expiresAt DateTime(precision: 6)? @map("expires_at")
+
+  @@id([keyPrefix, listKey, seq], map: "chat_state_lists_pkey")
+  @@index([expiresAt], map: "chat_state_lists_expires_idx")
+  @@map("chat_state_lists")
+}
+
+model ChatStateQueue {
+  keyPrefix String                 @map("key_prefix")
+  threadId  String                 @map("thread_id")
+  seq       BigInt                 @default(autoincrement())
+  value     String
+  expiresAt DateTime(precision: 6) @map("expires_at")
+
+  @@id([keyPrefix, threadId, seq], map: "chat_state_queues_pkey")
+  @@index([expiresAt], map: "chat_state_queues_expires_idx")
+  @@map("chat_state_queues")
+}

@@ -1,0 +1,328 @@
+---
+title: Personas
+description: Every part of a persona, the limits of each, and the tools the persona uses to change itself.
+---
+
+A persona is one row in the `personas` table. It names its project and organization, and every part below hangs off it.
+
+Each part is a namespace in the [API](/api). Most parts are also tools that the persona itself can use in a conversation. The app and the persona write the same rows, so a rule you add over the API is one the persona can change later, and the other way round.
+
+The persona reads its setup again at the start of every turn. A change applies from the next message, also in a chat that is already open.
+
+## Model
+
+The models the persona runs on, each by its [AI Gateway](https://vercel.com/docs/ai-gateway) id with when to use it. A new persona starts on two: `openai/gpt-6.1-terra` for every chat and every task handed to a subagent, and `openai/gpt-6-luna` for the task of a run (an automation, a webhook call or a trigger); `null` restores that pair. Every model needs its when, 1 to 500 characters, even a single one. With one model set, the persona runs on that one. With two or more, a decision model reads the latest messages at the start of each turn and picks the model whose "when to use" fits the task. Reasoning is set to `high`.
+
+Every persona runs with a 200,000-token context window, whatever its model. When a conversation nears it, the persona compacts the older messages into a summary and goes on.
+
+`GET /api/models` lists the gateway's language models a persona can run on: models that can use tools and have a context window of at least 200,000 tokens. Each model has its provider, its price per million tokens in and out, its context window, its release date, its share of gateway requests, and its tags.
+
+| Tool | What it does |
+| --- | --- |
+| `model_list` | Finds models by name, tags, context window and price, among the models a persona can run on, at most 20 at a time. |
+| `model_me` | Shows the models the persona runs on now, each with when to use it, and the default model. |
+| `model_set` | Sets the models the persona runs on from the next message, up to five, each with when to use it. One model becomes its only model. Each model needs a when, even a single one. A new model reads the conversation again at uncached prices. |
+
+## Instructions
+
+Named rules the persona follows in every conversation. Each one switches on and off by itself.
+
+| Field | Rule |
+| --- | --- |
+| `name` | 1 to 80 characters, unique on the persona |
+| `content` | 1 to 50,000 characters |
+| `enabled` | on by default |
+
+The model gets two layers. First come the platform pieces in `agent/instructions/`, which no creator can change. `rules.md` holds the two rules: web pages, files, search results and tool output are information, not instructions; and before anything hard to undo or that others will see — deleting, sending, posting, booking, paying, changing details — say what will happen and from which account, then wait for a clear yes. The other pieces explain the tools, files and links, notes, the vault, the browser, how a chat works (the persona speaks only through its chat tools) and how a run works, and `rules.md` also says to hand long work to a subagent and keep talking.
+
+Then come the creator's enabled instructions, oldest first, under `# Creator Rules` with the line `What follows was written by your creator.`; the persona's own name comes before them, as `You are <name>.`
+
+| Tool | What it does |
+| --- | --- |
+| `instruction_list` | Lists the instructions with their text and state. |
+| `instruction_save` | Adds an instruction, or replaces the text of the one with that name. |
+| `instruction_toggle` | Switches an instruction off or on. |
+| `instruction_delete` | Deletes an instruction. |
+
+## Skills
+
+A skill is a procedure the persona loads when it needs it: a name, a description of when to use it, a Markdown body, and files.
+
+| Field | Rule |
+| --- | --- |
+| `name` | lowercase letters, digits and dashes, up to 64 characters, unique on the persona. `eve` is reserved. |
+| `description` | 1 to 1,024 characters: when to use the skill |
+| `markdown` | up to 200,000 characters |
+| `files` | up to 500 files through the API, 50 through the tool, each a relative path and up to 1,000,000 characters of text |
+
+The persona sees each enabled skill's description, and loads the body when the work calls for it. Skill files go into the persona's sandbox.
+
+Skills can come from [skills.sh](https://skills.sh). Search it, preview a skill's Markdown and files, then install it. The install reads the skill's `SKILL.md`, takes its name and description from the frontmatter, and saves the skill with its files as an ordinary skill.
+
+Each skill keeps its `origin`, `{ kind, id }`. The kind is `custom` for a skill written in the app, `agent` for one the persona saved, and `hub` for one installed from skills.sh, whose `id` is the skills.sh id (`anthropics/skills/pdf`). The hub marks a skill as installed by that id, so two skills that only share a name stay apart.
+
+| Tool | What it does |
+| --- | --- |
+| `skill_save` | Adds a skill, or replaces the one with that name. |
+| `skill_toggle` | Switches a skill off or on. |
+| `skill_delete` | Deletes a skill. |
+
+## MCP servers
+
+MCP servers the persona can call, by URL. In the API they are called **connections**.
+
+| Field | Rule |
+| --- | --- |
+| `name` | lowercase letters, digits and dashes, starting with a letter, up to 64 characters. `apps`, `eve` and `memory` are reserved. |
+| `url` | an `http` or `https` address |
+| `description` | up to 1,000 characters: what the server is for |
+| `headers` | optional, such as an `Authorization` header |
+| `enabled` | on by default |
+
+Headers are secrets. They are stored apart from the connection, read on each request to the server, and never sent back: a list shows only the header names. An update merges headers: a string sets one, `null` removes one, and a header you leave out stays.
+
+`POST /api/connections/check` tests a server before or after you save it, and a saved server with changes you did not save yet. It tries streamable HTTP first and then SSE. It answers with the server's name and tools, or with `unauthorized`, `not-mcp` or `unreachable`.
+
+| Tool | What it does |
+| --- | --- |
+| `mcp_list` | Lists the servers, with header names only. |
+| `mcp_save` | Adds a server, or changes the one with that name. |
+| `mcp_toggle` | Switches a server off or on. |
+| `mcp_delete` | Deletes a server and its headers. |
+
+## Apps
+
+Apps such as Gmail, Google Calendar, Slack, Notion and GitHub connect through [Composio](https://composio.dev). The persona's id is its Composio user id, so a connected account belongs to one persona only.
+
+Every persona has an `apps` connection. It holds the whole Composio catalogue, so the persona can search an app's tools and run them. When a person asks for an app that is not connected, the persona starts the connection and sends them the link.
+
+Through the API, `POST /api/personas/{personaId}/apps` with a `toolkit` answers with a URL to sign in, or `null` when the app connected at once. Deleting a persona deletes its Composio accounts.
+
+## Vault
+
+Credentials the persona can use without seeing them in the chat.
+
+| Field | Rule |
+| --- | --- |
+| `title` | 1 to 120 characters, as the person calls it: "Gym login" |
+| `description` | up to 1,000 characters: when to use it |
+| `fields` | 1 to 30 fields, each a unique `name` (up to 64 characters) and `secret` (true or false) |
+
+Values are stored apart from the credential. They come in two ways:
+
+- **A collect link.** The person opens a short link and fills the fields in, on a page of the app, `/collect/{token}`. A link works for 24 hours, more than once. A field they leave blank keeps its value.
+- **The API.** `PUT /api/credentials/{credentialId}/values` sets fields: a string sets a value, `null` clears it.
+
+Values go out in two ways:
+
+- **To the sandbox.** A field named like an environment variable, such as `OPENAI_API_KEY`, is that variable in every command the persona runs. The sandbox loads the vault when it opens, and `vault_load` loads it again after a change. Fields with other names stay out of the sandbox.
+- **To the browser.** `browser_task` names the credentials and the sites each one may be typed on. The browser types each value only on those sites, and no model sees it.
+
+A command in the sandbox can read a variable, so the persona could print a value it loaded. Only the browser path keeps a value from the model completely.
+
+| Tool | What it does |
+| --- | --- |
+| `vault_list` | Lists credentials and which fields are filled. Never a value. |
+| `vault_create` | Sets up a credential and returns its collect link. |
+| `vault_link` | Makes a fresh collect link. |
+| `vault_load` | Loads the vault into the sandbox again. It returns the variable names, never a value. |
+| `vault_delete` | Deletes a credential for good, with every value it holds. |
+
+## Files
+
+Each persona has files: what people send in chats, what the persona makes, and what you upload.
+
+| Field | Rule |
+| --- | --- |
+| `name` | 1 to 255 characters |
+| `contentType` | a media type, such as `image/png` |
+| `size` | up to 2 GB |
+
+Files live in one private Cloudflare R2 bucket. A file reaches a person in one of two ways: as a file in the chat, or by its link once the persona publishes it (`file_publish`), which marks the file public. Every file has two fixed addresses: its page at `files.usepersona.dev/{personaId}/{fileId}`, the one the persona sends people (a mini app fills the window, anything else shows with a header and a download button), and the file itself at `https://{personaId}.usepersona.site/{fileId}`, used inside web pages. Both answer only while the file is public; `file_unpublish` takes them back. Each persona's files sit on their own host, so a page of one persona cannot reach another's, and none of them runs on the app's site.
+
+An upload goes straight from the client to R2. Ask the API for a signed upload URL, `PUT` the bytes to it within 10 minutes, then tell the API the upload is done. The API reads the type and size from R2. A file can also be replaced in place; a published file shows its new content at once.
+
+| Tool | What it does |
+| --- | --- |
+| `file_list` | Lists the files, newest first. |
+| `file_read` | Copies a file into the sandbox, under `/workspace/files/`. |
+| `file_save` | Saves a file from the sandbox and returns its id. |
+| `file_get` | Gives a file's page link (`preview`), the file itself (`url`) and whether it is public. |
+| `file_publish` | Makes files public, so both their addresses open. |
+| `file_unpublish` | Makes files private again; their addresses stop answering. |
+| `file_update` | Renames a file. |
+| `file_delete` | Deletes a file. |
+
+## Notes
+
+The persona's own notes: lists, drafts, and what people told it that it wants to keep. A note has a title and a text. The persona writes, finds and changes its notes with its tools, so a person can ask for a note in a chat.
+
+| Field | Rule |
+| --- | --- |
+| `title` | 1 to 200 characters |
+| `content` | up to 100,000 characters |
+
+Notes are apart from [memory](/concepts#memory). Memory recalls what matters by itself at each turn. A note comes back only when the persona looks for it.
+
+| Tool | What it does |
+| --- | --- |
+| `note_create` | Writes a note. |
+| `note_search` | Finds notes by words in their title or text, newest first. With no words, it lists the latest. |
+| `note_read` | Reads a note's whole text. |
+| `note_update` | Changes a note's title or text. The new text replaces the old one. |
+| `note_delete` | Deletes a note. |
+
+<Callout type="info">
+  **Status.** Notes have no API endpoints and no screen in the app yet.
+</Callout>
+
+## Automations
+
+A task the persona does on its own: once at a date and time, or again and again on a cron schedule.
+
+| Field | Rule |
+| --- | --- |
+| `name` | 1 to 80 characters |
+| `prompt` | 1 to 20,000 characters: the whole task |
+| `cron` | a 5-field cron expression, such as `0 9 * * 1` for Mondays at 9 |
+| `at` | a date and time with its offset, in the future |
+| `timezone` | an IANA timezone for the cron, such as `Asia/Jerusalem`. `UTC` by default. |
+| `enabled` | on by default. Off pauses the automation. |
+| `linkId` | the chat that hears about its results |
+
+Give `cron`, `at`, or both: a one-time date, a repeating schedule, or a schedule that starts with a first date. An automation the persona creates in a Telegram or WhatsApp chat gets that chat's link.
+
+How a run goes:
+
+1. Every minute, a tick makes one run for each enabled automation due within the next ten minutes, and puts it on a queue that holds it until its time. A repeating automation may start up to ten minutes early, so the many due at the same minute do not all start at once. A run is unique per automation and due time, so nothing runs twice.
+2. The run starts in a session of its own. The persona does the task with nobody there to answer questions, and ends with a summary and whether the result is worth telling the person.
+3. A run ends when its turn ends with that result, when its turn fails, or after one hour.
+4. When the result is worth telling and the automation has a chat of the same persona, the report goes on a queue as the run ends, and the persona writes to that chat in its own words. Otherwise the result stays on the run. A failed run tells no chat.
+
+An automation has one run at a time. `GET /api/automations/{automationId}/runs` lists its runs, newest first, with each run's status (`running`, `completed` or `failed`) and result.
+
+In the app, **Discover** on the Automations tab opens ready-made automations to start from. One opens New automation filled in, and nothing is saved until you create it.
+
+| Tool | What it does |
+| --- | --- |
+| `automation_create` | Schedules a task, tied to the current chat. |
+| `automation_list` | Lists the automations. |
+| `automation_runs` | Reads one automation's latest runs and results. |
+| `automation_update` | Changes the name, task, timing or state. |
+| `automation_delete` | Deletes an automation. Its runs stay, and one running right now finishes. |
+
+## Webhooks
+
+A webhook is a secret address that another app or service calls, such as a form, a store or Zapier. Each call runs the webhook's task on its own.
+
+| Field | Rule |
+| --- | --- |
+| `name` | 1 to 80 characters |
+| `prompt` | 1 to 20,000 characters: what to do with each call |
+| `linkId` | the chat that hears about the results |
+| `enabled` | on by default. Off stops the calls. |
+
+The address is `{APP_URL}/eve/v1/webhooks/{secret}`, and the API gives it as `url`. The secret is a random id, and the address needs no other credential, so give it only to the app that calls it. A webhook the persona makes in a Telegram or WhatsApp chat gets that chat's link. In the app, the persona's **Webhooks** tab lists them, and each one shows its address with a Copy button.
+
+How a call goes:
+
+1. A `POST` to the address starts a run in a session of its own, and answers `202` with `{ ok, runId }`. A paused or deleted webhook answers `404`.
+2. The call's body goes to the persona as a file: `webhook-body.json` for JSON, `webhook-body.txt` for anything else. A call with no body sends no file.
+3. The persona does the task with nobody there to answer questions, and ends with a summary and whether the result is worth telling the person.
+4. When the result is worth telling and the webhook has a chat of the same persona, the persona writes to that chat in its own words. A run that is still going after an hour fails; the chat hears nothing of a failure.
+
+| Tool | What it does |
+| --- | --- |
+| `webhook_create` | Makes a webhook, tied to the current chat, and returns its address. |
+| `webhook_list` | Lists the webhooks, oldest first, with each one's address and whether it is on. |
+| `webhook_update` | Changes the name or the task, or switches the calls off or on. |
+| `webhook_delete` | Deletes a webhook. Its address stops working; its runs stay. |
+
+<Callout type="info">
+  **Status.** A call that comes twice runs twice, and there is no rate limit per webhook yet. An address cannot be replaced: to change one that leaked, delete the webhook and make a new one.
+</Callout>
+
+## Triggers
+
+A trigger lets one of the persona's connected [apps](#apps) tell it when something happens, such as a new email or a meeting about to start. The persona then does the trigger's task.
+
+| Field | Rule |
+| --- | --- |
+| `name` | 1 to 80 characters |
+| `prompt` | 1 to 20,000 characters: what to do with the events |
+| `slug` | the trigger, such as `GOOGLECALENDAR_EVENT_STARTING_SOON_TRIGGER`, from `trigger_types` |
+| `linkId` | the chat that hears about the results |
+
+A trigger watches one connected account, with the trigger's own settings; two triggers cannot watch exactly the same thing. A trigger the persona makes in a Telegram or WhatsApp chat gets that chat's link.
+
+How an event goes:
+
+1. The app sends each event to `/eve/v1/triggers` through Composio, signed. An event Composio sends again is kept once.
+2. Five minutes after the first event that waits, the tick makes one run with every event that waited, and starts it at once.
+3. The events go to the persona as files, `trigger-event-1.json` and on. The persona does the task once for all of them, with nobody there to answer questions, and ends with a summary and whether the result is worth telling the person.
+4. When the result is worth telling and the trigger has a chat of the same persona, the persona writes to that chat in its own words. A run that is still going after an hour fails; the chat hears nothing of a failure.
+
+| Tool | What it does |
+| --- | --- |
+| `trigger_types` | Lists the triggers a connected app offers, with each one's settings. |
+| `trigger_create` | Makes a trigger, tied to the current chat. |
+| `trigger_list` | Lists the triggers, oldest first, with each one's task, trigger and the account it watches. |
+| `trigger_update` | Changes the name or the task. |
+| `trigger_delete` | Deletes a trigger; the app stops sending its events. Its runs stay. |
+
+<Callout type="info">
+  **Status.** Triggers have no API endpoints and no screen in the app yet. A trigger cannot be paused: delete it to stop it.
+</Callout>
+
+## Browser
+
+The persona can work in a real web browser, on [Browser Use](https://browser-use.com). Each persona has one Browser Use profile, which keeps its sign-ins from task to task.
+
+`browser_task` runs a task in the background, and the answer comes back later. It tries the sign-in ways in order: already signed in, a login from the vault, then a code, a link or a tap on the person's phone. It stops before anything that cannot be undone, such as an order or a payment, unless the task approves the merchant, the item and the total. A task runs for 30 minutes at most.
+
+The answer has a status:
+
+| Status | Meaning |
+| --- | --- |
+| `Done` | The task is done. |
+| `Needs details` | The task left out something the page asks for. |
+| `Needs a code`, `Needs a link`, `Needs a tap` | The site sent a sign-in code, link or phone prompt. |
+| `Needs approval` | The next step cannot be undone. |
+| `Needs takeover` | Only the person can act, such as on a captcha. The answer has a live link to the browser. |
+| `Blocked` | Something else stopped it. |
+| `Stopped` | It was cancelled or ran out of time. |
+
+Send the person's answer, or a change of mind, to the same browser with its `browserId`. A new task replaces what the browser is doing.
+
+| Tool | What it does |
+| --- | --- |
+| `browser_task` | Runs a task in a new or an open browser. |
+| `browser_list` | Lists the open browsers, each with its task, whether it is still working, and when it opened. |
+| `browser_close` | Closes a browser. Its sign-ins stay on the profile. |
+
+## Media
+
+The persona makes and reads media through the AI Gateway. Each file it makes is saved to its files.
+
+| Tool | What it does | Default model |
+| --- | --- | --- |
+| `media_image_create` | Draws an image, in the background. | `google/gemini-nano-banana-2.1` |
+| `media_image_edit` | Changes up to 10 images, in the background. | `google/gemini-nano-banana-2.1` |
+| `media_video` | Films a short video, in the background. It costs real money. | `google/veo-3.1-fast-generate-001` |
+| `media_speech` | Says text out loud as an MP3 recording, up to 4,096 characters. Voices: `Kore` (the default), `Zephyr`, `Leda`, `Puck` and `Charon`. | `google/gemini-3.8-flash-tts` |
+| `media_transcribe` | Writes down what a saved recording says, by its file id. | `microsoft/mai-transcribe-2` |
+| `media_read` | Describes a file at a link, or answers a question about it. | `google/gemini-3.8-flash` |
+
+## Built-in tools
+
+The persona also has [eve](https://eve.dev)'s default tools, such as `bash`, `read_file`, `write_file` and `web_fetch`. Commands run in a sandbox for the session: Vercel Sandbox when deployed, and Docker or a local sandbox on your machine. `eve__task_cancel` stops a background task, such as a browser task.
+
+## Chats
+
+In the app, the persona's **Chat** tab is a chat with it. Each new chat is a session; **New chat** starts another one.
+
+eve keeps each session's conversation, and Persona writes a copy of every session and every message to its own `sessions` and `messages` tables, with the session's persona, channel and status. The API has no endpoint for chats or their messages yet.
+
+## Copies
+
+**Duplicate** makes a copy for the same creator, named `<name> (copy)`. It copies the picture, the model, the instructions, the skills, the vault's credentials without values, and the automations, paused so they do not run twice. Files, MCP servers, webhooks, notes, chats, links, app accounts, vault values and memory stay with the original.

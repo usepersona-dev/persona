@@ -1,0 +1,200 @@
+@import "tailwindcss";
+
+/* Fumadocs reads its --fd-* colors from the shadcn variables below, so the docs wear Persona's paper and ink in both themes */
+@import "fumadocs-ui/css/shadcn.css";
+@import "fumadocs-ui/css/preset.css";
+
+/* Tailwind skips node_modules, and Fumadocs UI's components carry Tailwind classes */
+@source "../node_modules/fumadocs-ui/dist/**/*.js";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-sans: var(--font-sans);
+    --font-heading: var(--font-newsreader);
+    --font-wordmark: var(--font-nunito);
+    --font-mono: var(--font-mono);
+    --color-input: var(--input);
+    --color-key: var(--key);
+    --color-key-foreground: var(--key-foreground);
+    --color-clay: var(--clay);
+    --color-chip: var(--chip);
+    --color-line: var(--line);
+    --color-line-2: var(--line-2);
+    --shadow-chip: var(--elev-chip);
+    --shadow-float: var(--elev-float);
+    --shadow-clay: var(--elev-clay);
+    --shadow-key: var(--elev-key);
+}
+
+/* Light: the landing page's paper and ink (landing/app/(landing)/factory.css). Dark keeps the webapp's Meadow, refined skin. */
+:root {
+    --background: #f5f4f2;
+    --foreground: #252522;
+    --card: #fbfaf8;
+    --card-foreground: #252522;
+    --popover: #fbfaf8;
+    --popover-foreground: #252522;
+    --primary: #252522;
+    --primary-foreground: #f8f8f6;
+    --secondary: #ebeae5;
+    --secondary-foreground: #252522;
+    --muted: #ebeae5;
+    --muted-foreground: #5f6263;
+    --accent: #ebeae5;
+    --accent-foreground: #252522;
+    --destructive: #b5403a;
+    --border: rgb(32 32 32 / 0.1);
+    --input: rgb(32 32 32 / 0.14);
+    --ring: #1a6fd1;
+    --sidebar: #eeedea;
+    --sidebar-foreground: #252522;
+    --sidebar-primary: oklch(0.56 0.188 258.5);
+    --sidebar-primary-foreground: oklch(1 0 0);
+    --sidebar-accent: #fbfaf8;
+    --sidebar-accent-foreground: #252522;
+    --sidebar-border: rgb(32 32 32 / 0.1);
+    --sidebar-ring: oklch(0.56 0.188 258.5);
+    --key: #414141;
+    --key-foreground: #fbfbf8;
+    --clay: #f5f4f2;
+    --chip: #fbfaf8;
+    --line: rgb(32 32 32 / 0.1);
+    --line-2: rgb(0 0 0 / 0.06);
+    --elev-chip: inset 0 0 0 1px #fff, 0 0 0 1px rgb(0 0 0 / 0.08), 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 8px rgb(0 0 0 / 0.04);
+    --elev-float: inset 0 0 0 1px #fff, 0 0 0 1px rgb(0 0 0 / 0.08), 0 8px 24px rgb(0 0 0 / 0.1);
+    --elev-clay: 0 2px 3px rgb(0 0 0 / 0.06), inset 0 0 0.357px 1.5px rgb(255 255 255 / 0.35), inset 0 2px 0 #fff;
+    --elev-key: 0 0 0 1px rgb(64 64 64 / 0.12), inset 0 2px 0 rgb(255 255 255 / 0.24), inset 0 -0.5px 2px rgb(0 0 0 / 0.25), 0 2px 8px rgb(0 0 0 / 0.03), 0 3px 6px rgb(0 0 0 / 0.16);
+    --px-small: polygon(0px 4px, 2px 4px, 2px 2px, 4px 2px, 4px 0px, calc(100% - 4px) 0px, calc(100% - 4px) 2px, calc(100% - 2px) 2px, calc(100% - 2px) 4px, 100% 4px, 100% calc(100% - 4px), calc(100% - 2px) calc(100% - 4px), calc(100% - 2px) calc(100% - 2px), calc(100% - 4px) calc(100% - 2px), calc(100% - 4px) 100%, 4px 100%, 4px calc(100% - 2px), 2px calc(100% - 2px), 2px calc(100% - 4px), 0px calc(100% - 4px));
+    --color-fd-info: #1a6fd1;
+    --color-fd-warning: oklch(0.686 0.128 72);
+    --color-fd-error: #b5403a;
+    --color-fd-success: oklch(0.533 0.119 153);
+
+    /* The sidebar sits flush with the screen edge instead of inside a centered container */
+    --fd-layout-width: 100vw;
+}
+
+.dark {
+    --background: #282826;
+    --foreground: #f2eee4;
+    --card: #282826;
+    --card-foreground: #f2eee4;
+    --popover: #282826;
+    --popover-foreground: #f2eee4;
+    --primary: #f2eee4;
+    --primary-foreground: #1b1b1a;
+    --secondary: #323230;
+    --secondary-foreground: #f2eee4;
+    --muted: #323230;
+    --muted-foreground: #aaa69c;
+    --accent: #333331;
+    --accent-foreground: #f2eee4;
+    --destructive: #f08a80;
+    --border: rgb(255 250 235 / 0.1);
+    --input: rgb(255 250 235 / 0.14);
+    --ring: #6ea8f0;
+    --sidebar: #1e1e1d;
+    --sidebar-foreground: #f2eee4;
+    --sidebar-primary: oklch(0.756 0.126 256.6);
+    --sidebar-primary-foreground: oklch(0.207 0.054 264.8);
+    --sidebar-accent: #282826;
+    --sidebar-accent-foreground: #f2eee4;
+    --sidebar-border: rgb(255 250 235 / 0.1);
+    --sidebar-ring: oklch(0.756 0.126 256.6);
+    --key: #ece8de;
+    --key-foreground: #1b1b1a;
+    --clay: #2f2f2d;
+    --chip: #282826;
+    --line: rgb(255 250 235 / 0.1);
+    --line-2: rgb(255 250 235 / 0.07);
+    --elev-chip: inset 0 1px 0 rgb(255 250 235 / 0.06), 0 0 0 1px rgb(0 0 0 / 0.55), 0 1px 2px rgb(0 0 0 / 0.25), 0 4px 8px rgb(0 0 0 / 0.2);
+    --elev-float: inset 0 1px 0 rgb(255 250 235 / 0.07), 0 0 0 1px rgb(0 0 0 / 0.6), 0 12px 32px rgb(0 0 0 / 0.45);
+    --elev-clay: 0 0 0 1px rgb(0 0 0 / 0.5), 0 2px 3px rgb(0 0 0 / 0.3), inset 0 1px 0 rgb(255 250 235 / 0.09);
+    --elev-key: 0 0 0 1px rgb(0 0 0 / 0.6), inset 0 2px 0 #fff, inset 0 -0.5px 2px rgb(0 0 0 / 0.25), 0 2px 8px rgb(0 0 0 / 0.2), 0 3px 6px rgb(0 0 0 / 0.4);
+    --color-fd-info: #6ea8f0;
+    --color-fd-warning: oklch(0.831 0.14 80.9);
+    --color-fd-error: #f08a80;
+    --color-fd-success: oklch(0.731 0.141 156.7);
+}
+
+@layer base {
+  html {
+    @apply font-sans;
+    font-synthesis-weight: none;
+  }
+
+  #nd-page :is(h1, h2, h3) {
+    font-family: var(--font-heading);
+  }
+
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/*
+  Fumadocs' own parts in the app's shapes (webapp/components/ui). They have no class props, so these rules find them by
+  Fumadocs' stable ids and data attributes. They sit outside any layer, so they win over Fumadocs' utility classes.
+*/
+
+/* Headings in Newsreader at its regular weight, like the landing's section titles; h3 a little heavier so it reads as a smaller heading */
+#nd-page :is(h1, h2, h3) {
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+#nd-page h3 {
+  font-weight: 500;
+}
+
+/* Sidebar rows, as SidebarMenuButton: 32px, ink text, a faint hover, and the open page as a white chip */
+#nd-sidebar a[data-active] {
+  min-height: 2rem;
+  padding-block: 0.375rem;
+  color: var(--sidebar-foreground);
+}
+
+#nd-sidebar a[data-active]:hover {
+  background-color: var(--line-2);
+  color: var(--sidebar-foreground);
+}
+
+#nd-sidebar a[data-active="true"], #nd-sidebar a[data-active="true"]:hover {
+  background-color: var(--sidebar-accent);
+  box-shadow: var(--elev-chip);
+  font-weight: 500;
+}
+
+/* The search field, as Input: a white chip with an inset shadow */
+[data-search-full] {
+  height: 2.25rem;
+  padding-inline: 0.75rem 0.375rem;
+  border-color: var(--input);
+  background-color: var(--chip);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.035);
+}
+
+[data-search-full]:hover {
+  background-color: var(--chip);
+  color: var(--foreground);
+}
+
+/* Keys, as Kbd: a small chip with pixel corners */
+kbd {
+  display: inline-flex;
+  height: 1.25rem;
+  min-width: 1.25rem;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 0.25rem;
+  border: 0;
+  border-radius: 0;
+  background-color: var(--chip);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--foreground) 20%, transparent);
+  clip-path: var(--px-small);
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 800;
+  color: color-mix(in oklab, var(--foreground) 72%, transparent);
+}

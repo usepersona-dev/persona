@@ -1,0 +1,247 @@
+[
+  {
+    "id": "dropConstraint.organizations.organizations_stripe_customer_id_key",
+    "label": "Drop constraint \"organizations_stripe_customer_id_key\" on \"organizations\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "organizations_stripe_customer_id_key",
+        "table": "organizations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"organizations_stripe_customer_id_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "organizations_stripe_customer_id_key",
+          "public",
+          "\"public\".\"organizations\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"organizations_stripe_customer_id_key\" on \"organizations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop constraint \"organizations_stripe_customer_id_key\"",
+        "sql": "ALTER TABLE \"public\".\"organizations\" DROP CONSTRAINT \"organizations_stripe_customer_id_key\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"organizations_stripe_customer_id_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "organizations_stripe_customer_id_key",
+          "public",
+          "\"public\".\"organizations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"organizations_stripe_customer_id_key\" on \"organizations\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropCheckConstraint.organizations.organizations_plan_shape_016bf7c3",
+    "label": "Drop check constraint \"organizations_plan_shape_016bf7c3\" on \"organizations\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "organizations_plan_shape_016bf7c3",
+        "table": "organizations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"organizations_plan_shape_016bf7c3\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "organizations_plan_shape_016bf7c3",
+          "public",
+          "\"public\".\"organizations\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"organizations_plan_shape_016bf7c3\" on \"organizations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"organizations_plan_shape_016bf7c3\"",
+        "sql": "ALTER TABLE \"public\".\"organizations\" DROP CONSTRAINT \"organizations_plan_shape_016bf7c3\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"organizations_plan_shape_016bf7c3\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "organizations_plan_shape_016bf7c3",
+          "public",
+          "\"public\".\"organizations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"organizations_plan_shape_016bf7c3\" on \"organizations\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropColumn.organizations.plan",
+    "label": "Drop column \"plan\" from \"organizations\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "plan",
+        "table": "organizations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"plan\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "organizations",
+          "plan"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"plan\" on \"organizations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"plan\"",
+        "sql": "ALTER TABLE \"public\".\"organizations\" DROP COLUMN \"plan\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"plan\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "organizations",
+          "plan"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"plan\" on \"organizations\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropColumn.organizations.stripe_customer_id",
+    "label": "Drop column \"stripe_customer_id\" from \"organizations\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "stripe_customer_id",
+        "table": "organizations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"stripe_customer_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "organizations",
+          "stripe_customer_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"stripe_customer_id\" on \"organizations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"stripe_customer_id\"",
+        "sql": "ALTER TABLE \"public\".\"organizations\" DROP COLUMN \"stripe_customer_id\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"stripe_customer_id\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "organizations",
+          "stripe_customer_id"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"stripe_customer_id\" on \"organizations\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropTable.report_requests",
+    "label": "Drop table \"report_requests\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "report_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"report_requests\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"report_requests\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"report_requests\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"report_requests\"",
+        "sql": "DROP TABLE \"public\".\"report_requests\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"report_requests\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"report_requests\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"report_requests\""
+        }
+      }
+    ]
+  }
+]

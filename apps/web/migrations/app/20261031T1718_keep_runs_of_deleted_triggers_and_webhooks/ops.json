@@ -1,0 +1,206 @@
+[
+  {
+    "id": "dropConstraint.runs.runs_trigger_id_fkey",
+    "label": "Drop constraint \"runs_trigger_id_fkey\" on \"runs\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "runs_trigger_id_fkey",
+        "table": "runs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"runs_trigger_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "runs_trigger_id_fkey",
+          "public",
+          "\"public\".\"runs\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"runs_trigger_id_fkey\" on \"runs\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop constraint \"runs_trigger_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"runs\" DROP CONSTRAINT \"runs_trigger_id_fkey\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"runs_trigger_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "runs_trigger_id_fkey",
+          "public",
+          "\"public\".\"runs\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"runs_trigger_id_fkey\" on \"runs\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropConstraint.runs.runs_webhook_id_fkey",
+    "label": "Drop constraint \"runs_webhook_id_fkey\" on \"runs\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "runs_webhook_id_fkey",
+        "table": "runs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"runs_webhook_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "runs_webhook_id_fkey",
+          "public",
+          "\"public\".\"runs\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"runs_webhook_id_fkey\" on \"runs\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop constraint \"runs_webhook_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"runs\" DROP CONSTRAINT \"runs_webhook_id_fkey\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"runs_webhook_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "runs_webhook_id_fkey",
+          "public",
+          "\"public\".\"runs\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"runs_webhook_id_fkey\" on \"runs\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.runs.runs_trigger_id_fkey",
+    "label": "Add foreign key \"runs_trigger_id_fkey\" on \"runs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "runs_trigger_id_fkey",
+        "table": "runs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"runs_trigger_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "runs_trigger_id_fkey",
+          "public",
+          "\"public\".\"runs\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"runs_trigger_id_fkey\" on \"runs\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"runs_trigger_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"runs\"\nADD CONSTRAINT \"runs_trigger_id_fkey\"\nFOREIGN KEY (\"trigger_id\")\nREFERENCES \"public\".\"triggers\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"runs_trigger_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "runs_trigger_id_fkey",
+          "public",
+          "\"public\".\"runs\"",
+          "f",
+          "[\"trigger_id\"]",
+          "\"public\".\"triggers\"",
+          "[\"id\"]",
+          "n",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.runs.runs_webhook_id_fkey",
+    "label": "Add foreign key \"runs_webhook_id_fkey\" on \"runs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "runs_webhook_id_fkey",
+        "table": "runs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"runs_webhook_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "runs_webhook_id_fkey",
+          "public",
+          "\"public\".\"runs\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"runs_webhook_id_fkey\" on \"runs\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"runs_webhook_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"runs\"\nADD CONSTRAINT \"runs_webhook_id_fkey\"\nFOREIGN KEY (\"webhook_id\")\nREFERENCES \"public\".\"webhooks\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"runs_webhook_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "runs_webhook_id_fkey",
+          "public",
+          "\"public\".\"runs\"",
+          "f",
+          "[\"webhook_id\"]",
+          "\"public\".\"webhooks\"",
+          "[\"id\"]",
+          "n",
+          "a"
+        ]
+      }
+    ]
+  }
+]

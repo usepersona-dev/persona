@@ -1,0 +1,159 @@
+[
+  {
+    "id": "table.credit_grants",
+    "label": "Create table \"credit_grants\"",
+    "summary": "Creates table \"credit_grants\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "credit_grants"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"credit_grants\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"credit_grants\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"credit_grants\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"credit_grants\"",
+        "sql": "CREATE TABLE \"public\".\"credit_grants\" (\n  \"at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"credits\" numeric NOT NULL,\n  \"id\" text NOT NULL,\n  \"kind\" text NOT NULL,\n  \"note\" text,\n  \"org_id\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"credit_grants_kind_check_0b7f914e\" CHECK (\"kind\" IN ('gift', 'topUp'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"credit_grants\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"credit_grants\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"credit_grants\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "column.public.organizations.plan",
+    "label": "Add column \"plan\" to \"organizations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "plan",
+        "table": "organizations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"plan\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "organizations",
+          "plan"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"plan\" on \"organizations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"plan\"",
+        "sql": "ALTER TABLE \"public\".\"organizations\" ADD COLUMN \"plan\" jsonb"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"plan\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "organizations",
+          "plan"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"plan\" on \"organizations\""
+        }
+      },
+      {
+        "description": "verify column \"plan\" has type \"jsonb\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "organizations",
+          "plan",
+          "jsonb"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.credit_grants.credit_grants_org_id_at_idx_ab85051d",
+    "label": "Create index \"credit_grants_org_id_at_idx_ab85051d\" on \"credit_grants\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "credit_grants_org_id_at_idx_ab85051d",
+        "table": "credit_grants"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"credit_grants_org_id_at_idx_ab85051d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"credit_grants_org_id_at_idx_ab85051d\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"credit_grants_org_id_at_idx_ab85051d\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"credit_grants_org_id_at_idx_ab85051d\"",
+        "sql": "CREATE INDEX \"credit_grants_org_id_at_idx_ab85051d\" ON \"public\".\"credit_grants\" (\"org_id\", \"at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"credit_grants_org_id_at_idx_ab85051d\" exists on \"credit_grants\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"credit_grants_org_id_at_idx_ab85051d\"",
+          "i",
+          "I",
+          "\"public\".\"credit_grants\"",
+          "btree",
+          "[\"org_id\",\"at\"]"
+        ]
+      }
+    ]
+  }
+]

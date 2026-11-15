@@ -1,0 +1,271 @@
+---
+title: API
+description: Every endpoint of the Persona REST API, the same API the app runs on.
+---
+
+The app is a client of this API. What the app does, you can do over HTTP. The persona's own tools call the same use cases, with the same limits.
+
+## Authentication
+
+Every endpoint takes one of two credentials:
+
+- **An API key.** Send `Authorization: Bearer persona_sk_...`. A key belongs to an organization and reaches everything in it. It shows once, when you make it. Persona stores only its hash.
+- **The app's session.** The app calls the API with the signed-in person's Clerk session.
+
+```bash
+curl -H "Authorization: Bearer $PERSONA_KEY" https://app.usepersona.dev/api/projects
+```
+
+Three kinds of address take no credential, because the address holds it: the vault's collect links, `/api/collect/{token}`; a published file's details, `GET /api/files/{fileId}`; and a webhook's address, `/eve/v1/webhooks/{secret}` (see [Webhooks](#webhooks)).
+
+## Requests and answers
+
+- Send a body as a JSON object. An empty body counts as `{}`.
+- A success answers `200` with JSON, or `204` with no body when there is nothing to return, as after a delete.
+- Times are ISO 8601 strings.
+- Ids are strings. Most are 24 lowercase characters.
+- Lists and creates sit under their parent, such as `/api/personas/{personaId}/skills`. One item has its own path, such as `/api/skills/{skillId}`.
+
+## Errors
+
+A failure answers with a status and `{ "error": { "code", "message" } }`. The message is plain English, written for a person.
+
+| Status | Code | When |
+| --- | --- | --- |
+| `400` | `invalid` | The body or a value is not valid. |
+| `401` | `unauthorized` | No credential, or a credential that is not valid. |
+| `404` | `not_found` | Nothing with that id, or it belongs to another organization. |
+| `409` | `conflict` | A name is taken, or the thing already exists. |
+| `500` | `server_error` | Something failed on our side. |
+
+## Projects
+
+| Method and path | Body | Answer |
+| --- | --- | --- |
+| `GET /api/projects` | | the organization's projects, oldest first |
+| `POST /api/projects` | `{ name, description?, imageUrl? }` | `{ project, persona }`: the project and its first persona |
+| `GET /api/projects/{projectId}` | | the project |
+| `PATCH /api/projects/{projectId}` | `{ name?, description?, imageUrl? }`. `null` clears the description or the picture. | the project |
+| `DELETE /api/projects/{projectId}` | | `204`. It deletes the personas, numbers, bots and links too. |
+
+`name` is 1 to 80 characters and `description` up to 500.
+
+### Pictures
+
+| Method and path | Body | Answer |
+| --- | --- | --- |
+| `POST /api/uploads` | `{ contentType }`: `image/png`, `image/jpeg`, `image/webp` or `image/gif` | `{ url, uploadUrl }` |
+
+`PUT` the picture to `uploadUrl` with the same `Content-Type`, within 10 minutes. Then send `url` as a project's or a persona's `imageUrl`.
+
+## Personas
+
+| Method and path | Body | Answer |
+| --- | --- | --- |
+| `GET /api/projects/{projectId}/personas` | | the project's personas |
+| `POST /api/projects/{projectId}/personas` | `{ name, imageUrl? }` | the persona |
+| `GET /api/personas/{personaId}` | | the persona |
+| `PATCH /api/personas/{personaId}` | `{ name?, imageUrl?, models? }`. `imageUrl: null` removes the picture, so the face is made from the name again. `models` is a list of up to five `{ model, when }`, each `when` (1 to 500 characters, required on every model) saying when to pick that model; `models: null` goes back to the default pair. | the persona |
+| `DELETE /api/personas/{personaId}` | | `204`. It also deletes its files, app accounts and secrets. |
+| `POST /api/personas/{personaId}/duplicate` | `{ name? }` | the copy |
+| `GET /api/models` | | the gateway's language models a persona can run on |
+
+`name` is 1 to 80 characters. A model is a gateway id, such as `anthropic/claude-sonnet-5.5`.
+
+## Instructions
+
+| Method and path | Body | Answer |
+| --- | --- | --- |
+| `GET /api/personas/{personaId}/instructions` | | the instructions, oldest first |
+| `POST /api/personas/{personaId}/instructions` | `{ name, content, enabled? }` | the instruction |
+| `PATCH /api/instructions/{instructionId}` | `{ name?, content?, enabled? }` | the instruction |
+| `DELETE /api/instructions/{instructionId}` | | `204` |
+
+`name` is 1 to 80 characters and unique on the persona. `content` is 1 to 50,000 characters.
+
+## Skills
+
+| Method and path | Body | Answer |
+| --- | --- | --- |
+| `GET /api/personas/{personaId}/skills` | | the skills, without their Markdown and files, each with its `origin` |
+| `POST /api/personas/{personaId}/skills` | `{ name, description, markdown, files?, enabled? }` | the skill |
+| `GET /api/skills/{skillId}` | | the whole skill |
+| `PATCH /api/skills/{skillId}` | `{ name?, description?, markdown?, files?, enabled? }` | the skill |
+| `DELETE /api/skills/{skillId}` | | `204` |
+
+`files` is a list of `{ path, contents }`. A path is relative, with no `..`, and `SKILL.md` is not one of the files. The other limits are on [Personas](/personas#skills).
+
+### skills.sh
+
+| Method and path | Body | Answer |
+| --- | --- | --- |
+| `GET /api/marketplace/skills?query={query}` | | up to 50 skills. A query under two characters gives the top of the leaderboard. |
+| `GET /api/marketplace/skills/{owner}/{repo}/{skill}` | | `{ marketplaceId, source, installs, name, description, markdown, files }` |
+| `POST /api/personas/{personaId}/skills/install` | `{ marketplaceId }` | the installed skill |
+
+## MCP servers
+
+| Method and path | Body | Answer |
+| --- | --- | --- |
+| `GET /api/personas/{personaId}/connections` | | the servers, each with `headers` as a list of names |
+| `POST /api/personas/{personaId}/connections` | `{ name, url, description?, headers?, enabled? }` | the server |
+| `PATCH /api/connections/{connectionId}` | `{ name?, url?, description?, headers?, enabled? }` | the server |
+| `DELETE /api/connections/{connectionId}` | | `204` |
+| `POST /api/connections/check` | `{ url, headers? }` or `{ connectionId, url?, headers? }` | `{ ok: true, server, tools }` or `{ ok: false, reason, message }` |
+
+`headers` is an object of header names and values. Values never come back. In a `PATCH`, a string sets a header, `null` removes it, and a header you leave out stays. A check with `connectionId` uses the saved server with `url` and `headers` merged on top in the same way, so you can check a change before you save it. `reason` is `unauthorized`, `not-mcp` or `unreachable`.
+
+## Apps
+
+| Method and path | Body | Answer |
+| --- | --- | --- |
+| `GET /api/apps` | | the catalogue: `[{ toolkit, name, description, logo, categories }]` |
+| `GET /api/personas/{personaId}/apps` | | the connected accounts: `[{ id, toolkit, name, description, logo, displayName }]`. `displayName` is the account's own name at the app, like an email, or `null` when the app gives none |
+| `POST /api/personas/{personaId}/apps` | `{ toolkit, callbackUrl? }` | `{ url }`: the sign-in page, or `null` when the app connected at once |
+| `DELETE /api/personas/{personaId}/apps/{accountId}` | | `204`: disconnects that one account |
+
+## Vault
+
+| Method and path | Body | Answer |
+| --- | --- | --- |
+| `GET /api/personas/{personaId}/credentials` | | the credentials, each with `filled`: the names of its filled fields |
+| `POST /api/personas/{personaId}/credentials` | `{ title, description?, fields }` | the credential |
+| `PATCH /api/credentials/{credentialId}` | `{ title?, description?, fields? }` | the credential. Values of removed fields are deleted. |
+| `DELETE /api/credentials/{credentialId}` | | `204` |
+| `PUT /api/credentials/{credentialId}/values` | `{ "<field>": "value" or null }` | `{ filled }` |
+| `POST /api/credentials/{credentialId}/collect-link` | | `{ token, url, expiresAt }` |
+
+`fields` is a list of 1 to 30 `{ name, secret }`, each name unique. A value is up to 4,000 characters, and no answer ever holds one.
+
+### Collect links
+
+A collect link lets a person fill a credential in without an account. It works for 24 hours, more than once.
+
+| Method and path | Body | Answer |
+| --- | --- | --- |
+| `GET /api/collect/{token}` | | `{ title, description, fields, expiresAt, persona }`. Each field has `name`, `secret` and `filled`; `persona` has `name` and `imageUrl`. |
+| `POST /api/collect/{token}` | `{ "<field>": "value" }` | `{ filled }`. An empty string keeps the stored value. |
+
+An expired link answers `400`. A token that was changed answers `404`.
+
+## Files
+
+| Method and path | Body | Answer |
+| --- | --- | --- |
+| `GET /api/personas/{personaId}/files` | | the persona's files, newest first |
+| `POST /api/personas/{personaId}/files/upload` | `{ name, contentType }` | `{ fileId, uploadUrl }` |
+| `POST /api/personas/{personaId}/files` | `{ fileId, name }` | the file |
+| `GET /api/files/{fileId}` | | `{ id, name, contentType, size, public, createdAt, url, persona }`, with a signed `url` that lasts 15 to 30 minutes and the persona's `name` and `imageUrl`. A published file answers without a credential; a private one only to its org's members. |
+| `PATCH /api/files/{fileId}` | `{ name?, public? }`. `public: true` publishes the file; `false` makes it private again. | the file |
+| `POST /api/files/{fileId}/upload` | `{ contentType }` | `{ uploadUrl }`, to replace the content |
+| `PUT /api/files/{fileId}` | | the file, after its new content is uploaded |
+| `DELETE /api/files/{fileId}` | | `204` |
+
+To upload: ask for an `uploadUrl`, `PUT` the bytes to it with the same `Content-Type` within 10 minutes, then `POST` the `fileId` to finish. Persona reads the type and the size from storage. A file is up to 2 GB.
+
+## Automations
+
+| Method and path | Body | Answer |
+| --- | --- | --- |
+| `GET /api/personas/{personaId}/automations` | | the automations, oldest first |
+| `POST /api/personas/{personaId}/automations` | `{ name, prompt, cron or at, timezone?, linkId? }` | the automation |
+| `PATCH /api/automations/{automationId}` | `{ name?, prompt?, cron?, at?, timezone?, enabled?, linkId? }` | the automation |
+| `DELETE /api/automations/{automationId}` | | `204`. Its runs stay; one running right now finishes. |
+| `GET /api/automations/{automationId}/runs?limit={limit}` | | the runs, newest first. `limit` is 1 to 100, 50 by default. |
+
+Give `cron`, `at`, or both; a `PATCH` keeps what it does not name, and `null` clears one, as long as one stays. `linkId` is the id of one of the persona's links, the chat that hears about results. `null` removes it.
+
+A run has `scheduledFor`, `status` (`running`, `completed` or `failed`), `result` (`{ summary, notify }`), `sessionId` and `endedAt`.
+
+```bash
+curl -X POST -H "Authorization: Bearer $PERSONA_KEY" -H "Content-Type: application/json" \
+  -d '{ "name": "Monday plan", "prompt": "Write a plan for the week from the calendar.", "cron": "0 9 * * 1", "timezone": "Europe/Berlin" }' \
+  https://app.usepersona.dev/api/personas/$PERSONA/automations
+```
+
+## Webhooks
+
+| Method and path | Body | Answer |
+| --- | --- | --- |
+| `GET /api/personas/{personaId}/webhooks` | | the webhooks, oldest first, each with its `url` |
+| `POST /api/personas/{personaId}/webhooks` | `{ name, prompt, linkId? }` | the webhook, with its `url` |
+| `PATCH /api/webhooks/{webhookId}` | `{ name?, prompt?, enabled?, linkId? }` | the webhook |
+| `DELETE /api/webhooks/{webhookId}` | | `204`. Its address stops working; its runs stay. |
+
+`name` is 1 to 80 characters and `prompt` 1 to 20,000. `linkId` is the id of one of the persona's links, the chat that hears about results. `null` removes it.
+
+Another app calls the webhook at its `url`, `{APP_URL}/eve/v1/webhooks/{secret}`, with no other credential:
+
+| Method and path | Body | Answer |
+| --- | --- | --- |
+| `POST /eve/v1/webhooks/{secret}` | anything, such as JSON or text | `202` with `{ ok, runId }`. A paused or deleted webhook answers `404` with `{ "error": "This webhook does not exist." }`: here `error` is a string, not the object of [Errors](#errors). |
+
+The body reaches the persona as a file. [Personas](/personas#webhooks) tells how a run goes.
+
+## Channels
+
+| Method and path | Body | Answer |
+| --- | --- | --- |
+| `GET /api/projects/{projectId}/meta-lines` | | `{ shared, lines }`: Persona's shared WhatsApp number (`{ phoneNumberId, number }`, or `null` where it is not set up) and the project's own numbers |
+| `POST /api/projects/{projectId}/meta-lines` | `{ phoneNumberId, wabaId, appId, appSecret, accessToken }` | the number. Persona tests the keys with Meta first |
+| `DELETE /api/meta-lines/{lineId}` | | `204`, with its links. The number stays in your Meta account |
+| `GET /api/projects/{projectId}/telegram-bots` | | `{ shared, bots }` |
+| `POST /api/projects/{projectId}/telegram-bots` | `{ token }` | the bot |
+| `DELETE /api/telegram-bots/{telegramBotId}` | | `204`, with its links |
+
+### Links
+
+| Method and path | Body | Answer |
+| --- | --- | --- |
+| `GET /api/personas/{personaId}/link-codes` | | the codes that still work |
+| `POST /api/personas/{personaId}/link-codes` | | `{ code, personaId, expiresAt, createdAt }` |
+| `DELETE /api/link-codes/{code}` | | `204` |
+| `GET /api/personas/{personaId}/links` | | the linked chats: `[{ id, channel, line, externalId, label, phone, lastMessageAt }]` |
+| `DELETE /api/links/{channel}/{line}/{externalId}` | | `204` |
+
+`channel` is `whatsapp_meta` (a WhatsApp number on Meta) or `telegram`. Chats from before can also be on the legacy numbers: `whatsapp` (Kapso's number) and `whatsapp_v2` (a Zernio number). `line` is the number's id (the phone number id on Meta and on Kapso, Zernio's account id) or the Telegram bot's id. `externalId` is the person's WhatsApp id on Meta and on Kapso, the conversation id on Zernio, or the Telegram chat id. `label` is the person's name on the platform when the chat linked, and `phone` is the person's phone on Meta and on Zernio (`null` elsewhere, and for a person WhatsApp knows only by a user id).
+
+## API keys
+
+| Method and path | Body | Answer |
+| --- | --- | --- |
+| `GET /api/api-keys` | | `[{ id, name, keyPrefix, userId, lastUsedAt, createdAt }]`. Never a key. |
+| `POST /api/api-keys` | `{ name }` | `{ apiKey, key }`. `key` shows only this once. |
+| `DELETE /api/api-keys/{apiKeyId}` | | `204` |
+
+## Organization
+
+| Method and path | Body | Answer |
+| --- | --- | --- |
+| `POST /api/invitations` | `{ email }` | `{ invitationId, email }`: Clerk emails the person an invite to the organization |
+| `GET /api/usage?from={from}&to={to}&unit={unit}&timeZone={timeZone}` | | `{ personas, buckets }`: the organization's usage from `from` to `to` (ISO times), counted by `hour` or `day` in `timeZone`. Each bucket has `personaId`, `projectId`, `start`, `credits`, `charges` (how many times credits were taken: model calls, pictures and videos, browser tasks and sandbox time) and `tokens`. |
+
+## Billing
+
+| Method and path | Body | Answer |
+| --- | --- | --- |
+| `GET /api/billing` | | `{ plan, credits, freeCredits, plans, topUp, autoReload }`: the plan with its price, period end and any downgrade waiting, the credits left, and the plans on offer |
+| `PATCH /api/billing` | `{ autoReload: { enabled, below, credits } }` | `{ autoReload }` |
+| `POST /api/billing/change-plan` | `{ plan }` | `{ url }`: a page to pay on, or `null` when no payment is needed. `free` cancels the paid plan. |
+| `POST /api/billing/cancel-downgrade` | | `{ plan }`: the paid plan stays |
+| `POST /api/billing/buy-credits` | `{ credits }` | `{ url }`: a page to pay on, or `null` when the saved card paid |
+| `POST /api/billing/portal-link` | | `{ url }`: the billing portal, for cards and invoices |
+
+`credits` is 50, 100, 250 or 500, and buying them needs a paid plan. `below` is 1 to 1,000: when the credits fall under it, the saved card buys `credits` more.
+
+## The agent
+
+The agent has its own HTTP API at `/eve/v1/*`, on the same origin. It takes an agent token, not an API key.
+
+| Method and path | Answer |
+| --- | --- |
+| `POST /api/personas/{personaId}/agent-token` | `{ token, expiresAt }`: a token for this persona, good for 15 minutes |
+| `POST /eve/v1/session` with `{ message }` | `{ ok, sessionId, deliveryId }`: a new chat |
+| `POST /eve/v1/session/{sessionId}` with `{ message }` | a follow-up in that chat |
+| `GET /eve/v1/session/{sessionId}/stream` | the chat's events, one JSON object per line |
+| `POST /eve/v1/session/{sessionId}/cancel` | stops the turn that is running |
+| `POST /eve/v1/session/{sessionId}/clear` | forgets the conversation so far, keeps the session |
+| `POST /eve/v1/session/{sessionId}/compact` | compacts the conversation into a summary |
+| `POST /eve/v1/session/{sessionId}/end` | ends the session |
+
+Send the token as `Authorization: Bearer <token>` on each `/eve/v1/` call. The routes are eve's: see the [eve channel docs](https://eve.dev/docs/channels/eve) for every route and event.

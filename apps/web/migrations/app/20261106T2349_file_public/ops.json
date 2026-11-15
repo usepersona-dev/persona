@@ -1,0 +1,94 @@
+[
+  {
+    "id": "column.public.files.public",
+    "label": "Add column \"public\" to \"files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "public",
+        "table": "files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"public\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "files",
+          "public"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"public\" on \"files\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"public\"",
+        "sql": "ALTER TABLE \"public\".\"files\" ADD COLUMN \"public\" bool DEFAULT false NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"public\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "files",
+          "public"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"public\" on \"files\""
+        }
+      },
+      {
+        "description": "verify column \"public\" has type \"boolean\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "files",
+          "public",
+          "boolean"
+        ]
+      },
+      {
+        "description": "verify column \"public\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "files",
+          "public",
+          "NO"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "data.public.files.public",
+    "label": "Files already shared by a link stay public",
+    "operationClass": "data",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "public",
+        "table": "files"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "mark the files a persona shared in a message as public",
+        "sql": "UPDATE \"public\".\"files\" SET \"public\" = true WHERE \"id\" IN (\n  SELECT (regexp_matches(\"text\", '/files/([A-Za-z0-9_-]{8,})', 'g'))[1] FROM \"public\".\"messages\" WHERE \"role\" = 'assistant'\n  UNION\n  SELECT (regexp_matches(\"text\", 'files\\.usepersona\\.dev/[^/\\s]+/([A-Za-z0-9_-]{8,})', 'g'))[1] FROM \"public\".\"messages\" WHERE \"role\" = 'assistant'\n)"
+      }
+    ],
+    "postcheck": []
+  }
+]

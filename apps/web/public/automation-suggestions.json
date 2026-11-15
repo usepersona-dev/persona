@@ -1,0 +1,436 @@
+[
+  {
+    "id": "morning-brief",
+    "name": "Morning brief",
+    "description": "Your day in one message: meetings, tasks and what waits for you.",
+    "cron": "0 8 * * 1-5",
+    "prompt": "Send me a short brief for today.\n1. List today's meetings with their times.\n2. List the tasks that are due today.\n3. Name anything that waits for my answer.\nKeep it under 120 words."
+  },
+  {
+    "id": "inbox-digest",
+    "name": "Inbox digest",
+    "description": "The emails that need you, two lines each.",
+    "cron": "0 9 * * 1-5",
+    "prompt": "Check my email from the last 24 hours.\n1. Pick the emails that need an answer or an action from me.\n2. For each one, write who sent it, what they want and by when, in two lines.\n3. Skip newsletters and receipts.\nIf nothing needs me, say so in one line."
+  },
+  {
+    "id": "weekly-recap",
+    "name": "Weekly recap",
+    "description": "What happened this week, and what comes next.",
+    "cron": "0 17 * * 5",
+    "prompt": "Look back at this week.\n1. Sum up what happened in our chats and what got done.\n2. List what is still open.\n3. Suggest the three most important things for next week."
+  },
+  {
+    "id": "evening-check-in",
+    "name": "Evening check-in",
+    "description": "One question about your day, and a note of the answer.",
+    "cron": "0 20 * * *",
+    "prompt": "Ask me how my day went, in one friendly question.\nWhen I answer, save the main points to my notes with today's date."
+  },
+  {
+    "id": "friendly-nudge",
+    "name": "Friendly nudge",
+    "description": "A friendly hello that asks how your plans and projects are going.",
+    "cron": "0 11 * * 3",
+    "prompt": "Send me a short, friendly check-in.\n1. Think about what you know about me: my plans, my projects and anything I said I was worried about.\n2. Pick one or two of them and ask how they are going, in a warm and casual way.\n3. If nothing stands out, ask how my week is going.\nKeep it to two or three sentences, with no lists and no pressure."
+  },
+  {
+    "id": "topic-news",
+    "name": "Topic news",
+    "description": "The top stories on a topic you choose, with links.",
+    "cron": "30 7 * * *",
+    "prompt": "Find the three most important news stories from the last day about [your topic].\nFor each one, give a one-line summary and the link.\nSkip stories you already sent me this week."
+  },
+  {
+    "id": "meeting-prep",
+    "name": "Meeting prep",
+    "description": "Who, why and what to bring, for each meeting tomorrow.",
+    "cron": "0 18 * * 1-5",
+    "prompt": "Look at my calendar for tomorrow.\nFor each meeting, write:\n1. Who is coming, and their role.\n2. Why we meet.\n3. What I should read or bring.\nKeep each meeting to four lines."
+  },
+  {
+    "id": "follow-ups",
+    "name": "Follow-up nudge",
+    "description": "The replies you promised and did not send yet.",
+    "cron": "0 16 * * 1-5",
+    "prompt": "Look through my recent chats and emails for replies I promised and did not send.\nList each one with who waits and since when.\nIf there are none, say so in one line."
+  },
+  {
+    "id": "habit",
+    "name": "Habit reminder",
+    "description": "A short daily nudge to keep a habit going.",
+    "cron": "0 19 * * *",
+    "prompt": "Remind me to [your habit] today.\nKeep it to one short, friendly line, and change the words each day."
+  },
+  {
+    "id": "price-watch",
+    "name": "Price watch",
+    "description": "Tells you when a price drops.",
+    "cron": "0 */6 * * *",
+    "prompt": "Check the price of [product and link].\nTell me only when it dropped since the last check, with the old and the new price."
+  },
+  {
+    "id": "monthly-review",
+    "name": "Monthly review",
+    "description": "Goals, wins and one thing to change.",
+    "cron": "0 10 1 * *",
+    "prompt": "Help me review last month.\n1. List the goals I set and how far I got.\n2. Name three wins.\n3. Suggest one thing to change this month.\nThen ask me one question to set this month's main goal."
+  },
+  {
+    "id": "daily-lesson",
+    "name": "Daily lesson",
+    "description": "One short lesson a day, on a subject you choose.",
+    "cron": "0 12 * * 1-5",
+    "prompt": "Teach me one short lesson about [your subject].\nKeep it under 150 words, give one example, and end with one question to test me.\nDo not repeat a lesson from the last 30 days."
+  },
+  {
+    "id": "weather",
+    "name": "Weather and plans",
+    "description": "Today's weather, and what it means for your plans.",
+    "cron": "0 7 * * *",
+    "prompt": "Check today's weather in [your city].\nTell me what to wear, and if any of today's plans should change because of it."
+  },
+  {
+    "id": "sales-pipeline-prep",
+    "name": "Daily pipeline prep",
+    "description": "Read Monday deals + Google Calendar meetings, build a prep brief, WhatsApp it to you.",
+    "cron": "0 8 * * 1-5",
+    "prompt": "Daily pipeline prep.\n1) Read monday.com boards [BOARD NAMES] for deals closing this week — pull deal name, amount, stage, and owner.\n2) Check Google Calendar for meetings today and tomorrow with those accounts or contacts.\n3) Build a prep brief: for each meeting list the deal context, key talking points, and open blockers.\n4) Send the brief via WhatsApp (my linked number). Max 1500 chars.\nRead-only on monday and Calendar unless I ask to update."
+  },
+  {
+    "id": "sales-lead-enrichment",
+    "name": "Lead enrichment pipeline",
+    "description": "Research companies via Bright Data, log enriched profiles in Monday, email a summary.",
+    "cron": "0 9 * * 1-5",
+    "prompt": "Lead enrichment pipeline.\n1) Check monday.com board [BOARD] for new leads added in the last 24h (status = \"New\" or created yesterday).\n2) For each lead, use Bright Data web research to find company size, industry, funding stage, HQ location, and recent news.\n3) Update the monday.com item with enriched data in the relevant columns.\n4) Email a summary table of enriched leads to [EMAIL] via Gmail.\nRead-only on Gmail — do not send any other emails unless I ask."
+  },
+  {
+    "id": "finance-revenue-report",
+    "name": "Weekly revenue report",
+    "description": "Pull Stripe payments + Google Sheets data, compile a report, email finance.",
+    "cron": "0 9 * * 1",
+    "prompt": "Weekly revenue report.\n1) Pull the last 7 days of Stripe charges and payments — total revenue, refunds, net, and payment count.\n2) Read the KPI tab from Google Sheets [SPREADSHEET ID] for the prior week's figures.\n3) Compute week-over-week deltas (revenue, refunds, average order value).\n4) Email a formatted summary to [FINANCE EMAIL] via Gmail with a subject line \"Revenue Report — [date range]\".\nRead-only on Stripe. Do not modify the spreadsheet unless I ask."
+  },
+  {
+    "id": "finance-invoice-followup",
+    "name": "Invoice follow-up",
+    "description": "Find unpaid Stripe invoices, draft reminder emails, log status in Monday.",
+    "cron": "0 10 * * 1-5",
+    "prompt": "Invoice follow-up.\n1) Check Stripe for invoices overdue by more than 7 days — pull invoice number, customer name, email, amount, and due date.\n2) For each overdue invoice, draft a polite reminder email via Gmail to the customer email on file.\n3) Update the corresponding monday.com item on board [BOARD] status column to \"Follow-up sent\" with today's date in notes.\nDo not send emails automatically — show me the drafts first and wait for confirmation."
+  },
+  {
+    "id": "eng-standup-digest",
+    "name": "Standup digest",
+    "description": "Summarize overnight GitHub PRs/issues + Notion roadmap updates, post to Slack.",
+    "cron": "0 9 * * 1-5",
+    "prompt": "Engineering standup digest.\n1) Fetch GitHub PRs merged and issues opened/closed in the last 24h for repos [REPO NAMES].\n2) Cross-reference with Notion roadmap database [DB NAME] for any status changes or new entries.\n3) Post a formatted standup summary to Slack channel [#CHANNEL] — sections: merged PRs, new issues, roadmap updates.\nRead-only on all tools — do not merge PRs, close issues, or edit Notion pages."
+  },
+  {
+    "id": "eng-bug-triage",
+    "name": "Bug triage",
+    "description": "Pull GitHub issues + Sentry errors, build a triage list in Notion, WhatsApp an alert.",
+    "cron": "0 8 * * 1-5",
+    "prompt": "Bug triage.\n1) Fetch new Sentry errors from the last 24h — unresolved issues with more than 5 events. Pull title, count, first/last seen.\n2) Match against open GitHub issues by title or error message to avoid duplicates.\n3) Create a triage page in Notion database [DB NAME] with columns: severity, event count, linked GitHub issue, and status.\n4) Send a WhatsApp alert with the top 5 critical items (title, count, severity). Max 1200 chars.\nDo not close or resolve any issues unless I ask."
+  },
+  {
+    "id": "marketing-content-scheduler",
+    "name": "Content scheduler",
+    "description": "Read Notion content calendar, schedule social posts via Postiz, log in Sheets.",
+    "cron": "0 8 * * 1-5",
+    "prompt": "Content scheduler.\n1) Read the Notion content calendar database [DB NAME] for items with today's date in the publish column.\n2) For each item, create or schedule a post in Postiz using the copy, media URLs, and target channels from Notion.\n3) Log the post URL and scheduling status in Google Sheets [SPREADSHEET ID] tab [TAB].\nDo not publish immediately — schedule each post for the time specified in the Notion entry."
+  },
+  {
+    "id": "marketing-competitor-watch",
+    "name": "Competitor watch",
+    "description": "Research via Bright Data + Reddit sentiment, compile a Google Drive doc, email digest.",
+    "cron": "0 9 * * 1",
+    "prompt": "Weekly competitor watch.\n1) Use Bright Data web research to find news, product launches, and updates from the last 7 days for competitors [COMPETITOR NAMES].\n2) Check Reddit subreddits [SUBREDDIT NAMES] for sentiment and mentions of those competitors.\n3) Compile findings into a Google Drive doc titled \"Competitor Watch — [date]\" with sections per competitor.\n4) Email a summary digest to [MARKETING EMAIL] via Gmail with top 5 takeaways and links.\nRead-only on Reddit — do not post or comment."
+  },
+  {
+    "id": "cs-account-health",
+    "name": "Account health check",
+    "description": "Flag PostHog usage anomalies + open Monday tickets, Slack the CSM.",
+    "cron": "0 9 * * 1-5",
+    "prompt": "Account health check.\n1) Query PostHog for accounts with a >20% drop in key usage events over the last 7 days compared to the prior 7 days.\n2) Cross-reference with open support tickets on monday.com board [BOARD] to see if those accounts have active issues.\n3) Build an account health brief: account name, usage delta, open ticket count, risk level (high/medium/low).\n4) Post the brief to Slack channel [#CS-ALERTS].\nRead-only on all tools — do not modify tickets or PostHog settings."
+  },
+  {
+    "id": "cs-renewal-reminders",
+    "name": "Renewal reminders",
+    "description": "Match Stripe renewals to Google Calendar, schedule check-ins, WhatsApp a reminder.",
+    "cron": "0 9 * * 1",
+    "prompt": "Weekly renewal reminders.\n1) Check Stripe for subscriptions renewing in the next 14 days — pull customer name, plan, amount, and renewal date.\n2) For each renewal, check Google Calendar for an existing check-in meeting with that customer.\n3) If no meeting exists, suggest creating a 30-min check-in (do not create unless I confirm).\n4) Send a WhatsApp summary of upcoming renewals: customer, amount, renewal date, and whether a check-in is booked.\nRead-only on Stripe. Do not create calendar events unless I ask."
+  },
+  {
+    "id": "hr-onboarding-prep",
+    "name": "Onboarding prep",
+    "description": "New-hire row in Sheets, create Notion checklist, schedule Calendar intros, send welcome email.",
+    "cron": "0 9 * * 1-5",
+    "prompt": "Onboarding prep.\n1) Check Google Sheets [SPREADSHEET ID] tab [NEW HIRES TAB] for rows added in the last 24h with a start date this week.\n2) For each new hire, create an onboarding checklist page in Notion database [DB NAME] from the standard template.\n3) Schedule 30-min intro meetings in Google Calendar with their manager and onboarding buddy (from the Sheets row).\n4) Send a welcome email via Gmail with first-day instructions, office details, and links to key docs.\nDo not send emails or create events without showing me a preview and getting confirmation first."
+  },
+  {
+    "id": "hr-team-pulse",
+    "name": "Team pulse",
+    "description": "Summarize Notion survey results, post to Slack, log the score in Monday.",
+    "cron": "0 10 * * 5",
+    "prompt": "Weekly team pulse.\n1) Read the latest entries in Notion survey database [DB NAME] from the last 7 days.\n2) Compute the average satisfaction score and identify the top 3 themes from open-text responses.\n3) Post a formatted summary to Slack channel [#PEOPLE-OPS] — score, trend vs last week, and key themes.\n4) Update monday.com board [BOARD] with this week's score and trend direction.\nRead-only on Notion — do not modify survey entries."
+  },
+  {
+    "id": "sales-meeting-recap",
+    "name": "Meeting recap to CRM",
+    "description": "After each sales meeting, summarize Calendar notes and update the Monday deal board.",
+    "cron": "0 18 * * 1-5",
+    "prompt": "Meeting recap to CRM.\n1) Read today's completed Google Calendar events tagged [SALES] — pull title, attendees, and notes.\n2) For each meeting, find the matching deal on monday.com board [BOARD] by attendee name or deal name.\n3) Add a summary of the meeting to the deal's update/notes column with date and key takeaways.\nRead-only on Calendar. Only update notes on Monday — do not change deal stage."
+  },
+  {
+    "id": "sales-deal-alert",
+    "name": "Stalled deal alert",
+    "description": "Find Monday deals stuck in the same stage for 7+ days and Slack a nudge.",
+    "cron": "0 9 * * 1-5",
+    "prompt": "Stalled deal alert.\n1) Read monday.com board [BOARD] for deals that have not changed stage in the last 7 days.\n2) For each stalled deal, include deal name, owner, current stage, days stuck, and deal value.\n3) Post a summary to Slack channel [#SALES-ALERTS].\nRead-only on Monday."
+  },
+  {
+    "id": "sales-email-followup",
+    "name": "Follow-up email drafter",
+    "description": "Check Monday for leads without a recent touch, draft a follow-up email.",
+    "cron": "0 9 * * 1-5",
+    "prompt": "Follow-up email drafter.\n1) Read monday.com board [BOARD] for leads with no update in the last 5 business days.\n2) For each lead, draft a brief follow-up email using the lead's name, company, and last interaction.\n3) Save each draft in Gmail — do NOT send automatically. Show me the drafts for review."
+  },
+  {
+    "id": "sales-prospect-research",
+    "name": "Prospect research brief",
+    "description": "Research new Monday leads via Bright Data and attach a company brief.",
+    "cron": "0 8 * * 1-5",
+    "prompt": "Prospect research brief.\n1) Check monday.com board [BOARD] for leads added in the last 24h.\n2) For each new lead, use Bright Data to research the company — size, industry, funding, and key products.\n3) Update the Monday item with the research summary in the notes column."
+  },
+  {
+    "id": "sales-calendar-slack",
+    "name": "Today's sales calls summary",
+    "description": "Pull today's Calendar meetings and post a morning Slack briefing.",
+    "cron": "0 8 * * 1-5",
+    "prompt": "Today's sales calls summary.\n1) Read Google Calendar for today's events tagged [SALES] or with external attendees.\n2) For each meeting, list time, attendee names, company, and any meeting notes or agenda.\n3) Post a formatted list to Slack channel [#SALES].\nRead-only on Calendar."
+  },
+  {
+    "id": "finance-expense-tracker",
+    "name": "Expense tracker",
+    "description": "Pull Stripe charges and log them in Google Sheets for weekly review.",
+    "cron": "0 9 * * 1",
+    "prompt": "Weekly expense tracker.\n1) Pull all Stripe charges from the last 7 days — amount, description, date, and status.\n2) Append each charge as a new row in Google Sheets [SPREADSHEET ID] tab [EXPENSES].\n3) Add a total row at the bottom.\nRead-only on Stripe."
+  },
+  {
+    "id": "finance-revenue-slack",
+    "name": "Daily revenue Slack post",
+    "description": "Summarize yesterday's Stripe revenue and post to a Slack channel.",
+    "cron": "0 9 * * 1-5",
+    "prompt": "Daily revenue update.\n1) Pull Stripe charges from yesterday — total revenue, refunds, net, and count.\n2) Post a formatted summary to Slack channel [#FINANCE].\nRead-only on Stripe."
+  },
+  {
+    "id": "finance-subscription-monitor",
+    "name": "Subscription churn monitor",
+    "description": "Detect Stripe cancellations and log them in Monday for follow-up.",
+    "cron": "0 9 * * 1-5",
+    "prompt": "Subscription churn monitor.\n1) Check Stripe for subscriptions cancelled in the last 24h — customer name, plan, MRR lost, and cancellation reason if available.\n2) Create or update items on monday.com board [BOARD] with each churned customer's details.\nRead-only on Stripe."
+  },
+  {
+    "id": "finance-invoice-sheets",
+    "name": "Invoice log",
+    "description": "Export new Stripe invoices to Google Sheets daily.",
+    "cron": "0 7 * * 1-5",
+    "prompt": "Daily invoice log.\n1) Pull all new Stripe invoices from the last 24h — invoice number, customer, amount, status, and due date.\n2) Append each invoice as a new row in Google Sheets [SPREADSHEET ID] tab [INVOICES].\nRead-only on Stripe."
+  },
+  {
+    "id": "eng-pr-review-reminder",
+    "name": "PR review reminder",
+    "description": "Find stale GitHub PRs awaiting review and ping the team on Slack.",
+    "cron": "0 10 * * 1-5",
+    "prompt": "PR review reminder.\n1) Fetch open GitHub PRs in repos [REPO NAMES] that have been awaiting review for more than 24h.\n2) For each PR, list title, author, reviewers, and hours waiting.\n3) Post to Slack channel [#ENGINEERING] tagging the assigned reviewers.\nRead-only on GitHub."
+  },
+  {
+    "id": "eng-release-notes",
+    "name": "Release notes drafter",
+    "description": "Collect merged GitHub PRs since last tag and draft release notes in Notion.",
+    "cron": "0 9 * * 5",
+    "prompt": "Weekly release notes.\n1) Fetch all GitHub PRs merged since the last release tag in repos [REPO NAMES].\n2) Group by category (feature, fix, chore) based on PR labels or title prefix.\n3) Create a new page in Notion database [DB NAME] titled \"Release Notes — [date]\" with grouped summaries.\nRead-only on GitHub."
+  },
+  {
+    "id": "eng-sentry-slack",
+    "name": "Sentry error digest",
+    "description": "Summarize new Sentry errors and post a daily digest to Slack.",
+    "cron": "0 9 * * 1-5",
+    "prompt": "Sentry error digest.\n1) Fetch unresolved Sentry errors from the last 24h with more than 3 events.\n2) For each, list title, event count, first/last seen, and affected users.\n3) Post a formatted digest to Slack channel [#ENGINEERING-ALERTS].\nRead-only on Sentry."
+  },
+  {
+    "id": "eng-issue-tracker",
+    "name": "GitHub issues to Monday",
+    "description": "Sync new GitHub issues to a Monday board for project tracking.",
+    "cron": "0 9 * * 1-5",
+    "prompt": "Sync GitHub issues to Monday.\n1) Fetch new GitHub issues created in the last 24h for repos [REPO NAMES].\n2) For each issue, create an item on monday.com board [BOARD] with title, labels, assignee, and link.\n3) Skip issues that already have a matching Monday item.\nRead-only on GitHub."
+  },
+  {
+    "id": "eng-deploy-log",
+    "name": "Deploy log to Sheets",
+    "description": "Track GitHub releases in a Google Sheets deploy log.",
+    "cron": "0 10 * * 1-5",
+    "prompt": "Deploy log.\n1) Fetch new GitHub releases and tags created in the last 24h for repos [REPO NAMES].\n2) Append each to Google Sheets [SPREADSHEET ID] tab [DEPLOYS] — date, tag, author, and commit count.\nRead-only on GitHub."
+  },
+  {
+    "id": "marketing-social-report",
+    "name": "Social media weekly report",
+    "description": "Pull Postiz analytics and compile a Google Sheets performance report.",
+    "cron": "0 9 * * 1",
+    "prompt": "Weekly social media report.\n1) Pull Postiz analytics for all posts published in the last 7 days — impressions, clicks, engagement, and reach per post.\n2) Append a summary row per post in Google Sheets [SPREADSHEET ID] tab [SOCIAL].\n3) Add a weekly totals row at the bottom."
+  },
+  {
+    "id": "marketing-blog-idea-research",
+    "name": "Blog idea researcher",
+    "description": "Research trending topics via Bright Data and log ideas in Notion.",
+    "cron": "0 9 * * 1",
+    "prompt": "Weekly blog idea research.\n1) Use Bright Data to research trending topics in [INDUSTRY/NICHE] from the last 7 days.\n2) For each topic, note the trend source, estimated search interest, and a 1-line content angle.\n3) Create entries in Notion database [DB NAME] with title, angle, source, and status \"Idea\"."
+  },
+  {
+    "id": "marketing-newsletter-prep",
+    "name": "Newsletter prep",
+    "description": "Gather Notion blog posts published this week and draft a newsletter email.",
+    "cron": "0 10 * * 5",
+    "prompt": "Weekly newsletter prep.\n1) Read Notion database [DB NAME] for blog posts with status \"Published\" and a publish date this week.\n2) Draft a newsletter email via Gmail with a brief summary and link for each post.\n3) Save as draft — do NOT send. I will review and send manually."
+  },
+  {
+    "id": "marketing-reddit-monitor",
+    "name": "Reddit mention monitor",
+    "description": "Track brand mentions on Reddit and post a Slack summary.",
+    "cron": "0 9 * * 1-5",
+    "prompt": "Reddit mention monitor.\n1) Search Reddit subreddits [SUBREDDIT NAMES] for mentions of [BRAND/PRODUCT NAME] in the last 24h.\n2) For each mention, note the subreddit, post title, sentiment (positive/negative/neutral), and link.\n3) Post a formatted summary to Slack channel [#MARKETING].\nRead-only on Reddit."
+  },
+  {
+    "id": "marketing-campaign-tracker",
+    "name": "Campaign performance tracker",
+    "description": "Log Postiz post performance to a Monday board for campaign tracking.",
+    "cron": "0 9 * * 1-5",
+    "prompt": "Campaign performance tracker.\n1) Pull Postiz analytics for posts published yesterday — impressions, engagement, and clicks.\n2) Update the matching campaign items on monday.com board [BOARD] with performance data."
+  },
+  {
+    "id": "cs-ticket-digest",
+    "name": "Support ticket digest",
+    "description": "Summarize new Monday support tickets and post a Slack morning brief.",
+    "cron": "0 8 * * 1-5",
+    "prompt": "Support ticket digest.\n1) Read monday.com board [BOARD] for tickets created or updated in the last 24h.\n2) Group by priority (critical, high, medium, low) and count.\n3) Post a summary to Slack channel [#SUPPORT] with top 5 critical/high tickets listed.\nRead-only on Monday."
+  },
+  {
+    "id": "cs-nps-tracker",
+    "name": "NPS score tracker",
+    "description": "Pull NPS responses from Google Sheets and log trends in Monday.",
+    "cron": "0 9 * * 1",
+    "prompt": "Weekly NPS tracker.\n1) Read Google Sheets [SPREADSHEET ID] tab [NPS] for responses from the last 7 days.\n2) Calculate average NPS, promoter/detractor counts, and trend vs. prior week.\n3) Update monday.com board [BOARD] with the weekly score and trend."
+  },
+  {
+    "id": "cs-usage-report-email",
+    "name": "Customer usage report",
+    "description": "Pull PostHog usage data and email a weekly report to the CS team.",
+    "cron": "0 9 * * 1",
+    "prompt": "Weekly customer usage report.\n1) Query PostHog for top 20 accounts by event volume in the last 7 days — include key events, sessions, and trend.\n2) Flag accounts with >20% drop or >50% spike vs. prior week.\n3) Email a formatted report to [CS EMAIL] via Gmail.\nRead-only on PostHog."
+  },
+  {
+    "id": "cs-churn-risk-slack",
+    "name": "Churn risk alert",
+    "description": "Detect PostHog usage drops and alert the CS team on Slack.",
+    "cron": "0 9 * * 1-5",
+    "prompt": "Churn risk alert.\n1) Query PostHog for accounts with a >30% usage drop in key events over the last 7 days.\n2) For each, list account name, usage delta, last active date, and risk level.\n3) Post an alert to Slack channel [#CS-ALERTS].\nRead-only on PostHog."
+  },
+  {
+    "id": "cs-feedback-notion",
+    "name": "Feedback collector",
+    "description": "Gather customer feedback from Gmail and organize it in Notion.",
+    "cron": "0 10 * * 1-5",
+    "prompt": "Feedback collector.\n1) Search Gmail for emails with subject containing \"feedback\" or label [FEEDBACK] from the last 24h.\n2) Extract customer name, email, and key feedback points from each message.\n3) Create an entry in Notion database [DB NAME] with customer, date, feedback summary, and sentiment.\nRead-only on Gmail."
+  },
+  {
+    "id": "hr-pto-calendar",
+    "name": "PTO calendar sync",
+    "description": "Sync Google Sheets PTO requests to Google Calendar.",
+    "cron": "0 8 * * 1-5",
+    "prompt": "PTO calendar sync.\n1) Read Google Sheets [SPREADSHEET ID] tab [PTO] for approved PTO requests starting in the next 7 days.\n2) For each, check if a corresponding all-day event exists in Google Calendar [CALENDAR NAME].\n3) If missing, suggest creating the event (do NOT create without my confirmation)."
+  },
+  {
+    "id": "hr-anniversary-reminder",
+    "name": "Work anniversary reminder",
+    "description": "Check Google Sheets for upcoming anniversaries and Slack the team.",
+    "cron": "0 9 * * 1",
+    "prompt": "Work anniversary reminder.\n1) Read Google Sheets [SPREADSHEET ID] tab [TEAM] for employees with a work anniversary this week.\n2) For each, note the name, role, and years.\n3) Post a celebration message to Slack channel [#GENERAL]."
+  },
+  {
+    "id": "hr-interview-prep",
+    "name": "Interview prep brief",
+    "description": "Pull today's interview Calendar events and research candidates via Bright Data.",
+    "cron": "0 7 * * 1-5",
+    "prompt": "Interview prep brief.\n1) Read Google Calendar for today's events tagged [INTERVIEW] or containing \"interview\" in the title.\n2) For each candidate, use Bright Data to research their LinkedIn profile, current company, and recent activity.\n3) Send a brief via WhatsApp with candidate name, role, key highlights, and talking points. Max 1200 chars per candidate."
+  },
+  {
+    "id": "hr-headcount-tracker",
+    "name": "Headcount tracker",
+    "description": "Track Monday hiring pipeline status and update a Google Sheets headcount report.",
+    "cron": "0 9 * * 1",
+    "prompt": "Weekly headcount tracker.\n1) Read monday.com board [BOARD] for all open positions — role, department, stage, and days open.\n2) Update Google Sheets [SPREADSHEET ID] tab [HEADCOUNT] with current counts per department and pipeline stage.\n3) Add a weekly snapshot row with date, total open roles, and offers extended.\nRead-only on Monday."
+  },
+  {
+    "id": "hr-meeting-notes-notion",
+    "name": "1:1 meeting notes to Notion",
+    "description": "After manager 1:1s, summarize Calendar notes and log in Notion.",
+    "cron": "0 18 * * 1-5",
+    "prompt": "1:1 meeting notes to Notion.\n1) Read today's completed Google Calendar events containing \"1:1\" or \"one-on-one\" in the title.\n2) For each, extract attendees, notes, and action items.\n3) Create a page in Notion database [DB NAME] with date, participants, summary, and action items.\nRead-only on Calendar."
+  },
+  {
+    "id": "ops-incident-log",
+    "name": "Incident log",
+    "description": "Log Sentry incidents into a Google Sheets incident tracker.",
+    "cron": "0 9 * * 1-5",
+    "prompt": "Incident log.\n1) Fetch new Sentry issues from the last 24h with severity \"error\" or \"fatal\" and >10 events.\n2) Append each to Google Sheets [SPREADSHEET ID] tab [INCIDENTS] — date, title, severity, event count, and status.\nRead-only on Sentry."
+  },
+  {
+    "id": "ops-vendor-renewal",
+    "name": "Vendor renewal tracker",
+    "description": "Check Google Sheets for vendor contracts expiring soon and email a reminder.",
+    "cron": "0 9 * * 1",
+    "prompt": "Weekly vendor renewal check.\n1) Read Google Sheets [SPREADSHEET ID] tab [VENDORS] for contracts expiring in the next 30 days.\n2) For each, note vendor name, contract value, expiration date, and renewal owner.\n3) Email a reminder to [OPS EMAIL] via Gmail with the list.\nRead-only on Sheets."
+  },
+  {
+    "id": "ops-monday-notion-sync",
+    "name": "Project status sync",
+    "description": "Sync Monday project status updates to a Notion dashboard.",
+    "cron": "0 17 * * 1-5",
+    "prompt": "Project status sync.\n1) Read monday.com board [BOARD] for items updated today — pull project name, status, owner, and last update.\n2) Update or create matching entries in Notion database [DB NAME] with the latest status.\nRead-only on Monday."
+  },
+  {
+    "id": "commerce-fulfillment-slack",
+    "name": "Fulfillment ops alert",
+    "description": "Scan Shopify for aging unfulfilled orders and post a ship queue to Slack.",
+    "cron": "0 8 * * 1-5",
+    "prompt": "Shopify fulfillment ops alert.\n1) List unfulfilled orders older than [SLA HOURS] hours (max 25) — order #, customer, total, line items, age.\n2) Post a prioritized ship queue to Slack [#CHANNEL] with urgent orders first and fraud-risk flags.\nRead-only on Shopify — do not create fulfillments unless I asked."
+  },
+  {
+    "id": "commerce-abandoned-cart-recovery",
+    "name": "Abandoned cart recovery",
+    "description": "Find high-value abandoned Shopify checkouts and draft Gmail recovery emails.",
+    "cron": "0 10 * * 1-5",
+    "prompt": "Abandoned cart recovery pipeline.\n1) Pull Shopify abandoned checkouts from the last 24h with cart value > $[AMOUNT].\n2) For each with an email, draft a short recovery email in Gmail — personalized hook, cart summary, and one clear CTA.\nDo not send emails — save as drafts and list draft links here for my review."
+  },
+  {
+    "id": "commerce-inventory-reorder-sheet",
+    "name": "Inventory reorder sheet",
+    "description": "Log low-stock Shopify SKUs to Google Sheets with suggested reorder qty.",
+    "cron": "0 9 * * 1-5",
+    "prompt": "Inventory reorder sheet.\n1) Check Shopify inventory for variants below [THRESHOLD] units at location [LOCATION].\n2) Append rows to Google Sheets [SPREADSHEET ID] tab [REORDER] — date, SKU, product, variant, qty on hand, suggested reorder.\nRead-only on Shopify unless I asked to adjust stock."
+  },
+  {
+    "id": "commerce-weekly-pnl-email",
+    "name": "Weekly store P&L email",
+    "description": "Compile Shopify revenue, refunds, and top SKUs into a Gmail finance digest.",
+    "cron": "0 9 * * 1",
+    "prompt": "Weekly Shopify P&L email.\n1) Pull last 7 days of Shopify orders — gross sales, refunds, net revenue, order count, AOV, top 5 products.\n2) Compare vs prior 7 days with % change on each metric.\n3) Email summary to [FINANCE EMAIL] via Gmail with subject \"Store P&L — [date range]\".\nRead-only on Shopify."
+  },
+  {
+    "id": "commerce-launch-pipeline",
+    "name": "Product launch pipeline",
+    "description": "Turn Notion launch briefs into Shopify draft products and queue social posts.",
+    "cron": "0 9 * * 2",
+    "prompt": "Product launch pipeline.\n1) Read Notion database [LAUNCH CALENDAR] for items with launch date in the next 7 days and status \"Ready to build\".\n2) Create Shopify draft products from each brief — title, description, variants, tags, and collection [NAME].\n3) Schedule announcement posts in Postiz using copy and image URLs from Notion for the launch date.\nDo not publish Shopify products or Postiz posts until I confirm in this chat."
+  }
+]

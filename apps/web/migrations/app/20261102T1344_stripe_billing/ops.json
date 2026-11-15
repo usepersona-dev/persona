@@ -1,0 +1,222 @@
+[
+  {
+    "id": "dropTable.credit_grants",
+    "label": "Drop table \"credit_grants\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "credit_grants"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"credit_grants\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"credit_grants\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"credit_grants\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"credit_grants\"",
+        "sql": "DROP TABLE \"public\".\"credit_grants\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"credit_grants\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"credit_grants\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"credit_grants\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropTable.usage_periods",
+    "label": "Drop table \"usage_periods\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "usage_periods"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"usage_periods\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"usage_periods\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"usage_periods\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"usage_periods\"",
+        "sql": "DROP TABLE \"public\".\"usage_periods\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"usage_periods\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"usage_periods\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"usage_periods\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "column.public.organizations.stripe_customer_id",
+    "label": "Add column \"stripe_customer_id\" to \"organizations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "stripe_customer_id",
+        "table": "organizations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"stripe_customer_id\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "organizations",
+          "stripe_customer_id"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"stripe_customer_id\" on \"organizations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"stripe_customer_id\"",
+        "sql": "ALTER TABLE \"public\".\"organizations\" ADD COLUMN \"stripe_customer_id\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"stripe_customer_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "organizations",
+          "stripe_customer_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"stripe_customer_id\" on \"organizations\""
+        }
+      },
+      {
+        "description": "verify column \"stripe_customer_id\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "organizations",
+          "stripe_customer_id",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.organizations.organizations_stripe_customer_id_key",
+    "label": "Add unique constraint on \"organizations\" (stripe_customer_id)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "organizations_stripe_customer_id_key",
+        "table": "organizations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"organizations_stripe_customer_id_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "organizations_stripe_customer_id_key",
+          "public",
+          "\"public\".\"organizations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"organizations_stripe_customer_id_key\" on \"organizations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"organizations_stripe_customer_id_key\"",
+        "sql": "ALTER TABLE \"public\".\"organizations\" ADD CONSTRAINT \"organizations_stripe_customer_id_key\" UNIQUE (\"stripe_customer_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"organizations_stripe_customer_id_key\" exists on (stripe_customer_id)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "organizations_stripe_customer_id_key",
+          "public",
+          "\"public\".\"organizations\"",
+          "u",
+          "[\"stripe_customer_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "data.public.usage.credits",
+    "label": "Count usage in credits of $0.20",
+    "operationClass": "data",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "credits",
+        "table": "usage"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "count usage in credits of $0.20, keeping its market cost in its tokens",
+        "sql": "UPDATE \"public\".\"usage\" SET \"tokens\" = CASE WHEN \"tokens\" IS NULL THEN NULL ELSE \"tokens\" || jsonb_build_object('marketCost', \"credits\"::text) END, \"credits\" = \"credits\" / 0.2"
+      }
+    ],
+    "postcheck": []
+  }
+]

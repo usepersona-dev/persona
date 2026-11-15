@@ -1,0 +1,4357 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.api_keys",
+    "label": "Create table \"api_keys\"",
+    "summary": "Creates table \"api_keys\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "api_keys"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"api_keys\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"api_keys\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"api_keys\"",
+        "sql": "CREATE TABLE \"public\".\"api_keys\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"key_hash\" text NOT NULL,\n  \"key_prefix\" text NOT NULL,\n  \"last_used_at\" timestamptz,\n  \"name\" text NOT NULL,\n  \"org_id\" text NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  \"user_id\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"api_keys\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"api_keys\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.browsers",
+    "label": "Create table \"browsers\"",
+    "summary": "Creates table \"browsers\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "browsers"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"browsers\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"browsers\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"browsers\"",
+        "sql": "CREATE TABLE \"public\".\"browsers\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"persona_id\" text NOT NULL,\n  \"task\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"browsers\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"browsers\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.collect_links",
+    "label": "Create table \"collect_links\"",
+    "summary": "Creates table \"collect_links\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "collect_links"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"collect_links\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"collect_links\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"collect_links\"",
+        "sql": "CREATE TABLE \"public\".\"collect_links\" (\n  \"code\" text NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"credential_id\" text NOT NULL,\n  \"expires_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"code\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"collect_links\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"collect_links\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.connections",
+    "label": "Create table \"connections\"",
+    "summary": "Creates table \"connections\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "connections"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"connections\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"connections\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"connections\"",
+        "sql": "CREATE TABLE \"public\".\"connections\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"description\" text NOT NULL,\n  \"enabled\" bool DEFAULT true NOT NULL,\n  \"id\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"persona_id\" text NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  \"url\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"connections\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"connections\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.credentials",
+    "label": "Create table \"credentials\"",
+    "summary": "Creates table \"credentials\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "credentials"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"credentials\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"credentials\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"credentials\"",
+        "sql": "CREATE TABLE \"public\".\"credentials\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"description\" text NOT NULL,\n  \"fields\" jsonb NOT NULL,\n  \"id\" text NOT NULL,\n  \"persona_id\" text NOT NULL,\n  \"title\" text NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"credentials\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"credentials\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.files",
+    "label": "Create table \"files\"",
+    "summary": "Creates table \"files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"files\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"files\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"files\"",
+        "sql": "CREATE TABLE \"public\".\"files\" (\n  \"content_type\" text NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"persona_id\" text NOT NULL,\n  \"session_id\" text,\n  \"size\" int4 NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"files\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"files\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.instructions",
+    "label": "Create table \"instructions\"",
+    "summary": "Creates table \"instructions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "instructions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"instructions\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructions\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"instructions\"",
+        "sql": "CREATE TABLE \"public\".\"instructions\" (\n  \"content\" text NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"enabled\" bool DEFAULT true NOT NULL,\n  \"id\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"persona_id\" text NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"instructions\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructions\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.link_codes",
+    "label": "Create table \"link_codes\"",
+    "summary": "Creates table \"link_codes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "link_codes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"link_codes\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"link_codes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"link_codes\"",
+        "sql": "CREATE TABLE \"public\".\"link_codes\" (\n  \"code\" text NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"expires_at\" timestamptz NOT NULL,\n  \"persona_id\" text NOT NULL,\n  PRIMARY KEY (\"code\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"link_codes\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"link_codes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.links",
+    "label": "Create table \"links\"",
+    "summary": "Creates table \"links\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "links"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"links\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"links\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"links\"",
+        "sql": "CREATE TABLE \"public\".\"links\" (\n  \"channel\" text NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"external_id\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"label\" text,\n  \"last_message_at\" timestamptz,\n  \"line\" text NOT NULL,\n  \"persona_id\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"links_channel_check_d774a31d\" CHECK (\"channel\" IN ('whatsapp', 'telegram'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"links\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"links\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.notes",
+    "label": "Create table \"notes\"",
+    "summary": "Creates table \"notes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "notes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"notes\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"notes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"notes\"",
+        "sql": "CREATE TABLE \"public\".\"notes\" (\n  \"content\" text NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"persona_id\" text NOT NULL,\n  \"title\" text NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"notes\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"notes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.organizations",
+    "label": "Create table \"organizations\"",
+    "summary": "Creates table \"organizations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "organizations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"organizations\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"organizations\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"organizations\"",
+        "sql": "CREATE TABLE \"public\".\"organizations\" (\n  \"clerk_created_at\" timestamptz,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"image_url\" text,\n  \"invitations\" jsonb NOT NULL,\n  \"members\" jsonb NOT NULL,\n  \"members_count\" int4 DEFAULT 0 NOT NULL,\n  \"name\" text NOT NULL,\n  \"org_id\" text NOT NULL,\n  \"slug\" text,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"organizations\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"organizations\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.personas",
+    "label": "Create table \"personas\"",
+    "summary": "Creates table \"personas\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "personas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"personas\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"personas\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"personas\"",
+        "sql": "CREATE TABLE \"public\".\"personas\" (\n  \"composio_session_id\" text,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"image_url\" text,\n  \"model\" text,\n  \"name\" text NOT NULL,\n  \"org_id\" text NOT NULL,\n  \"parent_id\" text,\n  \"project_id\" text NOT NULL,\n  \"snapshot_id\" text,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"personas\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"personas\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.projects",
+    "label": "Create table \"projects\"",
+    "summary": "Creates table \"projects\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "projects"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"projects\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"projects\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"projects\"",
+        "sql": "CREATE TABLE \"public\".\"projects\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"description\" text,\n  \"id\" text NOT NULL,\n  \"image_url\" text,\n  \"name\" text NOT NULL,\n  \"org_id\" text NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  \"user_id\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"projects\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"projects\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.report_requests",
+    "label": "Create table \"report_requests\"",
+    "summary": "Creates table \"report_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "report_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"report_requests\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"report_requests\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"report_requests\"",
+        "sql": "CREATE TABLE \"public\".\"report_requests\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"link_id\" text NOT NULL,\n  \"message\" text NOT NULL,\n  \"persona_id\" text NOT NULL,\n  \"sent_at\" timestamptz,\n  \"source\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"report_requests\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"report_requests\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.schedule_runs",
+    "label": "Create table \"schedule_runs\"",
+    "summary": "Creates table \"schedule_runs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "schedule_runs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"schedule_runs\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"schedule_runs\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"schedule_runs\"",
+        "sql": "CREATE TABLE \"public\".\"schedule_runs\" (\n  \"claimed_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"ended_at\" timestamptz,\n  \"id\" text NOT NULL,\n  \"result\" jsonb,\n  \"schedule_id\" text NOT NULL,\n  \"scheduled_for\" timestamptz NOT NULL,\n  \"session_id\" text,\n  \"status\" text DEFAULT 'running' NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"schedule_runs_status_check_77fab0ab\" CHECK (\"status\" IN ('running', 'completed', 'failed'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"schedule_runs\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"schedule_runs\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.schedules",
+    "label": "Create table \"schedules\"",
+    "summary": "Creates table \"schedules\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "schedules"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"schedules\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"schedules\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"schedules\"",
+        "sql": "CREATE TABLE \"public\".\"schedules\" (\n  \"at\" timestamptz,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"cron\" text,\n  \"enabled\" bool DEFAULT true NOT NULL,\n  \"id\" text NOT NULL,\n  \"link_id\" text,\n  \"name\" text NOT NULL,\n  \"next_run_at\" timestamptz,\n  \"persona_id\" text NOT NULL,\n  \"prompt\" text NOT NULL,\n  \"timezone\" text DEFAULT 'UTC' NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"schedules\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"schedules\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.secrets",
+    "label": "Create table \"secrets\"",
+    "summary": "Creates table \"secrets\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "secrets"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"secrets\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"secrets\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"secrets\"",
+        "sql": "CREATE TABLE \"public\".\"secrets\" (\n  \"owner_id\" text NOT NULL,\n  \"values\" jsonb NOT NULL,\n  PRIMARY KEY (\"owner_id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"secrets\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"secrets\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.sessions",
+    "label": "Create table \"sessions\"",
+    "summary": "Creates table \"sessions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "sessions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"sessions\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"sessions\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"sessions\"",
+        "sql": "CREATE TABLE \"public\".\"sessions\" (\n  \"channel\" text NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"persona_id\" text NOT NULL,\n  \"title\" text DEFAULT '' NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"sessions\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"sessions\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.skills",
+    "label": "Create table \"skills\"",
+    "summary": "Creates table \"skills\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "skills"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"skills\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"skills\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"skills\"",
+        "sql": "CREATE TABLE \"public\".\"skills\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"description\" text NOT NULL,\n  \"enabled\" bool DEFAULT true NOT NULL,\n  \"files\" jsonb NOT NULL,\n  \"id\" text NOT NULL,\n  \"markdown\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"origin\" jsonb NOT NULL,\n  \"persona_id\" text NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"skills\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"skills\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.snapshots",
+    "label": "Create table \"snapshots\"",
+    "summary": "Creates table \"snapshots\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "snapshots"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"snapshots\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"snapshots\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"snapshots\"",
+        "sql": "CREATE TABLE \"public\".\"snapshots\" (\n  \"contents\" jsonb NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"name\" text DEFAULT '' NOT NULL,\n  \"persona_id\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"snapshots\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"snapshots\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.telegram_bots",
+    "label": "Create table \"telegram_bots\"",
+    "summary": "Creates table \"telegram_bots\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "telegram_bots"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"telegram_bots\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"telegram_bots\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"telegram_bots\"",
+        "sql": "CREATE TABLE \"public\".\"telegram_bots\" (\n  \"bot_id\" text NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"project_id\" text NOT NULL,\n  \"username\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"telegram_bots\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"telegram_bots\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.users",
+    "label": "Create table \"users\"",
+    "summary": "Creates table \"users\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"users\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"users\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"users\"",
+        "sql": "CREATE TABLE \"public\".\"users\" (\n  \"auth_id\" text NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"email\" text NOT NULL,\n  \"first_name\" text,\n  \"id\" text NOT NULL,\n  \"image_url\" text,\n  \"last_name\" text,\n  \"organization_ids\" text[] NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"users_organization_ids_elem_not_null_2a985324\" CHECK (array_position(\"organization_ids\", NULL) IS NULL)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"users\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"users\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.webhook_runs",
+    "label": "Create table \"webhook_runs\"",
+    "summary": "Creates table \"webhook_runs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "webhook_runs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"webhook_runs\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"webhook_runs\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"webhook_runs\"",
+        "sql": "CREATE TABLE \"public\".\"webhook_runs\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"ended_at\" timestamptz,\n  \"id\" text NOT NULL,\n  \"result\" jsonb,\n  \"session_id\" text,\n  \"status\" text DEFAULT 'running' NOT NULL,\n  \"webhook_id\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"webhook_runs_status_check_77fab0ab\" CHECK (\"status\" IN ('running', 'completed', 'failed'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"webhook_runs\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"webhook_runs\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.webhooks",
+    "label": "Create table \"webhooks\"",
+    "summary": "Creates table \"webhooks\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "webhooks"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"webhooks\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"webhooks\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"webhooks\"",
+        "sql": "CREATE TABLE \"public\".\"webhooks\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"enabled\" bool DEFAULT true NOT NULL,\n  \"id\" text NOT NULL,\n  \"link_id\" text,\n  \"name\" text NOT NULL,\n  \"persona_id\" text NOT NULL,\n  \"prompt\" text NOT NULL,\n  \"secret\" text DEFAULT ((gen_random_uuid())::text) NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"webhooks\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"webhooks\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.whatsapp_lines",
+    "label": "Create table \"whatsapp_lines\"",
+    "summary": "Creates table \"whatsapp_lines\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "whatsapp_lines"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"whatsapp_lines\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"whatsapp_lines\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"whatsapp_lines\"",
+        "sql": "CREATE TABLE \"public\".\"whatsapp_lines\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"number\" text NOT NULL,\n  \"phone_number_id\" text NOT NULL,\n  \"project_id\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"whatsapp_lines\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"whatsapp_lines\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.api_keys.api_keys_key_hash_key",
+    "label": "Add unique constraint on \"api_keys\" (key_hash)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "api_keys_key_hash_key",
+        "table": "api_keys"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"api_keys_key_hash_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "api_keys_key_hash_key",
+          "public",
+          "\"public\".\"api_keys\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"api_keys_key_hash_key\"",
+        "sql": "ALTER TABLE \"public\".\"api_keys\" ADD CONSTRAINT \"api_keys_key_hash_key\" UNIQUE (\"key_hash\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"api_keys_key_hash_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "api_keys_key_hash_key",
+          "public",
+          "\"public\".\"api_keys\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.connections.connections_persona_id_name_key",
+    "label": "Add unique constraint on \"connections\" (persona_id, name)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "connections_persona_id_name_key",
+        "table": "connections"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"connections_persona_id_name_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "connections_persona_id_name_key",
+          "public",
+          "\"public\".\"connections\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"connections_persona_id_name_key\"",
+        "sql": "ALTER TABLE \"public\".\"connections\" ADD CONSTRAINT \"connections_persona_id_name_key\" UNIQUE (\"persona_id\", \"name\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"connections_persona_id_name_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "connections_persona_id_name_key",
+          "public",
+          "\"public\".\"connections\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.instructions.instructions_persona_id_name_key",
+    "label": "Add unique constraint on \"instructions\" (persona_id, name)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "instructions_persona_id_name_key",
+        "table": "instructions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"instructions_persona_id_name_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructions_persona_id_name_key",
+          "public",
+          "\"public\".\"instructions\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"instructions_persona_id_name_key\"",
+        "sql": "ALTER TABLE \"public\".\"instructions\" ADD CONSTRAINT \"instructions_persona_id_name_key\" UNIQUE (\"persona_id\", \"name\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"instructions_persona_id_name_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructions_persona_id_name_key",
+          "public",
+          "\"public\".\"instructions\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.links.links_channel_line_external_id_key",
+    "label": "Add unique constraint on \"links\" (channel, line, external_id)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "links_channel_line_external_id_key",
+        "table": "links"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"links_channel_line_external_id_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "links_channel_line_external_id_key",
+          "public",
+          "\"public\".\"links\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"links_channel_line_external_id_key\"",
+        "sql": "ALTER TABLE \"public\".\"links\" ADD CONSTRAINT \"links_channel_line_external_id_key\" UNIQUE (\"channel\", \"line\", \"external_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"links_channel_line_external_id_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "links_channel_line_external_id_key",
+          "public",
+          "\"public\".\"links\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.organizations.organizations_org_id_key",
+    "label": "Add unique constraint on \"organizations\" (org_id)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "organizations_org_id_key",
+        "table": "organizations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"organizations_org_id_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "organizations_org_id_key",
+          "public",
+          "\"public\".\"organizations\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"organizations_org_id_key\"",
+        "sql": "ALTER TABLE \"public\".\"organizations\" ADD CONSTRAINT \"organizations_org_id_key\" UNIQUE (\"org_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"organizations_org_id_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "organizations_org_id_key",
+          "public",
+          "\"public\".\"organizations\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.schedule_runs.schedule_runs_schedule_id_scheduled_for_key",
+    "label": "Add unique constraint on \"schedule_runs\" (schedule_id, scheduled_for)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "schedule_runs_schedule_id_scheduled_for_key",
+        "table": "schedule_runs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"schedule_runs_schedule_id_scheduled_for_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "schedule_runs_schedule_id_scheduled_for_key",
+          "public",
+          "\"public\".\"schedule_runs\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"schedule_runs_schedule_id_scheduled_for_key\"",
+        "sql": "ALTER TABLE \"public\".\"schedule_runs\" ADD CONSTRAINT \"schedule_runs_schedule_id_scheduled_for_key\" UNIQUE (\"schedule_id\", \"scheduled_for\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"schedule_runs_schedule_id_scheduled_for_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "schedule_runs_schedule_id_scheduled_for_key",
+          "public",
+          "\"public\".\"schedule_runs\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.skills.skills_persona_id_name_key",
+    "label": "Add unique constraint on \"skills\" (persona_id, name)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "skills_persona_id_name_key",
+        "table": "skills"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"skills_persona_id_name_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "skills_persona_id_name_key",
+          "public",
+          "\"public\".\"skills\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"skills_persona_id_name_key\"",
+        "sql": "ALTER TABLE \"public\".\"skills\" ADD CONSTRAINT \"skills_persona_id_name_key\" UNIQUE (\"persona_id\", \"name\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"skills_persona_id_name_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "skills_persona_id_name_key",
+          "public",
+          "\"public\".\"skills\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.telegram_bots.telegram_bots_bot_id_key",
+    "label": "Add unique constraint on \"telegram_bots\" (bot_id)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "telegram_bots_bot_id_key",
+        "table": "telegram_bots"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"telegram_bots_bot_id_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "telegram_bots_bot_id_key",
+          "public",
+          "\"public\".\"telegram_bots\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"telegram_bots_bot_id_key\"",
+        "sql": "ALTER TABLE \"public\".\"telegram_bots\" ADD CONSTRAINT \"telegram_bots_bot_id_key\" UNIQUE (\"bot_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"telegram_bots_bot_id_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "telegram_bots_bot_id_key",
+          "public",
+          "\"public\".\"telegram_bots\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.users.users_auth_id_key",
+    "label": "Add unique constraint on \"users\" (auth_id)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "users_auth_id_key",
+        "table": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"users_auth_id_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "users_auth_id_key",
+          "public",
+          "\"public\".\"users\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"users_auth_id_key\"",
+        "sql": "ALTER TABLE \"public\".\"users\" ADD CONSTRAINT \"users_auth_id_key\" UNIQUE (\"auth_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"users_auth_id_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "users_auth_id_key",
+          "public",
+          "\"public\".\"users\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.webhooks.webhooks_secret_key",
+    "label": "Add unique constraint on \"webhooks\" (secret)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "webhooks_secret_key",
+        "table": "webhooks"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"webhooks_secret_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "webhooks_secret_key",
+          "public",
+          "\"public\".\"webhooks\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"webhooks_secret_key\"",
+        "sql": "ALTER TABLE \"public\".\"webhooks\" ADD CONSTRAINT \"webhooks_secret_key\" UNIQUE (\"secret\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"webhooks_secret_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "webhooks_secret_key",
+          "public",
+          "\"public\".\"webhooks\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.whatsapp_lines.whatsapp_lines_phone_number_id_key",
+    "label": "Add unique constraint on \"whatsapp_lines\" (phone_number_id)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "whatsapp_lines_phone_number_id_key",
+        "table": "whatsapp_lines"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"whatsapp_lines_phone_number_id_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "whatsapp_lines_phone_number_id_key",
+          "public",
+          "\"public\".\"whatsapp_lines\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"whatsapp_lines_phone_number_id_key\"",
+        "sql": "ALTER TABLE \"public\".\"whatsapp_lines\" ADD CONSTRAINT \"whatsapp_lines_phone_number_id_key\" UNIQUE (\"phone_number_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"whatsapp_lines_phone_number_id_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "whatsapp_lines_phone_number_id_key",
+          "public",
+          "\"public\".\"whatsapp_lines\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.api_keys.api_keys_org_id_idx_36e6cd90",
+    "label": "Create index \"api_keys_org_id_idx_36e6cd90\" on \"api_keys\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "api_keys_org_id_idx_36e6cd90",
+        "table": "api_keys"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"api_keys_org_id_idx_36e6cd90\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"api_keys_org_id_idx_36e6cd90\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"api_keys_org_id_idx_36e6cd90\"",
+        "sql": "CREATE INDEX \"api_keys_org_id_idx_36e6cd90\" ON \"public\".\"api_keys\" (\"org_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"api_keys_org_id_idx_36e6cd90\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"api_keys_org_id_idx_36e6cd90\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.api_keys.api_keys_user_id_idx_6c952402",
+    "label": "Create index \"api_keys_user_id_idx_6c952402\" on \"api_keys\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "api_keys_user_id_idx_6c952402",
+        "table": "api_keys"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"api_keys_user_id_idx_6c952402\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"api_keys_user_id_idx_6c952402\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"api_keys_user_id_idx_6c952402\"",
+        "sql": "CREATE INDEX \"api_keys_user_id_idx_6c952402\" ON \"public\".\"api_keys\" (\"user_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"api_keys_user_id_idx_6c952402\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"api_keys_user_id_idx_6c952402\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.browsers.browsers_persona_id_idx_840c67e2",
+    "label": "Create index \"browsers_persona_id_idx_840c67e2\" on \"browsers\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "browsers_persona_id_idx_840c67e2",
+        "table": "browsers"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"browsers_persona_id_idx_840c67e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"browsers_persona_id_idx_840c67e2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"browsers_persona_id_idx_840c67e2\"",
+        "sql": "CREATE INDEX \"browsers_persona_id_idx_840c67e2\" ON \"public\".\"browsers\" (\"persona_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"browsers_persona_id_idx_840c67e2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"browsers_persona_id_idx_840c67e2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.collect_links.collect_links_credential_id_idx_f89146a6",
+    "label": "Create index \"collect_links_credential_id_idx_f89146a6\" on \"collect_links\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "collect_links_credential_id_idx_f89146a6",
+        "table": "collect_links"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"collect_links_credential_id_idx_f89146a6\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"collect_links_credential_id_idx_f89146a6\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"collect_links_credential_id_idx_f89146a6\"",
+        "sql": "CREATE INDEX \"collect_links_credential_id_idx_f89146a6\" ON \"public\".\"collect_links\" (\"credential_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"collect_links_credential_id_idx_f89146a6\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"collect_links_credential_id_idx_f89146a6\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.connections.connections_persona_id_idx_840c67e2",
+    "label": "Create index \"connections_persona_id_idx_840c67e2\" on \"connections\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "connections_persona_id_idx_840c67e2",
+        "table": "connections"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"connections_persona_id_idx_840c67e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"connections_persona_id_idx_840c67e2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"connections_persona_id_idx_840c67e2\"",
+        "sql": "CREATE INDEX \"connections_persona_id_idx_840c67e2\" ON \"public\".\"connections\" (\"persona_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"connections_persona_id_idx_840c67e2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"connections_persona_id_idx_840c67e2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.credentials.credentials_persona_id_idx_840c67e2",
+    "label": "Create index \"credentials_persona_id_idx_840c67e2\" on \"credentials\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "credentials_persona_id_idx_840c67e2",
+        "table": "credentials"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"credentials_persona_id_idx_840c67e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"credentials_persona_id_idx_840c67e2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"credentials_persona_id_idx_840c67e2\"",
+        "sql": "CREATE INDEX \"credentials_persona_id_idx_840c67e2\" ON \"public\".\"credentials\" (\"persona_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"credentials_persona_id_idx_840c67e2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"credentials_persona_id_idx_840c67e2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.credentials.credentials_persona_id_title_idx_f4fca8d8",
+    "label": "Create index \"credentials_persona_id_title_idx_f4fca8d8\" on \"credentials\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "credentials_persona_id_title_idx_f4fca8d8",
+        "table": "credentials"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"credentials_persona_id_title_idx_f4fca8d8\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"credentials_persona_id_title_idx_f4fca8d8\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"credentials_persona_id_title_idx_f4fca8d8\"",
+        "sql": "CREATE INDEX \"credentials_persona_id_title_idx_f4fca8d8\" ON \"public\".\"credentials\" (\"persona_id\", \"title\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"credentials_persona_id_title_idx_f4fca8d8\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"credentials_persona_id_title_idx_f4fca8d8\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.files.files_persona_id_created_at_idx_1eddfd24",
+    "label": "Create index \"files_persona_id_created_at_idx_1eddfd24\" on \"files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "files_persona_id_created_at_idx_1eddfd24",
+        "table": "files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"files_persona_id_created_at_idx_1eddfd24\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"files_persona_id_created_at_idx_1eddfd24\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"files_persona_id_created_at_idx_1eddfd24\"",
+        "sql": "CREATE INDEX \"files_persona_id_created_at_idx_1eddfd24\" ON \"public\".\"files\" (\"persona_id\", \"created_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"files_persona_id_created_at_idx_1eddfd24\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"files_persona_id_created_at_idx_1eddfd24\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.files.files_persona_id_idx_840c67e2",
+    "label": "Create index \"files_persona_id_idx_840c67e2\" on \"files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "files_persona_id_idx_840c67e2",
+        "table": "files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"files_persona_id_idx_840c67e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"files_persona_id_idx_840c67e2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"files_persona_id_idx_840c67e2\"",
+        "sql": "CREATE INDEX \"files_persona_id_idx_840c67e2\" ON \"public\".\"files\" (\"persona_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"files_persona_id_idx_840c67e2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"files_persona_id_idx_840c67e2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.files.files_session_id_idx_00ba47bf",
+    "label": "Create index \"files_session_id_idx_00ba47bf\" on \"files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "files_session_id_idx_00ba47bf",
+        "table": "files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"files_session_id_idx_00ba47bf\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"files_session_id_idx_00ba47bf\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"files_session_id_idx_00ba47bf\"",
+        "sql": "CREATE INDEX \"files_session_id_idx_00ba47bf\" ON \"public\".\"files\" (\"session_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"files_session_id_idx_00ba47bf\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"files_session_id_idx_00ba47bf\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.instructions.instructions_persona_id_idx_840c67e2",
+    "label": "Create index \"instructions_persona_id_idx_840c67e2\" on \"instructions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "instructions_persona_id_idx_840c67e2",
+        "table": "instructions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"instructions_persona_id_idx_840c67e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructions_persona_id_idx_840c67e2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"instructions_persona_id_idx_840c67e2\"",
+        "sql": "CREATE INDEX \"instructions_persona_id_idx_840c67e2\" ON \"public\".\"instructions\" (\"persona_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"instructions_persona_id_idx_840c67e2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"instructions_persona_id_idx_840c67e2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.link_codes.link_codes_persona_id_idx_840c67e2",
+    "label": "Create index \"link_codes_persona_id_idx_840c67e2\" on \"link_codes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "link_codes_persona_id_idx_840c67e2",
+        "table": "link_codes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"link_codes_persona_id_idx_840c67e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"link_codes_persona_id_idx_840c67e2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"link_codes_persona_id_idx_840c67e2\"",
+        "sql": "CREATE INDEX \"link_codes_persona_id_idx_840c67e2\" ON \"public\".\"link_codes\" (\"persona_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"link_codes_persona_id_idx_840c67e2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"link_codes_persona_id_idx_840c67e2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.links.links_persona_id_idx_840c67e2",
+    "label": "Create index \"links_persona_id_idx_840c67e2\" on \"links\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "links_persona_id_idx_840c67e2",
+        "table": "links"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"links_persona_id_idx_840c67e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"links_persona_id_idx_840c67e2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"links_persona_id_idx_840c67e2\"",
+        "sql": "CREATE INDEX \"links_persona_id_idx_840c67e2\" ON \"public\".\"links\" (\"persona_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"links_persona_id_idx_840c67e2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"links_persona_id_idx_840c67e2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.notes.notes_persona_id_idx_840c67e2",
+    "label": "Create index \"notes_persona_id_idx_840c67e2\" on \"notes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "notes_persona_id_idx_840c67e2",
+        "table": "notes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"notes_persona_id_idx_840c67e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"notes_persona_id_idx_840c67e2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"notes_persona_id_idx_840c67e2\"",
+        "sql": "CREATE INDEX \"notes_persona_id_idx_840c67e2\" ON \"public\".\"notes\" (\"persona_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"notes_persona_id_idx_840c67e2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"notes_persona_id_idx_840c67e2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.notes.notes_persona_id_updated_at_idx_d05e25d6",
+    "label": "Create index \"notes_persona_id_updated_at_idx_d05e25d6\" on \"notes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "notes_persona_id_updated_at_idx_d05e25d6",
+        "table": "notes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"notes_persona_id_updated_at_idx_d05e25d6\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"notes_persona_id_updated_at_idx_d05e25d6\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"notes_persona_id_updated_at_idx_d05e25d6\"",
+        "sql": "CREATE INDEX \"notes_persona_id_updated_at_idx_d05e25d6\" ON \"public\".\"notes\" (\"persona_id\", \"updated_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"notes_persona_id_updated_at_idx_d05e25d6\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"notes_persona_id_updated_at_idx_d05e25d6\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.personas.personas_org_id_idx_36e6cd90",
+    "label": "Create index \"personas_org_id_idx_36e6cd90\" on \"personas\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "personas_org_id_idx_36e6cd90",
+        "table": "personas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"personas_org_id_idx_36e6cd90\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"personas_org_id_idx_36e6cd90\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"personas_org_id_idx_36e6cd90\"",
+        "sql": "CREATE INDEX \"personas_org_id_idx_36e6cd90\" ON \"public\".\"personas\" (\"org_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"personas_org_id_idx_36e6cd90\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"personas_org_id_idx_36e6cd90\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.personas.personas_parent_id_idx_ab33b399",
+    "label": "Create index \"personas_parent_id_idx_ab33b399\" on \"personas\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "personas_parent_id_idx_ab33b399",
+        "table": "personas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"personas_parent_id_idx_ab33b399\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"personas_parent_id_idx_ab33b399\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"personas_parent_id_idx_ab33b399\"",
+        "sql": "CREATE INDEX \"personas_parent_id_idx_ab33b399\" ON \"public\".\"personas\" (\"parent_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"personas_parent_id_idx_ab33b399\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"personas_parent_id_idx_ab33b399\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.personas.personas_project_id_idx_6ad92603",
+    "label": "Create index \"personas_project_id_idx_6ad92603\" on \"personas\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "personas_project_id_idx_6ad92603",
+        "table": "personas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"personas_project_id_idx_6ad92603\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"personas_project_id_idx_6ad92603\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"personas_project_id_idx_6ad92603\"",
+        "sql": "CREATE INDEX \"personas_project_id_idx_6ad92603\" ON \"public\".\"personas\" (\"project_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"personas_project_id_idx_6ad92603\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"personas_project_id_idx_6ad92603\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.personas.personas_snapshot_id_idx_901ededa",
+    "label": "Create index \"personas_snapshot_id_idx_901ededa\" on \"personas\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "personas_snapshot_id_idx_901ededa",
+        "table": "personas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"personas_snapshot_id_idx_901ededa\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"personas_snapshot_id_idx_901ededa\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"personas_snapshot_id_idx_901ededa\"",
+        "sql": "CREATE INDEX \"personas_snapshot_id_idx_901ededa\" ON \"public\".\"personas\" (\"snapshot_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"personas_snapshot_id_idx_901ededa\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"personas_snapshot_id_idx_901ededa\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.projects.projects_org_id_idx_36e6cd90",
+    "label": "Create index \"projects_org_id_idx_36e6cd90\" on \"projects\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "projects_org_id_idx_36e6cd90",
+        "table": "projects"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"projects_org_id_idx_36e6cd90\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"projects_org_id_idx_36e6cd90\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"projects_org_id_idx_36e6cd90\"",
+        "sql": "CREATE INDEX \"projects_org_id_idx_36e6cd90\" ON \"public\".\"projects\" (\"org_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"projects_org_id_idx_36e6cd90\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"projects_org_id_idx_36e6cd90\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.projects.projects_user_id_idx_6c952402",
+    "label": "Create index \"projects_user_id_idx_6c952402\" on \"projects\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "projects_user_id_idx_6c952402",
+        "table": "projects"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"projects_user_id_idx_6c952402\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"projects_user_id_idx_6c952402\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"projects_user_id_idx_6c952402\"",
+        "sql": "CREATE INDEX \"projects_user_id_idx_6c952402\" ON \"public\".\"projects\" (\"user_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"projects_user_id_idx_6c952402\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"projects_user_id_idx_6c952402\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.report_requests.report_requests_link_id_idx_fdb33a76",
+    "label": "Create index \"report_requests_link_id_idx_fdb33a76\" on \"report_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "report_requests_link_id_idx_fdb33a76",
+        "table": "report_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"report_requests_link_id_idx_fdb33a76\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"report_requests_link_id_idx_fdb33a76\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"report_requests_link_id_idx_fdb33a76\"",
+        "sql": "CREATE INDEX \"report_requests_link_id_idx_fdb33a76\" ON \"public\".\"report_requests\" (\"link_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"report_requests_link_id_idx_fdb33a76\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"report_requests_link_id_idx_fdb33a76\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.report_requests.report_requests_persona_id_idx_840c67e2",
+    "label": "Create index \"report_requests_persona_id_idx_840c67e2\" on \"report_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "report_requests_persona_id_idx_840c67e2",
+        "table": "report_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"report_requests_persona_id_idx_840c67e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"report_requests_persona_id_idx_840c67e2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"report_requests_persona_id_idx_840c67e2\"",
+        "sql": "CREATE INDEX \"report_requests_persona_id_idx_840c67e2\" ON \"public\".\"report_requests\" (\"persona_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"report_requests_persona_id_idx_840c67e2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"report_requests_persona_id_idx_840c67e2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.report_requests.report_requests_sent_at_created_at_idx_55a8da16",
+    "label": "Create index \"report_requests_sent_at_created_at_idx_55a8da16\" on \"report_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "report_requests_sent_at_created_at_idx_55a8da16",
+        "table": "report_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"report_requests_sent_at_created_at_idx_55a8da16\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"report_requests_sent_at_created_at_idx_55a8da16\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"report_requests_sent_at_created_at_idx_55a8da16\"",
+        "sql": "CREATE INDEX \"report_requests_sent_at_created_at_idx_55a8da16\" ON \"public\".\"report_requests\" (\"sent_at\", \"created_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"report_requests_sent_at_created_at_idx_55a8da16\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"report_requests_sent_at_created_at_idx_55a8da16\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.schedule_runs.schedule_runs_schedule_id_idx_83757f9e",
+    "label": "Create index \"schedule_runs_schedule_id_idx_83757f9e\" on \"schedule_runs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "schedule_runs_schedule_id_idx_83757f9e",
+        "table": "schedule_runs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"schedule_runs_schedule_id_idx_83757f9e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"schedule_runs_schedule_id_idx_83757f9e\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"schedule_runs_schedule_id_idx_83757f9e\"",
+        "sql": "CREATE INDEX \"schedule_runs_schedule_id_idx_83757f9e\" ON \"public\".\"schedule_runs\" (\"schedule_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"schedule_runs_schedule_id_idx_83757f9e\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"schedule_runs_schedule_id_idx_83757f9e\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.schedule_runs.schedule_runs_status_claimed_at_idx_3c06d0b9",
+    "label": "Create index \"schedule_runs_status_claimed_at_idx_3c06d0b9\" on \"schedule_runs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "schedule_runs_status_claimed_at_idx_3c06d0b9",
+        "table": "schedule_runs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"schedule_runs_status_claimed_at_idx_3c06d0b9\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"schedule_runs_status_claimed_at_idx_3c06d0b9\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"schedule_runs_status_claimed_at_idx_3c06d0b9\"",
+        "sql": "CREATE INDEX \"schedule_runs_status_claimed_at_idx_3c06d0b9\" ON \"public\".\"schedule_runs\" (\"status\", \"claimed_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"schedule_runs_status_claimed_at_idx_3c06d0b9\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"schedule_runs_status_claimed_at_idx_3c06d0b9\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.schedules.schedules_enabled_next_run_at_idx_efb1f288",
+    "label": "Create index \"schedules_enabled_next_run_at_idx_efb1f288\" on \"schedules\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "schedules_enabled_next_run_at_idx_efb1f288",
+        "table": "schedules"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"schedules_enabled_next_run_at_idx_efb1f288\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"schedules_enabled_next_run_at_idx_efb1f288\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"schedules_enabled_next_run_at_idx_efb1f288\"",
+        "sql": "CREATE INDEX \"schedules_enabled_next_run_at_idx_efb1f288\" ON \"public\".\"schedules\" (\"enabled\", \"next_run_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"schedules_enabled_next_run_at_idx_efb1f288\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"schedules_enabled_next_run_at_idx_efb1f288\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.schedules.schedules_link_id_idx_fdb33a76",
+    "label": "Create index \"schedules_link_id_idx_fdb33a76\" on \"schedules\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "schedules_link_id_idx_fdb33a76",
+        "table": "schedules"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"schedules_link_id_idx_fdb33a76\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"schedules_link_id_idx_fdb33a76\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"schedules_link_id_idx_fdb33a76\"",
+        "sql": "CREATE INDEX \"schedules_link_id_idx_fdb33a76\" ON \"public\".\"schedules\" (\"link_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"schedules_link_id_idx_fdb33a76\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"schedules_link_id_idx_fdb33a76\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.schedules.schedules_persona_id_idx_840c67e2",
+    "label": "Create index \"schedules_persona_id_idx_840c67e2\" on \"schedules\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "schedules_persona_id_idx_840c67e2",
+        "table": "schedules"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"schedules_persona_id_idx_840c67e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"schedules_persona_id_idx_840c67e2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"schedules_persona_id_idx_840c67e2\"",
+        "sql": "CREATE INDEX \"schedules_persona_id_idx_840c67e2\" ON \"public\".\"schedules\" (\"persona_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"schedules_persona_id_idx_840c67e2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"schedules_persona_id_idx_840c67e2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.sessions.sessions_persona_id_channel_updated_at_idx_598bd1ca",
+    "label": "Create index \"sessions_persona_id_channel_updated_at_idx_598bd1ca\" on \"sessions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "sessions_persona_id_channel_updated_at_idx_598bd1ca",
+        "table": "sessions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"sessions_persona_id_channel_updated_at_idx_598bd1ca\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"sessions_persona_id_channel_updated_at_idx_598bd1ca\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"sessions_persona_id_channel_updated_at_idx_598bd1ca\"",
+        "sql": "CREATE INDEX \"sessions_persona_id_channel_updated_at_idx_598bd1ca\" ON \"public\".\"sessions\" (\"persona_id\", \"channel\", \"updated_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"sessions_persona_id_channel_updated_at_idx_598bd1ca\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"sessions_persona_id_channel_updated_at_idx_598bd1ca\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.sessions.sessions_persona_id_idx_840c67e2",
+    "label": "Create index \"sessions_persona_id_idx_840c67e2\" on \"sessions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "sessions_persona_id_idx_840c67e2",
+        "table": "sessions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"sessions_persona_id_idx_840c67e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"sessions_persona_id_idx_840c67e2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"sessions_persona_id_idx_840c67e2\"",
+        "sql": "CREATE INDEX \"sessions_persona_id_idx_840c67e2\" ON \"public\".\"sessions\" (\"persona_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"sessions_persona_id_idx_840c67e2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"sessions_persona_id_idx_840c67e2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.sessions.sessions_persona_id_updated_at_idx_d05e25d6",
+    "label": "Create index \"sessions_persona_id_updated_at_idx_d05e25d6\" on \"sessions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "sessions_persona_id_updated_at_idx_d05e25d6",
+        "table": "sessions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"sessions_persona_id_updated_at_idx_d05e25d6\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"sessions_persona_id_updated_at_idx_d05e25d6\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"sessions_persona_id_updated_at_idx_d05e25d6\"",
+        "sql": "CREATE INDEX \"sessions_persona_id_updated_at_idx_d05e25d6\" ON \"public\".\"sessions\" (\"persona_id\", \"updated_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"sessions_persona_id_updated_at_idx_d05e25d6\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"sessions_persona_id_updated_at_idx_d05e25d6\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.skills.skills_persona_id_idx_840c67e2",
+    "label": "Create index \"skills_persona_id_idx_840c67e2\" on \"skills\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "skills_persona_id_idx_840c67e2",
+        "table": "skills"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"skills_persona_id_idx_840c67e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"skills_persona_id_idx_840c67e2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"skills_persona_id_idx_840c67e2\"",
+        "sql": "CREATE INDEX \"skills_persona_id_idx_840c67e2\" ON \"public\".\"skills\" (\"persona_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"skills_persona_id_idx_840c67e2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"skills_persona_id_idx_840c67e2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.snapshots.snapshots_persona_id_created_at_idx_1eddfd24",
+    "label": "Create index \"snapshots_persona_id_created_at_idx_1eddfd24\" on \"snapshots\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "snapshots_persona_id_created_at_idx_1eddfd24",
+        "table": "snapshots"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"snapshots_persona_id_created_at_idx_1eddfd24\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"snapshots_persona_id_created_at_idx_1eddfd24\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"snapshots_persona_id_created_at_idx_1eddfd24\"",
+        "sql": "CREATE INDEX \"snapshots_persona_id_created_at_idx_1eddfd24\" ON \"public\".\"snapshots\" (\"persona_id\", \"created_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"snapshots_persona_id_created_at_idx_1eddfd24\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"snapshots_persona_id_created_at_idx_1eddfd24\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.snapshots.snapshots_persona_id_idx_840c67e2",
+    "label": "Create index \"snapshots_persona_id_idx_840c67e2\" on \"snapshots\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "snapshots_persona_id_idx_840c67e2",
+        "table": "snapshots"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"snapshots_persona_id_idx_840c67e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"snapshots_persona_id_idx_840c67e2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"snapshots_persona_id_idx_840c67e2\"",
+        "sql": "CREATE INDEX \"snapshots_persona_id_idx_840c67e2\" ON \"public\".\"snapshots\" (\"persona_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"snapshots_persona_id_idx_840c67e2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"snapshots_persona_id_idx_840c67e2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.telegram_bots.telegram_bots_project_id_idx_6ad92603",
+    "label": "Create index \"telegram_bots_project_id_idx_6ad92603\" on \"telegram_bots\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "telegram_bots_project_id_idx_6ad92603",
+        "table": "telegram_bots"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"telegram_bots_project_id_idx_6ad92603\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"telegram_bots_project_id_idx_6ad92603\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"telegram_bots_project_id_idx_6ad92603\"",
+        "sql": "CREATE INDEX \"telegram_bots_project_id_idx_6ad92603\" ON \"public\".\"telegram_bots\" (\"project_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"telegram_bots_project_id_idx_6ad92603\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"telegram_bots_project_id_idx_6ad92603\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.webhook_runs.webhook_runs_status_created_at_idx_1bbe8adf",
+    "label": "Create index \"webhook_runs_status_created_at_idx_1bbe8adf\" on \"webhook_runs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "webhook_runs_status_created_at_idx_1bbe8adf",
+        "table": "webhook_runs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"webhook_runs_status_created_at_idx_1bbe8adf\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"webhook_runs_status_created_at_idx_1bbe8adf\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"webhook_runs_status_created_at_idx_1bbe8adf\"",
+        "sql": "CREATE INDEX \"webhook_runs_status_created_at_idx_1bbe8adf\" ON \"public\".\"webhook_runs\" (\"status\", \"created_at\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"webhook_runs_status_created_at_idx_1bbe8adf\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"webhook_runs_status_created_at_idx_1bbe8adf\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.webhook_runs.webhook_runs_webhook_id_idx_bc5fb5d1",
+    "label": "Create index \"webhook_runs_webhook_id_idx_bc5fb5d1\" on \"webhook_runs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "webhook_runs_webhook_id_idx_bc5fb5d1",
+        "table": "webhook_runs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"webhook_runs_webhook_id_idx_bc5fb5d1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"webhook_runs_webhook_id_idx_bc5fb5d1\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"webhook_runs_webhook_id_idx_bc5fb5d1\"",
+        "sql": "CREATE INDEX \"webhook_runs_webhook_id_idx_bc5fb5d1\" ON \"public\".\"webhook_runs\" (\"webhook_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"webhook_runs_webhook_id_idx_bc5fb5d1\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"webhook_runs_webhook_id_idx_bc5fb5d1\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.webhooks.webhooks_link_id_idx_fdb33a76",
+    "label": "Create index \"webhooks_link_id_idx_fdb33a76\" on \"webhooks\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "webhooks_link_id_idx_fdb33a76",
+        "table": "webhooks"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"webhooks_link_id_idx_fdb33a76\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"webhooks_link_id_idx_fdb33a76\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"webhooks_link_id_idx_fdb33a76\"",
+        "sql": "CREATE INDEX \"webhooks_link_id_idx_fdb33a76\" ON \"public\".\"webhooks\" (\"link_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"webhooks_link_id_idx_fdb33a76\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"webhooks_link_id_idx_fdb33a76\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.webhooks.webhooks_persona_id_idx_840c67e2",
+    "label": "Create index \"webhooks_persona_id_idx_840c67e2\" on \"webhooks\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "webhooks_persona_id_idx_840c67e2",
+        "table": "webhooks"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"webhooks_persona_id_idx_840c67e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"webhooks_persona_id_idx_840c67e2\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"webhooks_persona_id_idx_840c67e2\"",
+        "sql": "CREATE INDEX \"webhooks_persona_id_idx_840c67e2\" ON \"public\".\"webhooks\" (\"persona_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"webhooks_persona_id_idx_840c67e2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"webhooks_persona_id_idx_840c67e2\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.whatsapp_lines.whatsapp_lines_project_id_idx_6ad92603",
+    "label": "Create index \"whatsapp_lines_project_id_idx_6ad92603\" on \"whatsapp_lines\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "whatsapp_lines_project_id_idx_6ad92603",
+        "table": "whatsapp_lines"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"whatsapp_lines_project_id_idx_6ad92603\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"whatsapp_lines_project_id_idx_6ad92603\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"whatsapp_lines_project_id_idx_6ad92603\"",
+        "sql": "CREATE INDEX \"whatsapp_lines_project_id_idx_6ad92603\" ON \"public\".\"whatsapp_lines\" (\"project_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"whatsapp_lines_project_id_idx_6ad92603\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"whatsapp_lines_project_id_idx_6ad92603\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.api_keys.api_keys_org_id_fkey",
+    "label": "Add foreign key \"api_keys_org_id_fkey\" on \"api_keys\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "api_keys_org_id_fkey",
+        "table": "api_keys"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"api_keys_org_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "api_keys_org_id_fkey",
+          "public",
+          "\"public\".\"api_keys\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"api_keys_org_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"api_keys\"\nADD CONSTRAINT \"api_keys_org_id_fkey\"\nFOREIGN KEY (\"org_id\")\nREFERENCES \"public\".\"organizations\" (\"org_id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"api_keys_org_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "api_keys_org_id_fkey",
+          "public",
+          "\"public\".\"api_keys\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.api_keys.api_keys_user_id_fkey",
+    "label": "Add foreign key \"api_keys_user_id_fkey\" on \"api_keys\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "api_keys_user_id_fkey",
+        "table": "api_keys"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"api_keys_user_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "api_keys_user_id_fkey",
+          "public",
+          "\"public\".\"api_keys\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"api_keys_user_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"api_keys\"\nADD CONSTRAINT \"api_keys_user_id_fkey\"\nFOREIGN KEY (\"user_id\")\nREFERENCES \"public\".\"users\" (\"auth_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"api_keys_user_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "api_keys_user_id_fkey",
+          "public",
+          "\"public\".\"api_keys\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.browsers.browsers_persona_id_fkey",
+    "label": "Add foreign key \"browsers_persona_id_fkey\" on \"browsers\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "browsers_persona_id_fkey",
+        "table": "browsers"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"browsers_persona_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "browsers_persona_id_fkey",
+          "public",
+          "\"public\".\"browsers\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"browsers_persona_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"browsers\"\nADD CONSTRAINT \"browsers_persona_id_fkey\"\nFOREIGN KEY (\"persona_id\")\nREFERENCES \"public\".\"personas\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"browsers_persona_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "browsers_persona_id_fkey",
+          "public",
+          "\"public\".\"browsers\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.collect_links.collect_links_credential_id_fkey",
+    "label": "Add foreign key \"collect_links_credential_id_fkey\" on \"collect_links\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "collect_links_credential_id_fkey",
+        "table": "collect_links"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"collect_links_credential_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "collect_links_credential_id_fkey",
+          "public",
+          "\"public\".\"collect_links\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"collect_links_credential_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"collect_links\"\nADD CONSTRAINT \"collect_links_credential_id_fkey\"\nFOREIGN KEY (\"credential_id\")\nREFERENCES \"public\".\"credentials\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"collect_links_credential_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "collect_links_credential_id_fkey",
+          "public",
+          "\"public\".\"collect_links\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.connections.connections_persona_id_fkey",
+    "label": "Add foreign key \"connections_persona_id_fkey\" on \"connections\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "connections_persona_id_fkey",
+        "table": "connections"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"connections_persona_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "connections_persona_id_fkey",
+          "public",
+          "\"public\".\"connections\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"connections_persona_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"connections\"\nADD CONSTRAINT \"connections_persona_id_fkey\"\nFOREIGN KEY (\"persona_id\")\nREFERENCES \"public\".\"personas\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"connections_persona_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "connections_persona_id_fkey",
+          "public",
+          "\"public\".\"connections\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.credentials.credentials_persona_id_fkey",
+    "label": "Add foreign key \"credentials_persona_id_fkey\" on \"credentials\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "credentials_persona_id_fkey",
+        "table": "credentials"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"credentials_persona_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "credentials_persona_id_fkey",
+          "public",
+          "\"public\".\"credentials\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"credentials_persona_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"credentials\"\nADD CONSTRAINT \"credentials_persona_id_fkey\"\nFOREIGN KEY (\"persona_id\")\nREFERENCES \"public\".\"personas\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"credentials_persona_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "credentials_persona_id_fkey",
+          "public",
+          "\"public\".\"credentials\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.files.files_persona_id_fkey",
+    "label": "Add foreign key \"files_persona_id_fkey\" on \"files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "files_persona_id_fkey",
+        "table": "files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"files_persona_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "files_persona_id_fkey",
+          "public",
+          "\"public\".\"files\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"files_persona_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"files\"\nADD CONSTRAINT \"files_persona_id_fkey\"\nFOREIGN KEY (\"persona_id\")\nREFERENCES \"public\".\"personas\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"files_persona_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "files_persona_id_fkey",
+          "public",
+          "\"public\".\"files\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.files.files_session_id_fkey",
+    "label": "Add foreign key \"files_session_id_fkey\" on \"files\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "files_session_id_fkey",
+        "table": "files"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"files_session_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "files_session_id_fkey",
+          "public",
+          "\"public\".\"files\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"files_session_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"files\"\nADD CONSTRAINT \"files_session_id_fkey\"\nFOREIGN KEY (\"session_id\")\nREFERENCES \"public\".\"sessions\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"files_session_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "files_session_id_fkey",
+          "public",
+          "\"public\".\"files\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.instructions.instructions_persona_id_fkey",
+    "label": "Add foreign key \"instructions_persona_id_fkey\" on \"instructions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "instructions_persona_id_fkey",
+        "table": "instructions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"instructions_persona_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructions_persona_id_fkey",
+          "public",
+          "\"public\".\"instructions\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"instructions_persona_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"instructions\"\nADD CONSTRAINT \"instructions_persona_id_fkey\"\nFOREIGN KEY (\"persona_id\")\nREFERENCES \"public\".\"personas\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"instructions_persona_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "instructions_persona_id_fkey",
+          "public",
+          "\"public\".\"instructions\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.link_codes.link_codes_persona_id_fkey",
+    "label": "Add foreign key \"link_codes_persona_id_fkey\" on \"link_codes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "link_codes_persona_id_fkey",
+        "table": "link_codes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"link_codes_persona_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "link_codes_persona_id_fkey",
+          "public",
+          "\"public\".\"link_codes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"link_codes_persona_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"link_codes\"\nADD CONSTRAINT \"link_codes_persona_id_fkey\"\nFOREIGN KEY (\"persona_id\")\nREFERENCES \"public\".\"personas\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"link_codes_persona_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "link_codes_persona_id_fkey",
+          "public",
+          "\"public\".\"link_codes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.links.links_persona_id_fkey",
+    "label": "Add foreign key \"links_persona_id_fkey\" on \"links\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "links_persona_id_fkey",
+        "table": "links"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"links_persona_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "links_persona_id_fkey",
+          "public",
+          "\"public\".\"links\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"links_persona_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"links\"\nADD CONSTRAINT \"links_persona_id_fkey\"\nFOREIGN KEY (\"persona_id\")\nREFERENCES \"public\".\"personas\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"links_persona_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "links_persona_id_fkey",
+          "public",
+          "\"public\".\"links\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.notes.notes_persona_id_fkey",
+    "label": "Add foreign key \"notes_persona_id_fkey\" on \"notes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "notes_persona_id_fkey",
+        "table": "notes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"notes_persona_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "notes_persona_id_fkey",
+          "public",
+          "\"public\".\"notes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"notes_persona_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"notes\"\nADD CONSTRAINT \"notes_persona_id_fkey\"\nFOREIGN KEY (\"persona_id\")\nREFERENCES \"public\".\"personas\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"notes_persona_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "notes_persona_id_fkey",
+          "public",
+          "\"public\".\"notes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.personas.personas_project_id_fkey",
+    "label": "Add foreign key \"personas_project_id_fkey\" on \"personas\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "personas_project_id_fkey",
+        "table": "personas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"personas_project_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personas_project_id_fkey",
+          "public",
+          "\"public\".\"personas\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"personas_project_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"personas\"\nADD CONSTRAINT \"personas_project_id_fkey\"\nFOREIGN KEY (\"project_id\")\nREFERENCES \"public\".\"projects\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"personas_project_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personas_project_id_fkey",
+          "public",
+          "\"public\".\"personas\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.personas.personas_org_id_fkey",
+    "label": "Add foreign key \"personas_org_id_fkey\" on \"personas\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "personas_org_id_fkey",
+        "table": "personas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"personas_org_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personas_org_id_fkey",
+          "public",
+          "\"public\".\"personas\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"personas_org_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"personas\"\nADD CONSTRAINT \"personas_org_id_fkey\"\nFOREIGN KEY (\"org_id\")\nREFERENCES \"public\".\"organizations\" (\"org_id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"personas_org_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personas_org_id_fkey",
+          "public",
+          "\"public\".\"personas\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.personas.personas_parent_id_fkey",
+    "label": "Add foreign key \"personas_parent_id_fkey\" on \"personas\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "personas_parent_id_fkey",
+        "table": "personas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"personas_parent_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personas_parent_id_fkey",
+          "public",
+          "\"public\".\"personas\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"personas_parent_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"personas\"\nADD CONSTRAINT \"personas_parent_id_fkey\"\nFOREIGN KEY (\"parent_id\")\nREFERENCES \"public\".\"personas\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"personas_parent_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personas_parent_id_fkey",
+          "public",
+          "\"public\".\"personas\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.personas.personas_snapshot_id_fkey",
+    "label": "Add foreign key \"personas_snapshot_id_fkey\" on \"personas\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "personas_snapshot_id_fkey",
+        "table": "personas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"personas_snapshot_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personas_snapshot_id_fkey",
+          "public",
+          "\"public\".\"personas\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"personas_snapshot_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"personas\"\nADD CONSTRAINT \"personas_snapshot_id_fkey\"\nFOREIGN KEY (\"snapshot_id\")\nREFERENCES \"public\".\"snapshots\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"personas_snapshot_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personas_snapshot_id_fkey",
+          "public",
+          "\"public\".\"personas\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.projects.projects_org_id_fkey",
+    "label": "Add foreign key \"projects_org_id_fkey\" on \"projects\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "projects_org_id_fkey",
+        "table": "projects"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"projects_org_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "projects_org_id_fkey",
+          "public",
+          "\"public\".\"projects\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"projects_org_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"projects\"\nADD CONSTRAINT \"projects_org_id_fkey\"\nFOREIGN KEY (\"org_id\")\nREFERENCES \"public\".\"organizations\" (\"org_id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"projects_org_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "projects_org_id_fkey",
+          "public",
+          "\"public\".\"projects\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.projects.projects_user_id_fkey",
+    "label": "Add foreign key \"projects_user_id_fkey\" on \"projects\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "projects_user_id_fkey",
+        "table": "projects"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"projects_user_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "projects_user_id_fkey",
+          "public",
+          "\"public\".\"projects\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"projects_user_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"projects\"\nADD CONSTRAINT \"projects_user_id_fkey\"\nFOREIGN KEY (\"user_id\")\nREFERENCES \"public\".\"users\" (\"auth_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"projects_user_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "projects_user_id_fkey",
+          "public",
+          "\"public\".\"projects\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.report_requests.report_requests_persona_id_fkey",
+    "label": "Add foreign key \"report_requests_persona_id_fkey\" on \"report_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "report_requests_persona_id_fkey",
+        "table": "report_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"report_requests_persona_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "report_requests_persona_id_fkey",
+          "public",
+          "\"public\".\"report_requests\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"report_requests_persona_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"report_requests\"\nADD CONSTRAINT \"report_requests_persona_id_fkey\"\nFOREIGN KEY (\"persona_id\")\nREFERENCES \"public\".\"personas\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"report_requests_persona_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "report_requests_persona_id_fkey",
+          "public",
+          "\"public\".\"report_requests\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.report_requests.report_requests_link_id_fkey",
+    "label": "Add foreign key \"report_requests_link_id_fkey\" on \"report_requests\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "report_requests_link_id_fkey",
+        "table": "report_requests"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"report_requests_link_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "report_requests_link_id_fkey",
+          "public",
+          "\"public\".\"report_requests\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"report_requests_link_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"report_requests\"\nADD CONSTRAINT \"report_requests_link_id_fkey\"\nFOREIGN KEY (\"link_id\")\nREFERENCES \"public\".\"links\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"report_requests_link_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "report_requests_link_id_fkey",
+          "public",
+          "\"public\".\"report_requests\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.schedule_runs.schedule_runs_schedule_id_fkey",
+    "label": "Add foreign key \"schedule_runs_schedule_id_fkey\" on \"schedule_runs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "schedule_runs_schedule_id_fkey",
+        "table": "schedule_runs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"schedule_runs_schedule_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "schedule_runs_schedule_id_fkey",
+          "public",
+          "\"public\".\"schedule_runs\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"schedule_runs_schedule_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"schedule_runs\"\nADD CONSTRAINT \"schedule_runs_schedule_id_fkey\"\nFOREIGN KEY (\"schedule_id\")\nREFERENCES \"public\".\"schedules\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"schedule_runs_schedule_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "schedule_runs_schedule_id_fkey",
+          "public",
+          "\"public\".\"schedule_runs\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.schedules.schedules_persona_id_fkey",
+    "label": "Add foreign key \"schedules_persona_id_fkey\" on \"schedules\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "schedules_persona_id_fkey",
+        "table": "schedules"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"schedules_persona_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "schedules_persona_id_fkey",
+          "public",
+          "\"public\".\"schedules\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"schedules_persona_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"schedules\"\nADD CONSTRAINT \"schedules_persona_id_fkey\"\nFOREIGN KEY (\"persona_id\")\nREFERENCES \"public\".\"personas\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"schedules_persona_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "schedules_persona_id_fkey",
+          "public",
+          "\"public\".\"schedules\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.schedules.schedules_link_id_fkey",
+    "label": "Add foreign key \"schedules_link_id_fkey\" on \"schedules\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "schedules_link_id_fkey",
+        "table": "schedules"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"schedules_link_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "schedules_link_id_fkey",
+          "public",
+          "\"public\".\"schedules\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"schedules_link_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"schedules\"\nADD CONSTRAINT \"schedules_link_id_fkey\"\nFOREIGN KEY (\"link_id\")\nREFERENCES \"public\".\"links\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"schedules_link_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "schedules_link_id_fkey",
+          "public",
+          "\"public\".\"schedules\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.sessions.sessions_persona_id_fkey",
+    "label": "Add foreign key \"sessions_persona_id_fkey\" on \"sessions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "sessions_persona_id_fkey",
+        "table": "sessions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"sessions_persona_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "sessions_persona_id_fkey",
+          "public",
+          "\"public\".\"sessions\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"sessions_persona_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"sessions\"\nADD CONSTRAINT \"sessions_persona_id_fkey\"\nFOREIGN KEY (\"persona_id\")\nREFERENCES \"public\".\"personas\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"sessions_persona_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "sessions_persona_id_fkey",
+          "public",
+          "\"public\".\"sessions\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.skills.skills_persona_id_fkey",
+    "label": "Add foreign key \"skills_persona_id_fkey\" on \"skills\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "skills_persona_id_fkey",
+        "table": "skills"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"skills_persona_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "skills_persona_id_fkey",
+          "public",
+          "\"public\".\"skills\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"skills_persona_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"skills\"\nADD CONSTRAINT \"skills_persona_id_fkey\"\nFOREIGN KEY (\"persona_id\")\nREFERENCES \"public\".\"personas\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"skills_persona_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "skills_persona_id_fkey",
+          "public",
+          "\"public\".\"skills\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.snapshots.snapshots_persona_id_fkey",
+    "label": "Add foreign key \"snapshots_persona_id_fkey\" on \"snapshots\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "snapshots_persona_id_fkey",
+        "table": "snapshots"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"snapshots_persona_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "snapshots_persona_id_fkey",
+          "public",
+          "\"public\".\"snapshots\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"snapshots_persona_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"snapshots\"\nADD CONSTRAINT \"snapshots_persona_id_fkey\"\nFOREIGN KEY (\"persona_id\")\nREFERENCES \"public\".\"personas\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"snapshots_persona_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "snapshots_persona_id_fkey",
+          "public",
+          "\"public\".\"snapshots\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.telegram_bots.telegram_bots_project_id_fkey",
+    "label": "Add foreign key \"telegram_bots_project_id_fkey\" on \"telegram_bots\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "telegram_bots_project_id_fkey",
+        "table": "telegram_bots"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"telegram_bots_project_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "telegram_bots_project_id_fkey",
+          "public",
+          "\"public\".\"telegram_bots\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"telegram_bots_project_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"telegram_bots\"\nADD CONSTRAINT \"telegram_bots_project_id_fkey\"\nFOREIGN KEY (\"project_id\")\nREFERENCES \"public\".\"projects\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"telegram_bots_project_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "telegram_bots_project_id_fkey",
+          "public",
+          "\"public\".\"telegram_bots\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.webhook_runs.webhook_runs_webhook_id_fkey",
+    "label": "Add foreign key \"webhook_runs_webhook_id_fkey\" on \"webhook_runs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "webhook_runs_webhook_id_fkey",
+        "table": "webhook_runs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"webhook_runs_webhook_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "webhook_runs_webhook_id_fkey",
+          "public",
+          "\"public\".\"webhook_runs\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"webhook_runs_webhook_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"webhook_runs\"\nADD CONSTRAINT \"webhook_runs_webhook_id_fkey\"\nFOREIGN KEY (\"webhook_id\")\nREFERENCES \"public\".\"webhooks\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"webhook_runs_webhook_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "webhook_runs_webhook_id_fkey",
+          "public",
+          "\"public\".\"webhook_runs\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.webhooks.webhooks_persona_id_fkey",
+    "label": "Add foreign key \"webhooks_persona_id_fkey\" on \"webhooks\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "webhooks_persona_id_fkey",
+        "table": "webhooks"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"webhooks_persona_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "webhooks_persona_id_fkey",
+          "public",
+          "\"public\".\"webhooks\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"webhooks_persona_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"webhooks\"\nADD CONSTRAINT \"webhooks_persona_id_fkey\"\nFOREIGN KEY (\"persona_id\")\nREFERENCES \"public\".\"personas\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"webhooks_persona_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "webhooks_persona_id_fkey",
+          "public",
+          "\"public\".\"webhooks\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.webhooks.webhooks_link_id_fkey",
+    "label": "Add foreign key \"webhooks_link_id_fkey\" on \"webhooks\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "webhooks_link_id_fkey",
+        "table": "webhooks"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"webhooks_link_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "webhooks_link_id_fkey",
+          "public",
+          "\"public\".\"webhooks\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"webhooks_link_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"webhooks\"\nADD CONSTRAINT \"webhooks_link_id_fkey\"\nFOREIGN KEY (\"link_id\")\nREFERENCES \"public\".\"links\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"webhooks_link_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "webhooks_link_id_fkey",
+          "public",
+          "\"public\".\"webhooks\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.whatsapp_lines.whatsapp_lines_project_id_fkey",
+    "label": "Add foreign key \"whatsapp_lines_project_id_fkey\" on \"whatsapp_lines\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "whatsapp_lines_project_id_fkey",
+        "table": "whatsapp_lines"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"whatsapp_lines_project_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "whatsapp_lines_project_id_fkey",
+          "public",
+          "\"public\".\"whatsapp_lines\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"whatsapp_lines_project_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"whatsapp_lines\"\nADD CONSTRAINT \"whatsapp_lines_project_id_fkey\"\nFOREIGN KEY (\"project_id\")\nREFERENCES \"public\".\"projects\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"whatsapp_lines_project_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "whatsapp_lines_project_id_fkey",
+          "public",
+          "\"public\".\"whatsapp_lines\""
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,241 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@source "../node_modules/streamdown/dist/*.js";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: var(--font-newsreader);
+    --font-wordmark: var(--font-nunito);
+    --font-sans: var(--font-sans);
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+    --background: var(--paper);
+    --foreground: var(--ink);
+    --card: var(--chip);
+    --card-foreground: var(--ink);
+    --popover: var(--chip);
+    --popover-foreground: var(--ink);
+    --primary: #202020;
+    --primary-foreground: #fbfbf8;
+    --secondary: var(--paper-3);
+    --secondary-foreground: var(--ink);
+    --muted: var(--paper-3);
+    --muted-foreground: #63605d;
+    --accent: var(--paper-3);
+    --accent-foreground: var(--ink);
+    --destructive: #b5403a;
+    --border: var(--line);
+    --input: rgb(32 32 32 / 0.14);
+    --ring: #1a6fd1;
+    --chart-1: oklch(0.56 0.188 258.5);
+    --chart-2: oklch(0.717 0.135 251.3);
+    --chart-3: oklch(0.621 0.141 152.6);
+    --chart-4: oklch(0.809 0.096 153.7);
+    --chart-5: oklch(0.863 0.149 84.7);
+    --radius: 0.5rem;
+    --sidebar: var(--paper-2);
+    --sidebar-foreground: var(--ink);
+    --sidebar-primary: oklch(0.56 0.188 258.5);
+    --sidebar-primary-foreground: oklch(1 0 0);
+    --sidebar-accent: var(--chip);
+    --sidebar-accent-foreground: var(--ink);
+    --sidebar-border: var(--line);
+    --sidebar-ring: oklch(0.56 0.188 258.5);
+}
+
+.dark {
+    --primary: #f2eee4;
+    --primary-foreground: #1b1b1a;
+    --muted-foreground: #aaa69c;
+    --accent: #333331;
+    --destructive: #f08a80;
+    --input: rgb(255 250 235 / 0.14);
+    --ring: #6ea8f0;
+    --chart-1: oklch(0.756 0.126 256.6);
+    --chart-2: oklch(0.84 0.08 256.7);
+    --chart-3: oklch(0.731 0.141 156.7);
+    --chart-4: oklch(0.842 0.105 157.2);
+    --chart-5: oklch(0.88 0.135 86.1);
+    --sidebar-primary: oklch(0.756 0.126 256.6);
+    --sidebar-primary-foreground: oklch(0.207 0.054 264.8);
+    --sidebar-ring: oklch(0.756 0.126 256.6);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+    }
+  html {
+    @apply font-sans;
+    font-synthesis-weight: none;
+    }
+}
+
+/* Persona: our own tokens. The blocks above are shadcn's, so shadcn updates and theme changes go there. */
+@theme inline {
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
+    --color-warning: var(--warning);
+    --color-warning-foreground: var(--warning-foreground);
+    --color-info: var(--info);
+    --color-info-foreground: var(--info-foreground);
+    --color-paper: var(--paper);
+    --color-paper-2: var(--paper-2);
+    --color-paper-3: var(--paper-3);
+    --color-band: var(--band);
+    --color-ink: var(--ink);
+    --color-line: var(--line);
+    --color-line-2: var(--line-2);
+    --color-chip: var(--chip);
+    --color-sky: var(--sky);
+    --color-sun: var(--sun);
+    --color-sky-ink: var(--sky-ink);
+    --color-green-soft: var(--green-soft);
+    --color-green-ink: var(--green-ink);
+    --color-amber-soft: var(--amber-soft);
+    --color-amber-ink: var(--amber-ink);
+    --color-red-soft: var(--red-soft);
+    --color-red-ink: var(--red-ink);
+    --color-key: var(--key);
+    --color-key-foreground: var(--key-foreground);
+    --color-clay: var(--clay);
+    --shadow-chip: var(--elev-chip);
+    --shadow-float: var(--elev-float);
+    --shadow-clay: var(--elev-clay);
+    --shadow-key: var(--elev-key);
+    --shadow-node: var(--elev-node);
+}
+
+.persona {
+    /* Paper and ink are the landing's (factory.css), so the legal pages and the landing's footer share one ground */
+    --paper: #f5f4f2;
+    --paper-2: #f4f3ef;
+    --paper-3: #ebeae5;
+    --band: #ecebe5;
+    --ink: #252522;
+    --line: rgb(32 32 32 / 0.1);
+    --line-2: rgb(0 0 0 / 0.06);
+    --chip: #ffffff;
+    --sky: #dae9fb;
+    --sun: oklch(0.863 0.149 84.7);
+    --sky-ink: #1558b0;
+    --green-soft: #dff3e6;
+    --green-ink: #1d7a3e;
+    --amber-soft: #fdf0d5;
+    --amber-ink: #8a5200;
+    --red-soft: #fbe3e3;
+    --red-ink: #b5403a;
+    --clay: var(--paper);
+    --key: #414141;
+    --key-foreground: #fbfbf8;
+    --elev-chip: inset 0 0 0 1px #fff, 0 0 0 1px rgb(0 0 0 / 0.08), 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 8px rgb(0 0 0 / 0.04);
+    --elev-float: inset 0 0 0 1px #fff, 0 0 0 1px rgb(0 0 0 / 0.08), 0 8px 24px rgb(0 0 0 / 0.1);
+    --elev-clay: 0 2px 3px rgb(0 0 0 / 0.06), inset 0 0 0.357px 1.5px rgb(255 255 255 / 0.35), inset 0 2px 0 #fff;
+    --elev-key: 0 0 0 1px rgb(64 64 64 / 0.12), inset 0 2px 0 rgb(255 255 255 / 0.24), inset 0 -0.5px 2px rgb(0 0 0 / 0.25), 0 2px 8px rgb(0 0 0 / 0.03), 0 3px 6px rgb(0 0 0 / 0.16);
+    --elev-node: inset 0 0 0 1px rgb(0 0 0 / 0.09), inset 0 -2px 0 rgb(0 0 0 / 0.05);
+    --success: oklch(0.533 0.119 153);
+    --success-foreground: oklch(1 0 0);
+    --warning: oklch(0.686 0.128 72);
+    --warning-foreground: oklch(0.268 0.028 48);
+    --info: #1a6fd1;
+    --info-foreground: oklch(0.988 0.008 84);
+    --px-small: polygon(0px 4px, 2px 4px, 2px 2px, 4px 2px, 4px 0px, calc(100% - 4px) 0px, calc(100% - 4px) 2px, calc(100% - 2px) 2px, calc(100% - 2px) 4px, 100% 4px, 100% calc(100% - 4px), calc(100% - 2px) calc(100% - 4px), calc(100% - 2px) calc(100% - 2px), calc(100% - 4px) calc(100% - 2px), calc(100% - 4px) 100%, 4px 100%, 4px calc(100% - 2px), 2px calc(100% - 2px), 2px calc(100% - 4px), 0px calc(100% - 4px));
+    --px-control: polygon(0px 10px, 2px 10px, 2px 6px, 4px 6px, 4px 4px, 6px 4px, 6px 2px, 10px 2px, 10px 0px, calc(100% - 10px) 0px, calc(100% - 10px) 2px, calc(100% - 6px) 2px, calc(100% - 6px) 4px, calc(100% - 4px) 4px, calc(100% - 4px) 6px, calc(100% - 2px) 6px, calc(100% - 2px) 10px, 100% 10px, 100% calc(100% - 10px), calc(100% - 2px) calc(100% - 10px), calc(100% - 2px) calc(100% - 6px), calc(100% - 4px) calc(100% - 6px), calc(100% - 4px) calc(100% - 4px), calc(100% - 6px) calc(100% - 4px), calc(100% - 6px) calc(100% - 2px), calc(100% - 10px) calc(100% - 2px), calc(100% - 10px) 100%, 10px 100%, 10px calc(100% - 2px), 6px calc(100% - 2px), 6px calc(100% - 4px), 4px calc(100% - 4px), 4px calc(100% - 6px), 2px calc(100% - 6px), 2px calc(100% - 10px), 0px calc(100% - 10px));
+    --px-outline: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2222%22%20height%3D%2222%22%20viewBox%3D%220%200%2022%2022%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20fill%3D%22%23d8d6ce%22%20d%3D%22M10%200h2v2h-2zM6%202h2v2h-2zM8%202h2v2h-2zM12%202h2v2h-2zM14%202h2v2h-2zM4%204h2v2h-2zM16%204h2v2h-2zM2%206h2v2h-2zM18%206h2v2h-2zM2%208h2v2h-2zM18%208h2v2h-2zM0%2010h2v2h-2zM20%2010h2v2h-2zM2%2012h2v2h-2zM18%2012h2v2h-2zM2%2014h2v2h-2zM18%2014h2v2h-2zM4%2016h2v2h-2zM16%2016h2v2h-2zM6%2018h2v2h-2zM8%2018h2v2h-2zM12%2018h2v2h-2zM14%2018h2v2h-2zM10%2020h2v2h-2z%22%2F%3E%3C%2Fsvg%3E") 10 / 10px / 0 stretch;
+}
+
+.persona.dark {
+    --paper: #282826;
+    --paper-2: #1e1e1d;
+    --paper-3: #323230;
+    --band: #191918;
+    --ink: #f2eee4;
+    --line: rgb(255 250 235 / 0.1);
+    --line-2: rgb(255 250 235 / 0.07);
+    --chip: #282826;
+    --sky: #1e2a38;
+    --sun: oklch(0.88 0.135 86.1);
+    --sky-ink: #8dbcf5;
+    --green-soft: rgb(52 168 83 / 0.16);
+    --green-ink: #7fd69b;
+    --amber-soft: rgb(245 158 11 / 0.15);
+    --amber-ink: #f6c36b;
+    --red-soft: rgb(181 64 58 / 0.22);
+    --red-ink: #f29a90;
+    --clay: #2f2f2d;
+    --key: #ece8de;
+    --key-foreground: #1b1b1a;
+    --elev-chip: inset 0 1px 0 rgb(255 250 235 / 0.06), 0 0 0 1px rgb(0 0 0 / 0.55), 0 1px 2px rgb(0 0 0 / 0.25), 0 4px 8px rgb(0 0 0 / 0.2);
+    --elev-float: inset 0 1px 0 rgb(255 250 235 / 0.07), 0 0 0 1px rgb(0 0 0 / 0.6), 0 12px 32px rgb(0 0 0 / 0.45);
+    --elev-clay: 0 0 0 1px rgb(0 0 0 / 0.5), 0 2px 3px rgb(0 0 0 / 0.3), inset 0 1px 0 rgb(255 250 235 / 0.09);
+    --elev-key: 0 0 0 1px rgb(0 0 0 / 0.6), inset 0 2px 0 #fff, inset 0 -0.5px 2px rgb(0 0 0 / 0.25), 0 2px 8px rgb(0 0 0 / 0.2), 0 3px 6px rgb(0 0 0 / 0.4);
+    --elev-node: inset 0 0 0 1px rgb(255 250 235 / 0.09), inset 0 -2px 0 rgb(0 0 0 / 0.3);
+    --success: oklch(0.731 0.141 156.7);
+    --success-foreground: oklch(0.231 0.054 150.2);
+    --warning: oklch(0.831 0.14 80.9);
+    --warning-foreground: oklch(0.238 0.044 78.4);
+    --info: #6ea8f0;
+    --info-foreground: oklch(0.207 0.054 264.8);
+    --px-outline: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2222%22%20height%3D%2222%22%20viewBox%3D%220%200%2022%2022%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20fill%3D%22%233e3e3b%22%20d%3D%22M10%200h2v2h-2zM6%202h2v2h-2zM8%202h2v2h-2zM12%202h2v2h-2zM14%202h2v2h-2zM4%204h2v2h-2zM16%204h2v2h-2zM2%206h2v2h-2zM18%206h2v2h-2zM2%208h2v2h-2zM18%208h2v2h-2zM0%2010h2v2h-2zM20%2010h2v2h-2zM2%2012h2v2h-2zM18%2012h2v2h-2zM2%2014h2v2h-2zM18%2014h2v2h-2zM4%2016h2v2h-2zM16%2016h2v2h-2zM6%2018h2v2h-2zM8%2018h2v2h-2zM12%2018h2v2h-2zM14%2018h2v2h-2zM10%2020h2v2h-2z%22%2F%3E%3C%2Fsvg%3E") 10 / 10px / 0 stretch;
+}
+
+/* Pixel corners from the Kit: put pixelate (controls) or pixelate-sm (small things) on any element. Tailwind puts this block after its own utilities, so it wins over rounded-*. */
+@layer utilities {
+  .pixelate {
+    border-radius: 0;
+    clip-path: var(--px-control);
+  }
+
+  .pixelate-sm {
+    border-radius: 0;
+    clip-path: var(--px-small);
+  }
+}

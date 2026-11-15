@@ -1,0 +1,546 @@
+[
+  {
+    "id": "data.public.runs.result",
+    "label": "Add notify to the old results on \"runs\"",
+    "operationClass": "data",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "result",
+        "table": "runs"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "add notify to the results that have none",
+        "sql": "UPDATE \"public\".\"runs\" SET \"result\" = \"result\" || '{\"notify\": false}'::jsonb WHERE \"result\" ? 'summary' AND NOT \"result\" ? 'notify'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify every result with a summary has notify",
+        "sql": "SELECT NOT EXISTS (SELECT 1 FROM \"public\".\"runs\" WHERE \"result\" ? 'summary' AND NOT \"result\" ? 'notify') AS \"result\""
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.credentials.credentials_fields_shape_edecd7d9",
+    "label": "Add check constraint \"credentials_fields_shape_edecd7d9\" on \"credentials\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "credentials_fields_shape_edecd7d9",
+        "table": "credentials"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"credentials_fields_shape_edecd7d9\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "credentials_fields_shape_edecd7d9",
+          "public",
+          "\"public\".\"credentials\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"credentials_fields_shape_edecd7d9\" on \"credentials\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"credentials_fields_shape_edecd7d9\"",
+        "sql": "ALTER TABLE \"public\".\"credentials\" ADD CONSTRAINT \"credentials_fields_shape_edecd7d9\" CHECK (jsonb_path_match(\"fields\", 'strict $.type() == \"array\" && !exists($[*] ? (!((@.type() == \"object\" && exists(@.keyvalue() ? (@.key == \"name\" && (@.value.type() == \"string\"))) && exists(@.keyvalue() ? (@.key == \"secret\" && (@.value.type() == \"boolean\"))) && !exists(@.keyvalue() ? (@.key != \"name\" && @.key != \"secret\"))))))') IS TRUE)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"credentials_fields_shape_edecd7d9\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "credentials_fields_shape_edecd7d9",
+          "public",
+          "\"public\".\"credentials\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.organizations.organizations_invitations_shape_25a80c96",
+    "label": "Add check constraint \"organizations_invitations_shape_25a80c96\" on \"organizations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "organizations_invitations_shape_25a80c96",
+        "table": "organizations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"organizations_invitations_shape_25a80c96\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "organizations_invitations_shape_25a80c96",
+          "public",
+          "\"public\".\"organizations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"organizations_invitations_shape_25a80c96\" on \"organizations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"organizations_invitations_shape_25a80c96\"",
+        "sql": "ALTER TABLE \"public\".\"organizations\" ADD CONSTRAINT \"organizations_invitations_shape_25a80c96\" CHECK (jsonb_path_match(\"invitations\", 'strict $.type() == \"array\" && !exists($[*] ? (!((@.type() == \"object\" && !exists(@.keyvalue() ? (@.key == \"clerkCreatedAt\" && !(@.value.type() == \"null\" || (@.value.type() == \"string\")))) && exists(@.keyvalue() ? (@.key == \"email\" && (@.value.type() == \"string\"))) && exists(@.keyvalue() ? (@.key == \"invitationId\" && (@.value.type() == \"string\"))) && exists(@.keyvalue() ? (@.key == \"role\" && (@.value.type() == \"string\"))) && exists(@.keyvalue() ? (@.key == \"status\" && (@.value.type() == \"string\"))) && !exists(@.keyvalue() ? (@.key != \"clerkCreatedAt\" && @.key != \"email\" && @.key != \"invitationId\" && @.key != \"role\" && @.key != \"status\"))))))') IS TRUE)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"organizations_invitations_shape_25a80c96\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "organizations_invitations_shape_25a80c96",
+          "public",
+          "\"public\".\"organizations\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.organizations.organizations_members_shape_15ab7947",
+    "label": "Add check constraint \"organizations_members_shape_15ab7947\" on \"organizations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "organizations_members_shape_15ab7947",
+        "table": "organizations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"organizations_members_shape_15ab7947\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "organizations_members_shape_15ab7947",
+          "public",
+          "\"public\".\"organizations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"organizations_members_shape_15ab7947\" on \"organizations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"organizations_members_shape_15ab7947\"",
+        "sql": "ALTER TABLE \"public\".\"organizations\" ADD CONSTRAINT \"organizations_members_shape_15ab7947\" CHECK (jsonb_path_match(\"members\", 'strict $.type() == \"array\" && !exists($[*] ? (!((@.type() == \"object\" && !exists(@.keyvalue() ? (@.key == \"clerkCreatedAt\" && !(@.value.type() == \"null\" || (@.value.type() == \"string\")))) && exists(@.keyvalue() ? (@.key == \"email\" && (@.value.type() == \"string\"))) && !exists(@.keyvalue() ? (@.key == \"firstName\" && !(@.value.type() == \"null\" || (@.value.type() == \"string\")))) && !exists(@.keyvalue() ? (@.key == \"imageUrl\" && !(@.value.type() == \"null\" || (@.value.type() == \"string\")))) && !exists(@.keyvalue() ? (@.key == \"lastName\" && !(@.value.type() == \"null\" || (@.value.type() == \"string\")))) && exists(@.keyvalue() ? (@.key == \"membershipId\" && (@.value.type() == \"string\"))) && exists(@.keyvalue() ? (@.key == \"role\" && (@.value.type() == \"string\"))) && exists(@.keyvalue() ? (@.key == \"userId\" && (@.value.type() == \"string\"))) && !exists(@.keyvalue() ? (@.key != \"clerkCreatedAt\" && @.key != \"email\" && @.key != \"firstName\" && @.key != \"imageUrl\" && @.key != \"lastName\" && @.key != \"membershipId\" && @.key != \"role\" && @.key != \"userId\"))))))') IS TRUE)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"organizations_members_shape_15ab7947\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "organizations_members_shape_15ab7947",
+          "public",
+          "\"public\".\"organizations\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.organizations.organizations_plan_shape_016bf7c3",
+    "label": "Add check constraint \"organizations_plan_shape_016bf7c3\" on \"organizations\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "organizations_plan_shape_016bf7c3",
+        "table": "organizations"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"organizations_plan_shape_016bf7c3\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "organizations_plan_shape_016bf7c3",
+          "public",
+          "\"public\".\"organizations\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"organizations_plan_shape_016bf7c3\" on \"organizations\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"organizations_plan_shape_016bf7c3\"",
+        "sql": "ALTER TABLE \"public\".\"organizations\" ADD CONSTRAINT \"organizations_plan_shape_016bf7c3\" CHECK (\"plan\" IS NULL OR jsonb_path_match(\"plan\", 'strict $.type() == \"null\" || ($.type() == \"object\" && exists($.keyvalue() ? (@.key == \"credits\" && (@.value.type() == \"number\"))) && !exists($.keyvalue() ? (@.key == \"downgradeTo\" && !(@.value.type() == \"null\" || (@.value.type() == \"string\")))) && exists($.keyvalue() ? (@.key == \"key\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"periodEnd\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"periodStart\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"startedAt\" && (@.value.type() == \"string\"))) && !exists($.keyvalue() ? (@.key != \"credits\" && @.key != \"downgradeTo\" && @.key != \"key\" && @.key != \"periodEnd\" && @.key != \"periodStart\" && @.key != \"startedAt\")))') IS TRUE)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"organizations_plan_shape_016bf7c3\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "organizations_plan_shape_016bf7c3",
+          "public",
+          "\"public\".\"organizations\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.personas.personas_models_shape_49461cab",
+    "label": "Add check constraint \"personas_models_shape_49461cab\" on \"personas\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "personas_models_shape_49461cab",
+        "table": "personas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"personas_models_shape_49461cab\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personas_models_shape_49461cab",
+          "public",
+          "\"public\".\"personas\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"personas_models_shape_49461cab\" on \"personas\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"personas_models_shape_49461cab\"",
+        "sql": "ALTER TABLE \"public\".\"personas\" ADD CONSTRAINT \"personas_models_shape_49461cab\" CHECK (jsonb_path_match(\"models\", 'strict $.type() == \"array\" && !exists($[*] ? (!((@.type() == \"object\" && exists(@.keyvalue() ? (@.key == \"model\" && (@.value.type() == \"string\"))) && exists(@.keyvalue() ? (@.key == \"when\" && (@.value.type() == \"string\"))) && !exists(@.keyvalue() ? (@.key != \"model\" && @.key != \"when\"))))))') IS TRUE)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"personas_models_shape_49461cab\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "personas_models_shape_49461cab",
+          "public",
+          "\"public\".\"personas\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.runs.runs_result_shape_f81b50e5",
+    "label": "Add check constraint \"runs_result_shape_f81b50e5\" on \"runs\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "runs_result_shape_f81b50e5",
+        "table": "runs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"runs_result_shape_f81b50e5\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "runs_result_shape_f81b50e5",
+          "public",
+          "\"public\".\"runs\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"runs_result_shape_f81b50e5\" on \"runs\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"runs_result_shape_f81b50e5\"",
+        "sql": "ALTER TABLE \"public\".\"runs\" ADD CONSTRAINT \"runs_result_shape_f81b50e5\" CHECK (\"result\" IS NULL OR jsonb_path_match(\"result\", 'strict $.type() == \"null\" || ($.type() == \"object\" && exists($.keyvalue() ? (@.key == \"notify\" && (@.value.type() == \"boolean\"))) && exists($.keyvalue() ? (@.key == \"summary\" && (@.value.type() == \"string\"))) && !exists($.keyvalue() ? (@.key != \"notify\" && @.key != \"summary\")))') IS TRUE)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"runs_result_shape_f81b50e5\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "runs_result_shape_f81b50e5",
+          "public",
+          "\"public\".\"runs\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.secrets.secrets_values_shape_075c2ca7",
+    "label": "Add check constraint \"secrets_values_shape_075c2ca7\" on \"secrets\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "secrets_values_shape_075c2ca7",
+        "table": "secrets"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"secrets_values_shape_075c2ca7\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "secrets_values_shape_075c2ca7",
+          "public",
+          "\"public\".\"secrets\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"secrets_values_shape_075c2ca7\" on \"secrets\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"secrets_values_shape_075c2ca7\"",
+        "sql": "ALTER TABLE \"public\".\"secrets\" ADD CONSTRAINT \"secrets_values_shape_075c2ca7\" CHECK (jsonb_path_match(\"values\", 'strict $.type() == \"array\" && !exists($[*] ? (!((@.type() == \"object\" && exists(@.keyvalue() ? (@.key == \"name\" && (@.value.type() == \"string\"))) && exists(@.keyvalue() ? (@.key == \"value\" && (@.value.type() == \"string\"))) && !exists(@.keyvalue() ? (@.key != \"name\" && @.key != \"value\"))))))') IS TRUE)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"secrets_values_shape_075c2ca7\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "secrets_values_shape_075c2ca7",
+          "public",
+          "\"public\".\"secrets\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.skills.skills_files_shape_b1107585",
+    "label": "Add check constraint \"skills_files_shape_b1107585\" on \"skills\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "skills_files_shape_b1107585",
+        "table": "skills"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"skills_files_shape_b1107585\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "skills_files_shape_b1107585",
+          "public",
+          "\"public\".\"skills\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"skills_files_shape_b1107585\" on \"skills\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"skills_files_shape_b1107585\"",
+        "sql": "ALTER TABLE \"public\".\"skills\" ADD CONSTRAINT \"skills_files_shape_b1107585\" CHECK (jsonb_path_match(\"files\", 'strict $.type() == \"array\" && !exists($[*] ? (!((@.type() == \"object\" && exists(@.keyvalue() ? (@.key == \"contents\" && (@.value.type() == \"string\"))) && exists(@.keyvalue() ? (@.key == \"path\" && (@.value.type() == \"string\"))) && !exists(@.keyvalue() ? (@.key != \"contents\" && @.key != \"path\"))))))') IS TRUE)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"skills_files_shape_b1107585\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "skills_files_shape_b1107585",
+          "public",
+          "\"public\".\"skills\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.skills.skills_origin_shape_4ec07a35",
+    "label": "Add check constraint \"skills_origin_shape_4ec07a35\" on \"skills\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "skills_origin_shape_4ec07a35",
+        "table": "skills"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"skills_origin_shape_4ec07a35\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "skills_origin_shape_4ec07a35",
+          "public",
+          "\"public\".\"skills\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"skills_origin_shape_4ec07a35\" on \"skills\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"skills_origin_shape_4ec07a35\"",
+        "sql": "ALTER TABLE \"public\".\"skills\" ADD CONSTRAINT \"skills_origin_shape_4ec07a35\" CHECK (jsonb_path_match(\"origin\", 'strict $.type() == \"object\" && !exists($.keyvalue() ? (@.key == \"id\" && !(@.value.type() == \"null\" || (@.value.type() == \"string\")))) && exists($.keyvalue() ? (@.key == \"kind\" && (@.value.type() == \"string\" && (@.value == \"custom\" || @.value == \"hub\" || @.value == \"agent\")))) && !exists($.keyvalue() ? (@.key != \"id\" && @.key != \"kind\"))') IS TRUE)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"skills_origin_shape_4ec07a35\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "skills_origin_shape_4ec07a35",
+          "public",
+          "\"public\".\"skills\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.usage.usage_browser_shape_4a346f8e",
+    "label": "Add check constraint \"usage_browser_shape_4a346f8e\" on \"usage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "usage_browser_shape_4a346f8e",
+        "table": "usage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"usage_browser_shape_4a346f8e\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "usage_browser_shape_4a346f8e",
+          "public",
+          "\"public\".\"usage\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"usage_browser_shape_4a346f8e\" on \"usage\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"usage_browser_shape_4a346f8e\"",
+        "sql": "ALTER TABLE \"public\".\"usage\" ADD CONSTRAINT \"usage_browser_shape_4a346f8e\" CHECK (\"browser\" IS NULL OR jsonb_path_match(\"browser\", 'strict $.type() == \"null\" || ($.type() == \"object\" && exists($.keyvalue() ? (@.key == \"browserId\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"inputTokens\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"marketCost\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"model\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"outputTokens\" && (@.value.type() == \"number\"))) && !exists($.keyvalue() ? (@.key != \"browserId\" && @.key != \"inputTokens\" && @.key != \"marketCost\" && @.key != \"model\" && @.key != \"outputTokens\")))') IS TRUE)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"usage_browser_shape_4a346f8e\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "usage_browser_shape_4a346f8e",
+          "public",
+          "\"public\".\"usage\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.usage.usage_tokens_shape_c63d8867",
+    "label": "Add check constraint \"usage_tokens_shape_c63d8867\" on \"usage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "usage_tokens_shape_c63d8867",
+        "table": "usage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"usage_tokens_shape_c63d8867\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "usage_tokens_shape_c63d8867",
+          "public",
+          "\"public\".\"usage\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"usage_tokens_shape_c63d8867\" on \"usage\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"usage_tokens_shape_c63d8867\"",
+        "sql": "ALTER TABLE \"public\".\"usage\" ADD CONSTRAINT \"usage_tokens_shape_c63d8867\" CHECK (\"tokens\" IS NULL OR jsonb_path_match(\"tokens\", 'strict $.type() == \"null\" || ($.type() == \"object\" && exists($.keyvalue() ? (@.key == \"cacheWriteTokens\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"cachedInputTokens\" && (@.value.type() == \"number\"))) && !exists($.keyvalue() ? (@.key == \"gatewayCost\" && !(@.value.type() == \"null\" || (@.value.type() == \"string\")))) && exists($.keyvalue() ? (@.key == \"inputTokens\" && (@.value.type() == \"number\"))) && !exists($.keyvalue() ? (@.key == \"marketCost\" && !(@.value.type() == \"null\" || (@.value.type() == \"string\")))) && exists($.keyvalue() ? (@.key == \"model\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"outputTokens\" && (@.value.type() == \"number\"))) && !exists($.keyvalue() ? (@.key == \"provider\" && !(@.value.type() == \"null\" || (@.value.type() == \"string\")))) && exists($.keyvalue() ? (@.key == \"reasoningTokens\" && (@.value.type() == \"number\"))) && !exists($.keyvalue() ? (@.key != \"cacheWriteTokens\" && @.key != \"cachedInputTokens\" && @.key != \"gatewayCost\" && @.key != \"inputTokens\" && @.key != \"marketCost\" && @.key != \"model\" && @.key != \"outputTokens\" && @.key != \"provider\" && @.key != \"reasoningTokens\")))') IS TRUE)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"usage_tokens_shape_c63d8867\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "usage_tokens_shape_c63d8867",
+          "public",
+          "\"public\".\"usage\"",
+          "c"
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,653 @@
+[
+  {
+    "id": "dropConstraint.whatsapp_lines.whatsapp_lines_phone_number_id_key",
+    "label": "Drop constraint \"whatsapp_lines_phone_number_id_key\" on \"whatsapp_lines\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "whatsapp_lines_phone_number_id_key",
+        "table": "whatsapp_lines"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"whatsapp_lines_phone_number_id_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "whatsapp_lines_phone_number_id_key",
+          "public",
+          "\"public\".\"whatsapp_lines\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"whatsapp_lines_phone_number_id_key\" on \"whatsapp_lines\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop constraint \"whatsapp_lines_phone_number_id_key\"",
+        "sql": "ALTER TABLE \"public\".\"whatsapp_lines\" DROP CONSTRAINT \"whatsapp_lines_phone_number_id_key\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"whatsapp_lines_phone_number_id_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "whatsapp_lines_phone_number_id_key",
+          "public",
+          "\"public\".\"whatsapp_lines\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"whatsapp_lines_phone_number_id_key\" on \"whatsapp_lines\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropCheckConstraint.links.links_channel_check_d774a31d",
+    "label": "Drop check constraint \"links_channel_check_d774a31d\" on \"links\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "links_channel_check_d774a31d",
+        "table": "links"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"links_channel_check_d774a31d\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "links_channel_check_d774a31d",
+          "public",
+          "\"public\".\"links\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"links_channel_check_d774a31d\" on \"links\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"links_channel_check_d774a31d\"",
+        "sql": "ALTER TABLE \"public\".\"links\" DROP CONSTRAINT \"links_channel_check_d774a31d\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"links_channel_check_d774a31d\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "links_channel_check_d774a31d",
+          "public",
+          "\"public\".\"links\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"links_channel_check_d774a31d\" on \"links\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropColumn.whatsapp_lines.phone_number_id",
+    "label": "Drop column \"phone_number_id\" from \"whatsapp_lines\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "phone_number_id",
+        "table": "whatsapp_lines"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"phone_number_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "whatsapp_lines",
+          "phone_number_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"phone_number_id\" on \"whatsapp_lines\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"phone_number_id\"",
+        "sql": "ALTER TABLE \"public\".\"whatsapp_lines\" DROP COLUMN \"phone_number_id\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"phone_number_id\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "whatsapp_lines",
+          "phone_number_id"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"phone_number_id\" on \"whatsapp_lines\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "column.public.links.phone",
+    "label": "Add column \"phone\" to \"links\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "phone",
+        "table": "links"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"phone\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "links",
+          "phone"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"phone\" on \"links\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"phone\"",
+        "sql": "ALTER TABLE \"public\".\"links\" ADD COLUMN \"phone\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"phone\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "links",
+          "phone"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"phone\" on \"links\""
+        }
+      },
+      {
+        "description": "verify column \"phone\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "links",
+          "phone",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.whatsapp_lines.account_id",
+    "label": "Add column \"account_id\" to \"whatsapp_lines\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "account_id",
+        "table": "whatsapp_lines"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"account_id\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "whatsapp_lines",
+          "account_id"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"account_id\" on \"whatsapp_lines\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"account_id\"",
+        "sql": "ALTER TABLE \"public\".\"whatsapp_lines\" ADD COLUMN \"account_id\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"account_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "whatsapp_lines",
+          "account_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"account_id\" on \"whatsapp_lines\""
+        }
+      },
+      {
+        "description": "verify column \"account_id\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "whatsapp_lines",
+          "account_id",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.whatsapp_lines.number_id",
+    "label": "Add column \"number_id\" to \"whatsapp_lines\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "number_id",
+        "table": "whatsapp_lines"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"number_id\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "whatsapp_lines",
+          "number_id"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"number_id\" on \"whatsapp_lines\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"number_id\"",
+        "sql": "ALTER TABLE \"public\".\"whatsapp_lines\" ADD COLUMN \"number_id\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"number_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "whatsapp_lines",
+          "number_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"number_id\" on \"whatsapp_lines\""
+        }
+      },
+      {
+        "description": "verify column \"number_id\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "whatsapp_lines",
+          "number_id",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "alterNullability.dropNotNull.whatsapp_lines.number",
+    "label": "Drop NOT NULL on \"whatsapp_lines\".\"number\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "number",
+        "table": "whatsapp_lines"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"number\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "whatsapp_lines",
+          "number"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"number\" on \"whatsapp_lines\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop NOT NULL on \"number\"",
+        "sql": "ALTER TABLE \"public\".\"whatsapp_lines\" ALTER COLUMN \"number\" DROP NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"number\" is nullable",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "whatsapp_lines",
+          "number",
+          "YES"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.whatsapp_lines.profile_id",
+    "label": "Add column profile_id to whatsapp_lines",
+    "summary": "Adds column profile_id to table whatsapp_lines",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "profile_id",
+        "table": "whatsapp_lines"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"profile_id\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "whatsapp_lines",
+          "profile_id"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"profile_id\" on \"whatsapp_lines\""
+        }
+      },
+      {
+        "description": "ensure table \"whatsapp_lines\" is empty before adding NOT NULL column without default",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"public\".\"whatsapp_lines\" LIMIT 1) AS \"result\"",
+        "params": [],
+        "meta": {
+          "requiredColumn": {
+            "table": "whatsapp_lines",
+            "column": "profile_id",
+            "reason": "newField"
+          }
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"profile_id\"",
+        "sql": "ALTER TABLE \"public\".\"whatsapp_lines\" ADD COLUMN \"profile_id\" text NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"profile_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "whatsapp_lines",
+          "profile_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"profile_id\" on \"whatsapp_lines\""
+        }
+      },
+      {
+        "description": "verify column \"profile_id\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "whatsapp_lines",
+          "profile_id",
+          "NO"
+        ]
+      },
+      {
+        "description": "verify column \"profile_id\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "whatsapp_lines",
+          "profile_id",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.links.links_channel_check_75243d83",
+    "label": "Add check constraint \"links_channel_check_75243d83\" on \"links\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "links_channel_check_75243d83",
+        "table": "links"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"links_channel_check_75243d83\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "links_channel_check_75243d83",
+          "public",
+          "\"public\".\"links\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"links_channel_check_75243d83\" on \"links\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"links_channel_check_75243d83\"",
+        "sql": "ALTER TABLE \"public\".\"links\" ADD CONSTRAINT \"links_channel_check_75243d83\" CHECK (\"channel\" IN ('whatsapp', 'whatsapp_v2', 'telegram'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"links_channel_check_75243d83\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "links_channel_check_75243d83",
+          "public",
+          "\"public\".\"links\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.whatsapp_lines.whatsapp_lines_account_id_key",
+    "label": "Add unique constraint on \"whatsapp_lines\" (account_id)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "whatsapp_lines_account_id_key",
+        "table": "whatsapp_lines"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"whatsapp_lines_account_id_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "whatsapp_lines_account_id_key",
+          "public",
+          "\"public\".\"whatsapp_lines\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"whatsapp_lines_account_id_key\" on \"whatsapp_lines\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"whatsapp_lines_account_id_key\"",
+        "sql": "ALTER TABLE \"public\".\"whatsapp_lines\" ADD CONSTRAINT \"whatsapp_lines_account_id_key\" UNIQUE (\"account_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"whatsapp_lines_account_id_key\" exists on (account_id)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "whatsapp_lines_account_id_key",
+          "public",
+          "\"public\".\"whatsapp_lines\"",
+          "u",
+          "[\"account_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.whatsapp_lines.whatsapp_lines_number_id_key",
+    "label": "Add unique constraint on \"whatsapp_lines\" (number_id)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "whatsapp_lines_number_id_key",
+        "table": "whatsapp_lines"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"whatsapp_lines_number_id_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "whatsapp_lines_number_id_key",
+          "public",
+          "\"public\".\"whatsapp_lines\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"whatsapp_lines_number_id_key\" on \"whatsapp_lines\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"whatsapp_lines_number_id_key\"",
+        "sql": "ALTER TABLE \"public\".\"whatsapp_lines\" ADD CONSTRAINT \"whatsapp_lines_number_id_key\" UNIQUE (\"number_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"whatsapp_lines_number_id_key\" exists on (number_id)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "whatsapp_lines_number_id_key",
+          "public",
+          "\"public\".\"whatsapp_lines\"",
+          "u",
+          "[\"number_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.whatsapp_lines.whatsapp_lines_profile_id_key",
+    "label": "Add unique constraint on \"whatsapp_lines\" (profile_id)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "whatsapp_lines_profile_id_key",
+        "table": "whatsapp_lines"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"whatsapp_lines_profile_id_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "whatsapp_lines_profile_id_key",
+          "public",
+          "\"public\".\"whatsapp_lines\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"whatsapp_lines_profile_id_key\" on \"whatsapp_lines\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"whatsapp_lines_profile_id_key\"",
+        "sql": "ALTER TABLE \"public\".\"whatsapp_lines\" ADD CONSTRAINT \"whatsapp_lines_profile_id_key\" UNIQUE (\"profile_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"whatsapp_lines_profile_id_key\" exists on (profile_id)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "whatsapp_lines_profile_id_key",
+          "public",
+          "\"public\".\"whatsapp_lines\"",
+          "u",
+          "[\"profile_id\"]"
+        ]
+      }
+    ]
+  }
+]

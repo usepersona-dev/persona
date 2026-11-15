@@ -1,0 +1,158 @@
+---
+title: Architecture
+description: One Next.js app with the eve agent inside it, one Postgres database, and a rule for where each piece of logic lives.
+---
+
+Persona is one Next.js app, `webapp/`, with an [eve](https://eve.dev) agent inside it. `next.config.ts` wraps the Next.js config with `withEve()`. That mounts the agent at `/eve/v1/*` on the app's own origin, in development and on Vercel. There is no second server and no CORS.
+
+## The folders
+
+```
+webapp/
+├── app/          pages, and the REST API in app/api
+├── agent/        the eve agent: instructions, loaders, channels, tools, hooks, schedules, memory, sandbox
+├── usecases/     every business rule, one file per area
+├── lib/          one file per vendor, plus our own small helpers
+├── prisma/       the database contract and client
+├── hooks/        the app's SWR hooks, one file per area
+├── components/   app-wide UI
+├── tests/        node:test tests
+└── evals/        eve evals
+```
+
+The rule for logic:
+
+- **`lib/<vendor>.ts`** talks to one third party and nothing else. It does not touch the database. Examples: `lib/composio.ts`, `lib/zernio.ts`, `lib/browser-use.ts`, `lib/r2.ts`.
+- **`usecases/<area>.ts`** holds the business rules. A use case is the only way into the logic, whether it needs one service or several. It calls `lib/` and the database.
+- **Routes, pages and agent tools** call use cases. Nothing else does.
+
+```
+app screen → hooks/ → lib/api-client → HTTP → app/api route → usecases/ → lib/ and the database
+agent tool or loader ─────────────────────────────────────────→ usecases/ → lib/ and the database
+```
+
+So the API and the agent share one implementation. `instruction_save` and `POST /api/personas/{personaId}/instructions` both end in `usecases/instructions.ts`, with the same limits.
+
+## Results, not exceptions
+
+Every use case returns a `Result`: `{ ok: true, value }` or `{ ok: false, error: { code, message } }`. The codes are `not_found`, `invalid` and `conflict`. Each boundary turns a result into its own form:
+
+- an API route answers `404`, `400` or `409` with the message;
+- an agent tool throws the message, and the model reads it.
+
+A `throw` is kept for faults only, such as a missing environment variable or a vendor that is down.
+
+## Who is calling
+
+Every use case takes a caller, `{ orgId, userId }`, and checks that the row belongs to that organization. A row in another organization is `not_found`, so ids cannot be probed.
+
+| Caller | How it is proven |
+| --- | --- |
+| A person in the app | the Clerk session. `getSession()` copies the Clerk user and organization into the database the first time they are seen. There is no Clerk webhook. |
+| An API key | `Authorization: Bearer persona_sk_…`. Only the key's SHA-256 hash is stored. |
+| The web channel | an agent token: an HS256 JWT signed with `AGENT_TOKEN_SECRET`, issuer `persona`, audience `persona-agent`, valid for 15 minutes. Its claims name the organization, the user and the persona. |
+| A Telegram or WhatsApp chat | the chat's link. The user is `telegram:<bot>:<chat>`, `whatsapp_meta:<number>:<person>` on Meta, `whatsapp:<number>:<person>` on Kapso, or `whatsapp_v2:<account>:<conversation>` on Zernio. |
+| An automation run | the automation. The user is `automation:<automation id>`. |
+| A trigger run | the trigger, whose events Composio signs. The user is `trigger:<trigger id>`. |
+| A webhook call | the webhook's secret address. The user is `webhook:<webhook id>`. |
+
+The agent pins the caller when a session starts. Every loader, tool and hook reads it from the session. An agent's caller also carries its persona, and `getPersona` — which every by-id lookup goes through — answers `not_found` for any other persona, even one of the same organization. So an id pasted into a chat or planted in a page the agent reads cannot reach another persona's files, notes, automations or links; a person signed in to the app still reaches every persona of their organization.
+
+## Each turn
+
+At the start of every turn, the agent reads the persona's setup again through the same use cases the API uses:
+
+| What | File | When |
+| --- | --- | --- |
+| Model | `agent/agent.ts` | every turn |
+| Instructions | `agent/instructions/`: the persona and its own instructions (`persona.ts`, `creator.ts`), the rules and the pieces about tools, files, notes, the vault, the browser, chats and runs | every turn |
+| Skills | `agent/skills/creator.ts` | every turn |
+| MCP servers | `agent/connections/creator.ts` | every turn. Headers are read on each request to the server. |
+| Apps | `agent/connections/apps.ts` | once per turn; an app connected mid-chat is there on the next one |
+| Memory | `agent/memory.ts`, scoped to the persona | every turn |
+
+Three hooks and one instrumentation run around a turn:
+
+- `agent/hooks/credits.ts` checks the organization's credits before the first model call; with none left, the turn fails before it starts.
+- `agent/hooks/sessions.ts` keeps the `sessions` and `messages` tables: each session with its persona, channel and status, and every message of the conversation. [Usage](#usage) reads it for the persona of a model call, and the chat commands read it for a chat's session.
+- `agent/hooks/sandboxes.ts` stops the session's sandbox at the end of the turn and counts what ran, see [The sandbox](#the-sandbox).
+- `agent/instrumentation/usage.ts` saves every model call as usage, see [Usage](#usage).
+
+A run of an automation, a webhook or a trigger ends in its channel's own `turn.settled` handler (`agent/channels/automations.ts`, `webhooks.ts`, `triggers.ts`), with the result the turn gave or the failure.
+
+## The sandbox
+
+Each session gets a sandbox for commands: Vercel Sandbox on Vercel, and Docker or a local sandbox on your machine. Every command runs in a login shell. When the sandbox is first made, `agent/sandbox.ts` adds one line to `~/.profile` that loads `/workspace/.vault.env`. When a session opens its sandbox, it writes the persona's vault variables to that file.
+
+A sandbox runs on to its 5-minute timeout unless something stops it, and asking eve for a session's sandbox starts or resumes one. So `agent/hooks/sandboxes.ts` asks Vercel first, at the end of every turn, for the sandbox eve tagged with the session id (a read that never wakes the machine). A chat's sandbox is stopped only when it is running, and counted as [usage](#usage) from the totals Vercel keeps on it. A run's sandbox is stopped, counted and deleted whatever its state, since a run's session never comes back; one that had already stopped wakes for a moment first. A chat keeps its stopped sandbox: the next use wakes it with its files.
+
+## Channels
+
+WhatsApp and Telegram run through eve's bridge to the Vercel Chat SDK (`chat` on npm):
+
+- **WhatsApp on Meta:** one adapter per number, opened from the webhook path (`/eve/v1/meta/{phoneNumberId}`) with that number's keys: the shared number's from the environment, a project's own number's from its line.
+- **WhatsApp on Kapso (legacy):** one Kapso adapter serves the first shared number. The number comes from the webhook path.
+- **WhatsApp on Zernio (legacy):** one Zernio adapter serves the second shared number and the projects' old lines, all through one webhook. It answers only the numbers this environment has.
+- **Telegram:** one router adapter opens the right bot from the webhook path and reads that bot's token: the shared bot's from the environment, an own bot's from the secrets table.
+
+The Chat SDK keeps its state in Postgres, in a schema of its own named `chat`. Each thread id carries the persona's id, so linking a chat to another persona starts another session.
+
+Webhooks and triggers are channels of their own, without the Chat SDK: `POST /eve/v1/webhooks/{secret}` starts a run of that webhook in a session of its own, keyed by the run, with the call's body as a file; `/eve/v1/triggers` takes Composio's trigger events, and the schedule starts a run for a trigger once its first event has waited five minutes, with every event that arrived since.
+
+## Automations and reports
+
+One eve schedule, `agent/schedules/start.ts`, runs every minute; on Vercel it is a Cron Job. It fails the runs still going after an hour, then claims the runs to start: one for each automation due within the next ten minutes (a repeating one may start up to ten minutes early, so the many due at the same minute do not all start at once), one for each trigger whose first waiting event is five minutes old, and the runs that never got a session, claimed again five minutes after their start. An automation's next time is stored and indexed, so a tick reads only the due rows; a run is unique per automation and due time, so two ticks at once make no second run. Each of the three claims takes up to 7,000 runs per tick; the next tick takes the rest.
+
+Each claimed run goes on a [Vercel Queue](https://vercel.com/docs/queues) (`lib/queue.ts`): an automation run waits in its topic until its start, a trigger run goes at once. `vercel.json` hands each topic to a route under `app/api/queues/`, which calls the agent's own run route with `AUTOMATIONS_SECRET`. The run's turn ends in the channel's `turn.settled`: a completed turn ends the run with the result it gave, a failed one fails it. A result worth telling, from a run whose chat belongs to the same persona, goes on the reports queue, and the report route sends it to that chat.
+
+## Usage
+
+Usage is counted where it happens, one row per thing, written the moment it ends. eve reports each of its model calls (the turns, compaction and subagents) as a `model.call.settled` event, and `agent/instrumentation/usage.ts` saves each one. The media tools count their own calls in `usecases/media.ts`, a browser task counts in `usecases/browser-use.ts`, and the sandbox hook counts a session's sandbox time when it stops it.
+
+A row in `usage` (the `Usage` model) is one thing an organization used, with the persona's organization and project, the chat's session and the moment it was saved (`at`). Its price is in credits: where the AI Gateway's list price for the call is read, it becomes credits, one credit for each $0.20 (`USD_PER_CREDIT` in `usecases/credits.ts`), and `chargeUsage` writes the credits. What was used sits in one typed field per kind: an AI call fills `tokens` (its model and provider, and its input, cached, cache-write, output and reasoning tokens; `readGatewayCall` in `lib/ai-gateway.ts` reads them from the gateway's reply), a browser task fills `browser`, and sandbox time fills `sandbox` (how long the session's sandbox ran and the CPU it used since the last count, priced at Vercel's list). Its id is the gateway's generation id, or the sandbox's name and total, so nothing is counted twice. `chargeUsage` in `usecases/credits.ts` writes it: one plain insert that never reads credits.
+
+Credits live in Autumn (`lib/autumn.ts`), which also runs Stripe. `autumn.config.ts` holds the plans, and each deploy sends them to the Autumn environment of its key (`pnpm autumn:push`), the way `pnpm db:migrate` runs the migrations. Every organization has the Free plan's credits each month, and a paid plan's credits come on top. Each paid plan also has a price for more credits: they never reset, usage takes them after the month's credits, and they outlive a plan change. Autumn runs auto-reload itself: after each charge it looks at the balance and bills the saved card at that price. `chargeUsage` saves the `usage` row, which stays our record, then takes the credits with Autumn's `track`, with the persona's id on it. The one credits guard, `agent/hooks/credits.ts`, asks Autumn's `check` before a turn's first model call, and an organization's first turn makes its Autumn customer. If Autumn cannot be reached, its SDK lets `check` and `track` through: turns go on, the row is saved, and no credits are taken. The Billing page reads the plan and the credits live from Autumn (`getBilling` in `usecases/billing.ts`).
+
+An eve call's persona comes from its session's row in `sessions`; a media call's from the tool that made it. Reads add up the rows of a time range when they ask. Settings → Usage shows the organization's credits in a range as one total and as an area chart per day (per hour for the last 24 hours) split by project, then a table of the top 5 personas, the other personas in one row and the removed personas. Past the top 5, projects also fold into one gray "other projects" in the bars.
+
+Video clips come back without a price: the gateway's replies name the clip's generation but carry no cost, so `readVideo` in `usecases/media.ts` counts each finished clip at a fixed 6 credits ($1.20, what the gateway's records show for a clip), under the clip's generation id.
+
+Not counted: apps (Composio), memory and web search, which the project carries.
+
+## Observability
+
+The browsers and the servers report to one [PostHog](https://posthog.com) project. Events go through the managed reverse proxy, `e.usepersona.dev`, so ad blockers do not drop them. A deployment without `NEXT_PUBLIC_POSTHOG_KEY` sends nothing.
+
+| Layer | File | What it sends |
+| --- | --- | --- |
+| The browser, in the webapp, the landing and the docs | `instrumentation-client.ts` | Page views, clicks, session replays and uncaught errors. The visitor id lives in a cookie on `usepersona.dev`, so one person is one visitor across the three sites. The webapp also reports the errors its `app/error.tsx` catches. |
+| The webapp, signed in | `components/posthog-identify.tsx` | Names the visitor after the Clerk user once Clerk has loaded, and starts a new visitor after a sign-out. |
+| The server, in all three apps | `instrumentation.ts` | The errors Next.js catches in renders, server actions and the proxy, as the visitor whose cookie came with the request. |
+| The REST API | `app/api/handler.ts` | A fault in a route answers a JSON 500 and reports the error the same way. |
+
+Browser and server events carry `environment`: `production`, `preview` or `development`.
+
+The agent's traces go to [Vercel Agent Runs](https://vercel.com/docs/agent-runs), in each Vercel project's Observability tab: every session with its turns, each tool call's timing, and the tokens. `agent/instrumentation/otel.ts` turns them on, and Vercel keeps them because each project has a tracing rule (Settings → Tracing: All Environments, 100%, no path). Runs stay 30 days during the beta. From a terminal: `vercel agent-runs list` and `vercel agent-runs trace <id>`.
+
+What goes where: PostHog gets no conversation text and no files, only events, errors and replays; the agent's spans go to Vercel only, and they do carry each model call's inputs and outputs (`otel.ts` records both), so the conversation text is readable in Agent Runs by whoever can open the Vercel project. The web Chat tab's messages and the one API key the app shows are marked `ph-no-capture`, so a replay masks them and autocapture skips them; a replay of the rest of the dashboard is recorded.
+
+## Where data lives
+
+| Data | Where |
+| --- | --- |
+| Organizations, projects, personas and their setup, notes, chats, runs, links, files' records, usage | Postgres, through [Prisma](https://www.prisma.io) 8 |
+| Secrets: MCP headers, vault values, bot tokens | Postgres, in the `secrets` table, one block per owner, sealed with `SECRETS_KEY` |
+| A project's own WhatsApp number's keys | Postgres, as columns of its `meta_lines` row |
+| Conversation history and the state of a turn | eve. A copy of each session and each message is in Postgres, in `sessions` and `messages` |
+| Memory | [Supermemory](https://supermemory.ai), one container per persona |
+| File content | Cloudflare R2, one private bucket. A published file carries `public=true` in its metadata, and a Cloudflare Worker serves it on the persona's own host, `{personaId}.usepersona.site` |
+| Pictures of personas and projects | The same bucket, under `uploads/`, served by the Worker to everyone |
+| App accounts | Composio, under the persona's id |
+| Browser sign-ins | Browser Use, one profile per persona |
+| Users and organizations | Clerk, copied into Postgres |
+
+The schema is `prisma/contract.prisma`. Prisma emits `contract.json` and `contract.d.ts` from it, and `prisma/db.ts` exports the typed client, `db`.
+
+## No state in memory
+
+The app runs on serverless functions, so no module keeps state between requests: no caches, sets or maps at module level. A fact lives in the database or at the vendor, and a call that can repeat is made safe to repeat.

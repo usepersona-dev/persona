@@ -1,0 +1,15 @@
+# One pnpm workspace for the whole repo: each folder in apps/ is a project of its own, all installed together with one lockfile
+packages:
+  - "apps/*"
+
+allowBuilds:
+  sharp: true
+  unrs-resolver: true
+  msw: false
+  esbuild: true
+  workerd: false
+  core-js: false
+
+ignoredOptionalDependencies:
+  - "@mongodb-js/zstd"
+  - "node-liblzma"
