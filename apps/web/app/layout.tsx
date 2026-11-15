@@ -1,8 +1,7 @@
 import { ClerkProvider } from "@clerk/nextjs"
 import { shadcn } from "@clerk/ui/themes"
-import { GeistSerif } from "geist/font/serif"
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Geist, Geist_Mono, Newsreader, Nunito } from "next/font/google"
 import { NuqsAdapter } from "nuqs/adapters/next/app"
 
 import "./globals.css"
@@ -23,7 +22,8 @@ const geistMono = Geist_Mono({
   variable: "--font-mono",
 })
 
-const geistSerif = GeistSerif
+const newsreader = Newsreader({ subsets: ["latin"], axes: ["opsz"], variable: "--font-newsreader" })
+const nunito = Nunito({ subsets: ["latin"], weight: "800", variable: "--font-nunito" })
 
 export const metadata: Metadata = {
   title: "Persona",
@@ -43,7 +43,8 @@ export default function RootLayout({
       className={cn(
         geistMono.variable,
         geist.variable,
-        geistSerif.variable
+        newsreader.variable,
+        nunito.variable
       )}
     >
       <body>

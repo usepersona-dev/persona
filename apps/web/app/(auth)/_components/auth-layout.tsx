@@ -70,9 +70,9 @@ function AuthLayoutContent({ className, ...props }: React.ComponentProps<"div">)
 
 function AuthLayoutFooter({ className, ...props }: React.ComponentProps<"footer">) {
   return (
-    <footer data-slot="auth-layout-footer" className={cn("flex flex-wrap items-center justify-between gap-3 text-sm font-bold text-muted-foreground", className)} {...props}>
+    <footer data-slot="auth-layout-footer" className={cn("flex flex-wrap items-center justify-between gap-3 text-xs text-foreground/80", className)} {...props}>
       <span>© 2026 Persona</span>
-      <nav className="flex gap-4">
+      <nav className="flex gap-6 font-medium">
         <Link href={`${process.env.NEXT_PUBLIC_SITE_URL}/terms`} className="hover:text-foreground">
           Terms
         </Link>
