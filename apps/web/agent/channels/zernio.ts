@@ -1,4 +1,4 @@
-import { createPostgresState } from "@chat-adapter/state-pg"
+import { createRedisState } from "@chat-adapter/state-redis"
 import { ZernioAdapter, type ZernioRawMessage, type ZernioThreadId } from "@zernio/chat-sdk-adapter"
 import { BaseFormatConverter, codeBlock, paragraph, parseMarkdown, strong, tableToAscii, walkAst, type Content, type Message, type Root, type Thread, type WebhookOptions } from "chat"
 import type { MessageContent, MessageFilePart } from "eve/channels"
@@ -11,7 +11,6 @@ import chatFile from "@/agent/tools/chat_file"
 import chatReact from "@/agent/tools/chat_react"
 import chatSay from "@/agent/tools/chat_say"
 import { download, sendFile as sendAttachment, sendText } from "@/lib/zernio"
-import { pool } from "@/prisma/db"
 import { toPrincipal } from "@/usecases/agent"
 import type { Caller } from "@/usecases/auth"
 import { getFileSignedUrl, saveFile } from "@/usecases/files"
@@ -155,7 +154,7 @@ export const { bot, channel, send } = chatSdkChannel({
   userName: "persona",
   adapters: { zernio },
   routes: { zernio: "/eve/v1/zernio" },
-  state: createPostgresState({ client: pool, keyPrefix: "zernio", autoCreateSchema: false }),
+  state: createRedisState({ keyPrefix: "chat:zernio" }),
   concurrency: "concurrent",
   streaming: false,
   logger: "warn",

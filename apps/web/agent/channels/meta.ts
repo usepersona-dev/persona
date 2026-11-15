@@ -1,4 +1,4 @@
-import { createPostgresState } from "@chat-adapter/state-pg"
+import { createRedisState } from "@chat-adapter/state-redis"
 import { createWhatsAppAdapter, WhatsAppAdapter, type WhatsAppRawMessage, type WhatsAppThreadId } from "@chat-adapter/whatsapp"
 import { BaseFormatConverter, codeBlock, ConsoleLogger, MessageHistoryCache, paragraph, parseMarkdown, strong, tableToAscii, walkAst, type AdapterPostableMessage, type ChatInstance, type Content, type EmojiValue, type Message, type Root, type Thread, type WebhookOptions } from "chat"
 import type { MessageContent, MessageFilePart } from "eve/channels"
@@ -10,7 +10,6 @@ import { createHash } from "node:crypto"
 import chatFile from "@/agent/tools/chat_file"
 import chatReact from "@/agent/tools/chat_react"
 import chatSay from "@/agent/tools/chat_say"
-import { pool } from "@/prisma/db"
 import { toPrincipal } from "@/usecases/agent"
 import type { Caller } from "@/usecases/auth"
 import { getFileSignedUrl, saveFile } from "@/usecases/files"
@@ -207,7 +206,7 @@ export const { bot, channel, send } = chatSdkChannel({
   userName: "persona",
   adapters: { whatsapp: meta },
   routes: { whatsapp: "/eve/v1/meta/:phoneNumberId" },
-  state: createPostgresState({ client: pool, keyPrefix: "meta", autoCreateSchema: false }),
+  state: createRedisState({ keyPrefix: "chat:meta" }),
   concurrency: "concurrent",
   streaming: false,
   logger: "warn",

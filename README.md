@@ -40,7 +40,7 @@ Each app is a project of its own, in one pnpm workspace: run `pnpm install` once
 
 ## Quick start
 
-You need Node 24, pnpm, Postgres 15 or later, Docker, and an account with each service in [What you need](https://docs.usepersona.dev/development#what-you-need). Persona needs all of them to run.
+You need Node 24, pnpm, Postgres 15 or later, Redis 6 or later, Docker, and an account with each service in [What you need](https://docs.usepersona.dev/development#what-you-need). Persona needs all of them to run.
 
 ```bash
 git clone https://github.com/usepersona-dev/persona-monorepo.git

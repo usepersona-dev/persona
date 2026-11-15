@@ -9,6 +9,7 @@ Persona is one repository with one pnpm workspace: `apps/web`, the app and its a
 
 - **Node 24** and **pnpm**. `apps/web/` pins Node `24.x` in `engines`.
 - **Postgres 15 or later.**
+- **Redis 6 or later,** for the chat channels' state.
 - **Docker.** eve runs each session's sandbox in a container locally; without Docker it falls back to a plain shell, and the sandbox setup (`apt-get`, `pnpm`) fails.
 - **A [Clerk](https://clerk.com) application** with organizations on.
 - **Model access** through the Vercel AI Gateway: a `VERCEL_OIDC_TOKEN` from `eve link`, or an `AI_GATEWAY_API_KEY`.
@@ -42,6 +43,7 @@ All local variables live in `apps/web/.env.local`. Prisma reads it too. Keep eve
 | --- | --- |
 | `DATABASE_URL` | Postgres, the direct address. Migrations always use it. |
 | `DATABASE_POOLED_URL` | A PgBouncer in front of the database, production only. The app uses it when set. |
+| `REDIS_URL` | Redis, for the chat channels' state (the Chat SDK). Its keys start with `chat:`. |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | Clerk. |
 | `NEXT_PUBLIC_CLERK_SIGN_IN_URL`, `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | `/sign-in` and `/sign-up`. |
 | `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL`, `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL` | `/`. |
@@ -86,7 +88,7 @@ pnpm prisma migration plan --name <slug>   # write the migration, chained from t
 
 Read the plan before you apply it. A `DROP` loses data. The `build` script runs `pnpm db:migrate` before `next build`, so a migration ships with the code that uses it; a column drop goes in a later push than the code that stops using it, since the old deployment still reads it while the new one builds.
 
-The Chat SDK keeps the state of the WhatsApp and Telegram chats in 5 `chat_state_*` tables. Our migrations own them like any other table: the contract copies them (`prisma contract infer` on the tables the SDK makes), and the channels run the SDK's adapter with `autoCreateSchema: false`, so it never makes or changes them. After a Chat SDK update that changes them, the unit test `tests/unit/chat-state-tables.test.ts` fails: copy the change into the `ChatState*` models, plan a migration, then update the test's snapshot with `pnpm test -u`.
+The Chat SDK keeps the state of the WhatsApp and Telegram chats in Redis: locks, duplicate checks, caches and recent messages, under keys that start with `chat:<channel>:`. To use the same Redis for something else, give it a prefix of its own. Keep Redis's eviction policy at `noeviction`, so Redis never drops a chat lock to free memory.
 
 <Callout type="warn">
   Keep `@prisma/orm-postgres` on the same version as the `@prisma/orm-toolchain` that the `prisma` CLI pins. Check with `npm view prisma dependencies` before you upgrade either one.

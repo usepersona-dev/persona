@@ -1,4 +1,4 @@
-import { createPostgresState } from "@chat-adapter/state-pg"
+import { createRedisState } from "@chat-adapter/state-redis"
 import { createKapsoAdapter, KapsoFormatConverter } from "@kapso/chat-adapter"
 import { WhatsAppClient } from "@kapso/whatsapp-cloud-api"
 import { codeBlock, paragraph, parseMarkdown, strong, tableToAscii, walkAst, type Attachment, type Message, type Thread } from "chat"
@@ -11,7 +11,6 @@ import { createHash } from "node:crypto"
 import chatFile from "@/agent/tools/chat_file"
 import chatReact from "@/agent/tools/chat_react"
 import chatSay from "@/agent/tools/chat_say"
-import { pool } from "@/prisma/db"
 import { toPrincipal } from "@/usecases/agent"
 import type { Caller } from "@/usecases/auth"
 import { getFileSignedUrl, saveFile } from "@/usecases/files"
@@ -84,7 +83,7 @@ export const { bot, channel, send } = chatSdkChannel({
   userName: "persona",
   adapters: { kapso },
   routes: { kapso: "/eve/v1/whatsapp/:phoneNumberId" },
-  state: createPostgresState({ client: pool, keyPrefix: "whatsapp", autoCreateSchema: false }),
+  state: createRedisState({ keyPrefix: "chat:whatsapp" }),
   concurrency: "concurrent",
   streaming: false,
   logger: "warn",

@@ -1,4 +1,4 @@
-import { createPostgresState } from "@chat-adapter/state-pg"
+import { createRedisState } from "@chat-adapter/state-redis"
 import { TelegramAdapter, type TelegramThreadId } from "@chat-adapter/telegram"
 import type { AdapterPostableMessage, Attachment, ChatInstance, EmojiValue, Message, Postable, SlashCommandEvent, Thread, WebhookOptions } from "chat"
 import type { MessageContent, MessageFilePart } from "eve/channels"
@@ -9,7 +9,6 @@ import { toolResultFrom } from "eve/tools"
 import chatFile from "@/agent/tools/chat_file"
 import chatReact from "@/agent/tools/chat_react"
 import chatSay from "@/agent/tools/chat_say"
-import { pool } from "@/prisma/db"
 import { toPrincipal } from "@/usecases/agent"
 import type { Caller } from "@/usecases/auth"
 import { getFileSignedUrl, saveFile } from "@/usecases/files"
@@ -140,7 +139,7 @@ export const { bot, channel, send } = chatSdkChannel({
   userName: "persona",
   adapters: { telegram },
   routes: { telegram: "/eve/v1/telegram/:botId" },
-  state: createPostgresState({ client: pool, keyPrefix: "telegram", autoCreateSchema: false }),
+  state: createRedisState({ keyPrefix: "chat:telegram" }),
   concurrency: "concurrent",
   streaming: false,
   logger: "warn",

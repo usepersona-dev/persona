@@ -1,6 +1,6 @@
 ---
 title: Architecture
-description: One Next.js app with the eve agent inside it, one Postgres database, and a rule for where each piece of logic lives.
+description: One Next.js app with the eve agent inside it, one Postgres database, one Redis, and a rule for where each piece of logic lives.
 ---
 
 Persona is one Next.js app, `apps/web/`, with an [eve](https://eve.dev) agent inside it. `next.config.ts` wraps the Next.js config with `withEve()`. That mounts the agent at `/eve/v1/*` on the app's own origin, in development and on Vercel. There is no second server and no CORS.
@@ -97,7 +97,7 @@ WhatsApp and Telegram run through eve's bridge to the Vercel Chat SDK (`chat` on
 - **WhatsApp on Zernio (legacy):** one Zernio adapter serves the second shared number and the projects' old lines, all through one webhook. It answers only the numbers this environment has.
 - **Telegram:** one router adapter opens the right bot from the webhook path and reads that bot's token: the shared bot's from the environment, an own bot's from the secrets table.
 
-The Chat SDK keeps its state in Postgres, in a schema of its own named `chat`. Each thread id carries the persona's id, so linking a chat to another persona starts another session.
+The Chat SDK keeps its state in Redis, under keys that start with `chat:<channel>:`. Each thread id carries the persona's id, so linking a chat to another persona starts another session.
 
 Webhooks and triggers are channels of their own, without the Chat SDK: `POST /eve/v1/webhooks/{secret}` starts a run of that webhook in a session of its own, keyed by the run, with the call's body as a file; `/eve/v1/triggers` takes Composio's trigger events, and the schedule starts a run for a trigger once its first event has waited five minutes, with every event that arrived since.
 
