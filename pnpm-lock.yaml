@@ -447,9 +447,6 @@ importers:
       tailwindcss:
         specifier: ^4.3.5
         version: 4.3.5
-      tsx:
-        specifier: ^4.23.15
-        version: 4.23.15
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -16890,6 +16887,7 @@ snapshots:
       esbuild: 0.28.2
     optionalDependencies:
       fsevents: 2.3.3
+    optional: true
 
   turbo@2.11.11:
     optionalDependencies:
