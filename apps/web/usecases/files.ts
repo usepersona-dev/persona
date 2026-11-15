@@ -103,6 +103,14 @@ export async function getPublishedFile(personaId: string, fileId: string) {
   return ok({ ...file, url: s3Files.url(fileKey(personaId, fileId)) })
 }
 
+export async function readPublishedText(personaId: string, fileId: string) {
+  const file = await getPublishedFile(personaId, fileId)
+  if (!file.ok) return file
+
+  const bytes = await s3Files.get(fileKey(personaId, fileId))
+  return ok(new TextDecoder().decode(bytes))
+}
+
 // Two addresses, fixed from the start, both open only while the file is public: preview is the page that shows it, the one to send people; url is the file itself on the persona's own host, for inside a page
 export async function getFileLinks(caller: Caller, fileId: string) {
   const file = await getFile(caller, fileId)
