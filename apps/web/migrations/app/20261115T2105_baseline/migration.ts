@@ -1,6 +1,6 @@
 #!/usr/bin/env -S node
-import type { Contract as End } from '../../snapshots/43e96dc21f4c4fc26b65f346062a6b9c41e71be9fc935258cfaa982f01f139de/contract';
-import endContract from '../../snapshots/43e96dc21f4c4fc26b65f346062a6b9c41e71be9fc935258cfaa982f01f139de/contract.json' with { type: 'json' };
+import type { Contract as End } from '../../snapshots/4c3d08763c757982a29f748291557c111adb75bc9a0fa98bf8293e3eb04da491/contract';
+import endContract from '../../snapshots/4c3d08763c757982a29f748291557c111adb75bc9a0fa98bf8293e3eb04da491/contract.json' with { type: 'json' };
 import {
   Migration,
   MigrationCLI,
@@ -56,92 +56,6 @@ export default class M extends Migration<never, End> {
           col('task', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
         ],
         constraints: [primaryKey(['id'])],
-      }),
-      this.createTable({
-        schema: 'public',
-        table: 'chat_state_cache',
-        columns: [
-          col('cache_key', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
-          col('expires_at', 'timestamptz(6)', {
-            codecRef: { codecId: 'pg/timestamptz-date@1', typeParams: { precision: 6 } },
-          }),
-          col('key_prefix', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
-          col('updated_at', 'timestamptz(6)', {
-            notNull: true,
-            default: fn(sql`now()`),
-            codecRef: { codecId: 'pg/timestamptz-date@1', typeParams: { precision: 6 } },
-          }),
-          col('value', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
-        ],
-        constraints: [primaryKey(['key_prefix', 'cache_key'], { name: 'chat_state_cache_pkey' })],
-      }),
-      this.createTable({
-        schema: 'public',
-        table: 'chat_state_lists',
-        columns: [
-          col('expires_at', 'timestamptz(6)', {
-            codecRef: { codecId: 'pg/timestamptz-date@1', typeParams: { precision: 6 } },
-          }),
-          col('key_prefix', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
-          col('list_key', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
-          col('seq', 'BIGSERIAL', { notNull: true, codecRef: { codecId: 'pg/int8@1' } }),
-          col('value', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
-        ],
-        constraints: [
-          primaryKey(['key_prefix', 'list_key', 'seq'], { name: 'chat_state_lists_pkey' }),
-        ],
-      }),
-      this.createTable({
-        schema: 'public',
-        table: 'chat_state_locks',
-        columns: [
-          col('expires_at', 'timestamptz(6)', {
-            notNull: true,
-            codecRef: { codecId: 'pg/timestamptz-date@1', typeParams: { precision: 6 } },
-          }),
-          col('key_prefix', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
-          col('thread_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
-          col('token', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
-          col('updated_at', 'timestamptz(6)', {
-            notNull: true,
-            default: fn(sql`now()`),
-            codecRef: { codecId: 'pg/timestamptz-date@1', typeParams: { precision: 6 } },
-          }),
-        ],
-        constraints: [primaryKey(['key_prefix', 'thread_id'], { name: 'chat_state_locks_pkey' })],
-      }),
-      this.createTable({
-        schema: 'public',
-        table: 'chat_state_queues',
-        columns: [
-          col('expires_at', 'timestamptz(6)', {
-            notNull: true,
-            codecRef: { codecId: 'pg/timestamptz-date@1', typeParams: { precision: 6 } },
-          }),
-          col('key_prefix', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
-          col('seq', 'BIGSERIAL', { notNull: true, codecRef: { codecId: 'pg/int8@1' } }),
-          col('thread_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
-          col('value', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
-        ],
-        constraints: [
-          primaryKey(['key_prefix', 'thread_id', 'seq'], { name: 'chat_state_queues_pkey' }),
-        ],
-      }),
-      this.createTable({
-        schema: 'public',
-        table: 'chat_state_subscriptions',
-        columns: [
-          col('created_at', 'timestamptz(6)', {
-            notNull: true,
-            default: fn(sql`now()`),
-            codecRef: { codecId: 'pg/timestamptz-date@1', typeParams: { precision: 6 } },
-          }),
-          col('key_prefix', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
-          col('thread_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
-        ],
-        constraints: [
-          primaryKey(['key_prefix', 'thread_id'], { name: 'chat_state_subscriptions_pkey' }),
-        ],
       }),
       this.createTable({
         schema: 'public',
@@ -933,30 +847,6 @@ export default class M extends Migration<never, End> {
         table: 'browsers',
         index: 'browsers_persona_id_idx_840c67e2',
         columns: ['persona_id'],
-      }),
-      this.createIndex({
-        schema: 'public',
-        table: 'chat_state_cache',
-        index: 'chat_state_cache_expires_idx',
-        columns: ['expires_at'],
-      }),
-      this.createIndex({
-        schema: 'public',
-        table: 'chat_state_lists',
-        index: 'chat_state_lists_expires_idx',
-        columns: ['expires_at'],
-      }),
-      this.createIndex({
-        schema: 'public',
-        table: 'chat_state_locks',
-        index: 'chat_state_locks_expires_idx',
-        columns: ['expires_at'],
-      }),
-      this.createIndex({
-        schema: 'public',
-        table: 'chat_state_queues',
-        index: 'chat_state_queues_expires_idx',
-        columns: ['expires_at'],
       }),
       this.createIndex({
         schema: 'public',
