@@ -1,57 +1,30 @@
 ---
 title: Quickstart
-description: Run Persona on your machine, create your first persona, and talk to it over HTTP, Telegram or WhatsApp.
+description: Create your first persona, give it a rule, and talk to it over HTTP, Telegram or WhatsApp.
 ---
 
-This page takes you from a clone of the repository to a persona that answers you.
+This page takes you from a new account to a persona that answers you.
 
 <Callout type="info">
   You can do each step below in the app as well. This page also shows the [API](/api) calls, for scripts and your own clients.
 </Callout>
 
-## 1. Run it
+## 1. Create your first project
 
-You need **Node 24**, **pnpm**, **Postgres 15 or later**, **Redis 6 or later**, **Docker** (the agent's sandbox runs in it locally) and a **[Clerk](https://clerk.com)** application with organizations on, plus the accounts the code requires before a first chat: Autumn, Supermemory, Composio, and a bucket on any storage that speaks S3 (Cloudflare R2, AWS S3 or MinIO) with a domain for published files. Browser Use runs the browser tools. [Development](/development#what-you-need) has the list and every environment variable.
-
-```bash
-git clone https://github.com/usepersona-dev/persona-monorepo.git
-cd persona-monorepo
-pnpm install                   # every app's packages, once
-cd apps/web
-cp .env.example .env.local     # fill in the values, see Development
-pnpm db:migrate                # once: the tables
-pnpm autumn:push               # once: the plans in Autumn
-pnpm dev                       # http://localhost:3000
-```
-
-The eve agent lives inside the app, in `agent/`. `next.config.ts` wraps the Next.js config with `withEve()`, so `pnpm dev` starts the agent too and serves it at `/eve/v1/*` on the same origin. There is no second server to start.
-
-[Development](/development#environment) lists every environment variable and what needs it.
-
-## 2. Give it model access
-
-The persona calls its model through the [Vercel AI Gateway](https://vercel.com/docs/ai-gateway). The simple way is an `AI_GATEWAY_API_KEY` in `.env.local`. When the app is a project on Vercel, `eve link` (or `vercel env pull .env.local`) in `apps/web/` writes a `VERCEL_OIDC_TOKEN` instead; it lasts about 12 hours, so run the command again when it expires.
-
-<Callout type="warn">
-  `vercel env pull` and `eve link` replace all of `.env.local` with the project's variables on Vercel. Put every key on Vercel first, or keep a copy.
-</Callout>
-
-## 3. Create your first project
-
-Open the app and sign up. Everything in Persona belongs to an organization, so the app asks you to create or choose one when you have none. With no project yet, the app sends you to **New project**. Give the project a name and create it.
+Open [the app](https://app.usepersona.dev) and sign up. Everything in Persona belongs to an organization, so the app asks you to create or choose one when you have none. With no project yet, the app sends you to **New project**. Give the project a name and create it.
 
 A new project comes with its first persona, named after the project. There is nothing to provision: the persona exists as soon as the request returns.
 
-## 4. Make an API key
+## 2. Make an API key
 
 In the app, open **Settings**, then **API keys**, and select **New API key**. The key starts with `persona_sk_`. It shows only once. Keep it for the next steps.
 
 ```bash
 export PERSONA_KEY=persona_sk_...
-export APP=http://localhost:3000
+export APP=https://app.usepersona.dev
 ```
 
-## 5. Find your persona
+## 3. Find your persona
 
 ```bash
 curl -H "Authorization: Bearer $PERSONA_KEY" $APP/api/projects
@@ -65,7 +38,7 @@ Take the persona's `id` from the second answer.
 export PERSONA=...
 ```
 
-## 6. Give it a rule
+## 4. Give it a rule
 
 ```bash
 curl -X POST -H "Authorization: Bearer $PERSONA_KEY" -H "Content-Type: application/json" \
@@ -75,7 +48,7 @@ curl -X POST -H "Authorization: Bearer $PERSONA_KEY" -H "Content-Type: applicati
 
 The persona follows enabled instructions from its next turn on. In the app, the persona's **Instructions** tab does the same.
 
-## 7. Talk to it
+## 5. Talk to it
 
 In the app, open the persona: its **Chat** tab is a chat with it. Over HTTP, the agent takes a short-lived **agent token**, not your API key. Ask the API for one, then start a session on the agent's own routes:
 
@@ -91,7 +64,7 @@ curl -N -H "Authorization: Bearer $TOKEN" $APP/eve/v1/session/$SESSION/stream
 
 The stream sends one JSON event per line. The persona speaks only through its chat tools, so its words are tool calls in the stream: a `chat_say` call carries the text in its input, `chat_file` a file id, `chat_react` an emoji. Plain model text shows on this raw stream only: the Chat tab and the chat channels drop it. Send a follow-up with `POST /eve/v1/session/$SESSION` and `{ "message": "..." }`. The token lasts 15 minutes. Ask for a new one when it runs out.
 
-## 8. Reach it on Telegram or WhatsApp
+## 6. Reach it on Telegram or WhatsApp
 
 A person links their chat to a persona with a **link code**:
 
@@ -105,17 +78,13 @@ The persona's **Channels** tab in the app makes a code too: select a number or a
 - **Telegram:** send `/link 1a2b3c4d` to the bot, or open `https://t.me/<bot>?start=1a2b3c4d`.
 - **WhatsApp:** send `link 1a2b3c4d` to the number.
 
-The bot and the number reach your app through their webhooks. On your machine, that needs a public tunnel to `localhost:3000` and `APP_URL` set to it. See [Channels](/channels).
-
-## 9. Let it set itself up
+## 7. Let it set itself up
 
 Most of a persona's setup is also a tool the persona can use. In a chat, say what you want:
 
 - "From now on, answer in Spanish." The persona saves an instruction.
 - "Add the DeepWiki MCP server, https://mcp.deepwiki.com/mcp." The persona saves an MCP server, and its tools are there from the next turn.
 - "Every Monday at 9, send me a plan for the week." The persona creates an automation. From a Telegram or WhatsApp chat, the automation reports to that chat.
-
-On your machine, automations do not fire on their own: the dev server runs no cron, and the queue that carries runs delivers only on Vercel. Fire the schedule by hand with `curl -X POST $APP/eve/v1/dev/schedules/start`, then start the claimed run yourself: `POST $APP/eve/v1/automations/<automationId>/<runId>` with `Authorization: Bearer $AUTOMATIONS_SECRET`. On Vercel, both happen every minute.
 
 ## What next
 

@@ -21,10 +21,10 @@ content/docs/
   concepts.mdx      Concepts
   personas.mdx      Personas
   channels.mdx      Channels
-  architecture.mdx  Architecture
-  development.mdx   Development
   api.mdx           API
 ```
+
+[`content/open-source/`](./content/open-source) holds the pages for running and changing the code: Architecture, Development, and the Quickstart from a clone of the repository. The site does not load them until the repository is public. To show them again, move them into `content/docs/` and add them to `meta.json`; the Quickstart there replaces the one for the hosted app.
 
 The docs describe the code in the `webapp` repository. When a feature changes there, change its page here.
 

@@ -1,4 +1,4 @@
 {
   "title": "Persona",
-  "pages": ["index", "quickstart", "concepts", "personas", "channels", "architecture", "development", "api"]
+  "pages": ["index", "quickstart", "concepts", "personas", "channels", "api"]
 }

@@ -15,12 +15,12 @@ Slack and iMessage are coming soon.
 
 ## Numbers and bots
 
-Persona has one **shared** WhatsApp number, on Meta, and one **shared** Telegram bot. They serve every project, and they come from the environment, not the database. Persona's older numbers on [Kapso](https://kapso.ai) and [Zernio](https://zernio.com), and a project's own Zernio lines, are legacy: the chats already on them keep working, but the app no longer shows them or adds new ones.
+Persona has one **shared** WhatsApp number, on Meta, and one **shared** Telegram bot. They serve every project. Persona's older numbers on [Kapso](https://kapso.ai) and [Zernio](https://zernio.com), and a project's own Zernio lines, are legacy: the chats already on them keep working, but the app no longer shows them or adds new ones.
 
 A project can add its **own** numbers and bots. An own number or bot serves only that project's personas. In the app, they are in the project's settings, under **WhatsApp** and **Telegram**.
 
 - **WhatsApp.** In the project's settings, open **WhatsApp**, then **Add** and **Bring your number**. Give the number's phone number ID and messaging account ID (both on your Meta app's **WhatsApp > API Setup** page), the app's ID and secret, and a system user's token for the app. Persona tests them with Meta, points the app's webhook at Persona, subscribes the number's account, registers the number if it is not registered yet, and keeps the keys on the line, which never sends them back. A refused step shows Meta's own words. Removing the number leaves it in your Meta account.
-- **Telegram.** Make a bot with [BotFather](https://t.me/BotFather), then send its token to `POST /api/projects/{projectId}/telegram-bots`. Persona checks the token, sets the bot's webhook and keeps the token in the secrets table.
+- **Telegram.** Make a bot with [BotFather](https://t.me/BotFather), then send its token to `POST /api/projects/{projectId}/telegram-bots`. Persona checks the token, sets the bot's webhook and keeps the token as a secret.
 
 Removing a bot or a number also removes every chat link on it. A removed number stays in your Meta account.
 
@@ -66,32 +66,11 @@ Each linked chat is one long session with its persona. A session ends after seve
 
 Two commands work in every linked chat. `/clear` forgets the conversation so far and keeps the session. `/reset` starts a new session. The persona answers `Cleared our chat.` or `Started a new chat.` When a turn fails, the persona says so and names both commands.
 
-Every session of the agent, from any channel, and every message of it are also written to the `sessions` and `messages` tables, with the session's persona, channel and status. See [Architecture](/architecture#each-turn).
-
 An automation that the persona creates in a chat reports back to that chat. See [Automations](/personas#automations).
-
-## Channel webhooks
-
-Each number and bot sends its messages to one webhook URL on your app:
-
-| Channel | Webhook |
-| --- | --- |
-| WhatsApp on Meta | `{APP_URL}/eve/v1/meta/{phoneNumberId}` |
-| WhatsApp on Kapso | `{APP_URL}/eve/v1/whatsapp/{phoneNumberId}` |
-| WhatsApp on Zernio | `{APP_URL}/eve/v1/zernio` |
-| Telegram | `{APP_URL}/eve/v1/telegram/{botId}` |
-
-Connecting a Meta number and adding a bot set their webhooks. Meta signs each request with the app's secret, Kapso signs each request with `KAPSO_WEBHOOK_SECRET`, Zernio signs each request with `ZERNIO_WEBHOOK_SECRET`, and Telegram sends `TELEGRAM_WEBHOOK_SECRET`. Set the shared number's and the shared bot's webhooks by hand, as [Development](/development#the-shared-number-and-bot) shows.
-
-A Kapso number or a bot has one webhook, so it reaches one environment at a time. To test on your machine, point the webhook at a public tunnel to `localhost:3000`, and set `APP_URL` to the tunnel.
-
-Zernio's webhooks are different: one webhook gets the messages of every number in the Zernio account. So each environment makes one Zernio webhook, by hand, with the event `message.received`, and a new line needs no webhook of its own. All environments share one Zernio account, so each one answers only the numbers it has: its shared number and its projects' lines.
-
-These are the channels' own webhooks. For an address that another app calls to start a task, see [Webhooks](/personas#webhooks).
 
 ## The web
 
-The web channel is the agent's own HTTP API at `/eve/v1/*`, on the app's origin. It takes an **agent token**: a 15-minute token for one persona, from `POST /api/personas/{personaId}/agent-token`. Each conversation is a new session. [Quickstart](/quickstart#7-talk-to-it) shows the calls.
+The web channel is the agent's own HTTP API at `/eve/v1/*`, on the app's origin. It takes an **agent token**: a 15-minute token for one persona, from `POST /api/personas/{personaId}/agent-token`. Each conversation is a new session. [Quickstart](/quickstart#5-talk-to-it) shows the calls.
 
 The app's **Chat** tab is a client of it. Each new chat is a session; **New chat** in the composer starts another one.
 

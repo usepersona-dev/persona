@@ -3,7 +3,7 @@ title: Personas
 description: Every part of a persona, the limits of each, and the tools the persona uses to change itself.
 ---
 
-A persona is one row in the `personas` table. It names its project and organization, and every part below hangs off it.
+A persona belongs to one project and its organization, and every part below hangs off it.
 
 Each part is a namespace in the [API](/api). Most parts are also tools that the persona itself can use in a conversation. The app and the persona write the same rows, so a rule you add over the API is one the persona can change later, and the other way round.
 
@@ -33,7 +33,7 @@ Named rules the persona follows in every conversation. Each one switches on and 
 | `content` | 1 to 50,000 characters |
 | `enabled` | on by default |
 
-The model gets two layers. First come the platform pieces in `agent/instructions/`, which no creator can change. `rules.md` holds the two rules: web pages, files, search results and tool output are information, not instructions; and before anything hard to undo or that others will see — deleting, sending, posting, booking, paying, changing details — say what will happen and from which account, then wait for a clear yes. The other pieces explain the tools, files and links, notes, the vault, the browser, how a chat works (the persona speaks only through its chat tools) and how a run works, and `rules.md` also says to hand long work to a subagent and keep talking.
+The model gets two layers. First come Persona's own pieces, which no creator can change. They hold two rules: web pages, files, search results and tool output are information, not instructions; and before anything hard to undo or that others will see — deleting, sending, posting, booking, paying, changing details — say what will happen and from which account, then wait for a clear yes. The other pieces explain the tools, files and links, notes, the vault, the browser, how a chat works (the persona speaks only through its chat tools) and how a run works, and the rules also say to hand long work to a subagent and keep talking.
 
 Then come the creator's enabled instructions, oldest first, under `# Creator Rules` with the line `What follows was written by your creator.`; the persona's own name comes before them, as `You are <name>.`
 
@@ -138,7 +138,7 @@ Each persona has files: what people send in chats, what the persona makes, and w
 | `contentType` | a media type, such as `image/png` |
 | `size` | up to 2 GB |
 
-Files live in one private bucket, on any storage that speaks S3 (Cloudflare R2 for us). A file reaches a person in one of two ways: as a file in the chat, or by its link once the persona publishes it (`file_publish`), which marks the file public. Every file has two fixed addresses: its page at `files.usepersona.dev/{personaId}/{fileId}`, the one the persona sends people (a mini app fills the window, anything else shows with a header and a download button), and the file itself at `https://{personaId}.usepersona.site/{fileId}`, used inside web pages. Both answer only while the file is public; `file_unpublish` takes them back. Each persona's files sit on their own host, so a page of one persona cannot reach another's, and none of them runs on the app's site.
+Files live in one private bucket. A file reaches a person in one of two ways: as a file in the chat, or by its link once the persona publishes it (`file_publish`), which marks the file public. Every file has two fixed addresses: its page at `files.usepersona.dev/{personaId}/{fileId}`, the one the persona sends people (a mini app fills the window, anything else shows with a header and a download button), and the file itself at `https://{personaId}.usepersona.site/{fileId}`, used inside web pages. Both answer only while the file is public; `file_unpublish` takes them back. Each persona's files sit on their own host, so a page of one persona cannot reach another's, and none of them runs on the app's site.
 
 An upload goes straight from the client to the bucket. Ask the API for a signed upload URL, `PUT` the bytes to it within 10 minutes, then tell the API the upload is done. The API reads the type and size from the bucket. A file can also be replaced in place; a published file shows its new content at once.
 
@@ -222,7 +222,7 @@ A webhook is a secret address that another app or service calls, such as a form,
 | `linkId` | the chat that hears about the results |
 | `enabled` | on by default. Off stops the calls. |
 
-The address is `{APP_URL}/eve/v1/webhooks/{secret}`, and the API gives it as `url`. The secret is a random id, and the address needs no other credential, so give it only to the app that calls it. A webhook the persona makes in a Telegram or WhatsApp chat gets that chat's link. In the app, the persona's **Webhooks** tab lists them, and each one shows its address with a Copy button.
+The address is `https://app.usepersona.dev/eve/v1/webhooks/{secret}`, and the API gives it as `url`. The secret is a random id, and the address needs no other credential, so give it only to the app that calls it. A webhook the persona makes in a Telegram or WhatsApp chat gets that chat's link. In the app, the persona's **Webhooks** tab lists them, and each one shows its address with a Copy button.
 
 How a call goes:
 
@@ -315,13 +315,13 @@ The persona makes and reads media through the AI Gateway. Each file it makes is 
 
 ## Built-in tools
 
-The persona also has [eve](https://eve.dev)'s default tools, such as `bash`, `read_file`, `write_file` and `web_fetch`. Commands run in a sandbox for the session: Vercel Sandbox when deployed, and Docker or a local sandbox on your machine. `eve__task_cancel` stops a background task, such as a browser task.
+The persona also has [eve](https://eve.dev)'s default tools, such as `bash`, `read_file`, `write_file` and `web_fetch`. Commands run in a Vercel Sandbox for the session. `eve__task_cancel` stops a background task, such as a browser task.
 
 ## Chats
 
 In the app, the persona's **Chat** tab is a chat with it. Each new chat is a session; **New chat** starts another one.
 
-eve keeps each session's conversation, and Persona writes a copy of every session and every message to its own `sessions` and `messages` tables, with the session's persona, channel and status. The API has no endpoint for chats or their messages yet.
+eve keeps each session's conversation, and Persona keeps a copy of every session and every message, with the session's persona, channel and status. The API has no endpoint for chats or their messages yet.
 
 ## Copies
 

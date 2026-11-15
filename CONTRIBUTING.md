@@ -10,7 +10,7 @@ Thank you for wanting to help. This page says how to get the app running, what w
 
 ## Set up
 
-Persona needs real services to run: a Postgres database, a Redis, Clerk, a model key, Autumn, Supermemory, Composio, a bucket on any storage that speaks S3 (Cloudflare R2, AWS S3 or MinIO) and a domain for published files, plus Browser Use for the browser tools. [Development](https://docs.usepersona.dev/development) has the full list and every environment variable.
+Persona needs real services to run: a Postgres database, a Redis, Clerk, a model key, Autumn, Supermemory, Composio, a bucket on any storage that speaks S3 (Cloudflare R2, AWS S3 or MinIO) and a domain for published files, plus Browser Use for the browser tools. [Development](apps/docs/content/open-source/development.mdx) has the full list and every environment variable.
 
 ```bash
 cd apps/web

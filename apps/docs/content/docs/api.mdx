@@ -194,7 +194,7 @@ curl -X POST -H "Authorization: Bearer $PERSONA_KEY" -H "Content-Type: applicati
 
 `name` is 1 to 80 characters and `prompt` 1 to 20,000. `linkId` is the id of one of the persona's links, the chat that hears about results. `null` removes it.
 
-Another app calls the webhook at its `url`, `{APP_URL}/eve/v1/webhooks/{secret}`, with no other credential:
+Another app calls the webhook at its `url`, `https://app.usepersona.dev/eve/v1/webhooks/{secret}`, with no other credential:
 
 | Method and path | Body | Answer |
 | --- | --- | --- |
