@@ -1,3 +1,12 @@
 node_modules
 .turbo
 .DS_Store
+# Cloudflare's local files: wrangler's own folder, and the Worker's settings for wrangler dev
+.wrangler
+.dev.vars
+
+# Local only: Claude Code settings and skills, other agents' skills, and working notes
+.claude/
+.agents/
+skills-lock.json
+.notes/

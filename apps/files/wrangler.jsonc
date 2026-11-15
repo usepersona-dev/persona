@@ -1,0 +1,8 @@
+// The files Worker on Cloudflare: persona-files. Cloudflare's CI (Workers Builds, root directory apps/files) deploys it on each push to main that changes this folder.
+// Its five S3_* settings are its secrets on Cloudflare, and its route *.<PUBLISHED_FILES_DOMAIN>/* is set there too. This file has no routes and workers_dev is off, so a deploy leaves both as they are
+{
+  "name": "persona-files",
+  "main": "files.ts",
+  "compatibility_date": "2026-09-01",
+  "workers_dev": false
+}

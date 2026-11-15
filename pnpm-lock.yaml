@@ -118,6 +118,22 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  apps/files:
+    dependencies:
+      '@hono/node-server':
+        specifier: 2.1.8
+        version: 2.1.8(hono@4.13.18)
+      aws4fetch:
+        specifier: 1.0.20
+        version: 1.0.20
+    devDependencies:
+      '@types/node':
+        specifier: ^26.6.6
+        version: 26.6.6
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   apps/landing:
     dependencies:
       '@dicebear/core':
@@ -3908,6 +3924,9 @@ packages:
   available-typed-arrays@1.0.7:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
+
+  aws4fetch@1.0.20:
+    resolution: {integrity: sha512-/djoAN709iY65ETD6LKCtyyEI04XIBP5xVvfmNxsEP0uJB5tyaGBztSryRr4HqMStr9R06PisQE7m9zDTXKu6g==}
 
   axe-core@4.14.0:
     resolution: {integrity: sha512-9WTZxEjsZ7b13TH8JPmbV2z8CHbl80/2hm3XPEG4JgNdQLK81IBRXmSxHfMAOkSqQeRxT/0dwNDz2GOm3zzpcQ==}
@@ -9439,7 +9458,6 @@ snapshots:
   '@hono/node-server@2.1.8(hono@4.13.18)':
     dependencies:
       hono: 4.13.18
-    optional: true
 
   '@hookform/resolvers@7.0.6(@standard-schema/spec@1.1.0)(ajv-formats@3.0.1(ajv@8.20.0))(ajv@8.20.0)(arktype@2.2.9)(effect@4.0.5)(react-hook-form@7.92.0(@types/react@19.3.0)(react@19.3.1))(typanion@3.14.0)(valibot@1.2.0(typescript@5.9.3))(zod@4.6.7)':
     dependencies:
@@ -12190,6 +12208,8 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.1.0
 
+  aws4fetch@1.0.20: {}
+
   axe-core@4.14.0: {}
 
   axobject-query@4.1.0: {}
@@ -14132,8 +14152,7 @@ snapshots:
     dependencies:
       react-is: 16.13.1
 
-  hono@4.13.18:
-    optional: true
+  hono@4.13.18: {}
 
   html-url-attributes@3.0.1: {}
 

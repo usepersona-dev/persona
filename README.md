@@ -15,7 +15,6 @@
   <a href="https://docs.usepersona.dev/development#deploy">Deploy guide</a>
 </p>
 
-
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License: AGPL-3.0"></a>
 </p>
