@@ -1,0 +1,1549 @@
+#!/usr/bin/env -S node
+import type { Contract as End } from '../../snapshots/43e96dc21f4c4fc26b65f346062a6b9c41e71be9fc935258cfaa982f01f139de/contract';
+import endContract from '../../snapshots/43e96dc21f4c4fc26b65f346062a6b9c41e71be9fc935258cfaa982f01f139de/contract.json' with { type: 'json' };
+import {
+  Migration,
+  MigrationCLI,
+  checkExpression,
+  col,
+  fn,
+  lit,
+  primaryKey,
+  sql,
+} from '@prisma/orm-postgres/migration';
+
+export default class M extends Migration<never, End> {
+  override readonly endContractJson = endContract;
+
+  override get operations() {
+    return [
+      this.createSchema({ schema: 'public' }),
+      this.createTable({
+        schema: 'public',
+        table: 'api_keys',
+        columns: [
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('key_hash', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('key_prefix', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('last_used_at', 'timestamptz', { codecRef: { codecId: 'pg/timestamptz-string@1' } }),
+          col('name', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('org_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('updated_at', 'timestamptz', {
+            notNull: true,
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('user_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+        ],
+        constraints: [primaryKey(['id'])],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'browsers',
+        columns: [
+          col('closed_at', 'timestamptz', { codecRef: { codecId: 'pg/timestamptz-string@1' } }),
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('persona_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('task', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+        ],
+        constraints: [primaryKey(['id'])],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'chat_state_cache',
+        columns: [
+          col('cache_key', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('expires_at', 'timestamptz(6)', {
+            codecRef: { codecId: 'pg/timestamptz-date@1', typeParams: { precision: 6 } },
+          }),
+          col('key_prefix', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('updated_at', 'timestamptz(6)', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-date@1', typeParams: { precision: 6 } },
+          }),
+          col('value', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+        ],
+        constraints: [primaryKey(['key_prefix', 'cache_key'], { name: 'chat_state_cache_pkey' })],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'chat_state_lists',
+        columns: [
+          col('expires_at', 'timestamptz(6)', {
+            codecRef: { codecId: 'pg/timestamptz-date@1', typeParams: { precision: 6 } },
+          }),
+          col('key_prefix', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('list_key', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('seq', 'BIGSERIAL', { notNull: true, codecRef: { codecId: 'pg/int8@1' } }),
+          col('value', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+        ],
+        constraints: [
+          primaryKey(['key_prefix', 'list_key', 'seq'], { name: 'chat_state_lists_pkey' }),
+        ],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'chat_state_locks',
+        columns: [
+          col('expires_at', 'timestamptz(6)', {
+            notNull: true,
+            codecRef: { codecId: 'pg/timestamptz-date@1', typeParams: { precision: 6 } },
+          }),
+          col('key_prefix', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('thread_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('token', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('updated_at', 'timestamptz(6)', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-date@1', typeParams: { precision: 6 } },
+          }),
+        ],
+        constraints: [primaryKey(['key_prefix', 'thread_id'], { name: 'chat_state_locks_pkey' })],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'chat_state_queues',
+        columns: [
+          col('expires_at', 'timestamptz(6)', {
+            notNull: true,
+            codecRef: { codecId: 'pg/timestamptz-date@1', typeParams: { precision: 6 } },
+          }),
+          col('key_prefix', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('seq', 'BIGSERIAL', { notNull: true, codecRef: { codecId: 'pg/int8@1' } }),
+          col('thread_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('value', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+        ],
+        constraints: [
+          primaryKey(['key_prefix', 'thread_id', 'seq'], { name: 'chat_state_queues_pkey' }),
+        ],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'chat_state_subscriptions',
+        columns: [
+          col('created_at', 'timestamptz(6)', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-date@1', typeParams: { precision: 6 } },
+          }),
+          col('key_prefix', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('thread_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+        ],
+        constraints: [
+          primaryKey(['key_prefix', 'thread_id'], { name: 'chat_state_subscriptions_pkey' }),
+        ],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'collect_links',
+        columns: [
+          col('code', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('credential_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('expires_at', 'timestamptz', {
+            notNull: true,
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+        ],
+        constraints: [primaryKey(['code'])],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'connections',
+        columns: [
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('description', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('enabled', 'bool', {
+            notNull: true,
+            default: lit(true),
+            codecRef: { codecId: 'pg/bool@1' },
+          }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('name', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('persona_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('updated_at', 'timestamptz', {
+            notNull: true,
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('url', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+        ],
+        constraints: [primaryKey(['id'])],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'credentials',
+        columns: [
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('description', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('fields', 'jsonb', { notNull: true, codecRef: { codecId: 'pg/jsonb@1' } }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('persona_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('title', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('updated_at', 'timestamptz', {
+            notNull: true,
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+        ],
+        constraints: [
+          primaryKey(['id']),
+          checkExpression(
+            'credentials_fields_shape_edecd7d9',
+            sql`jsonb_path_match("fields", 'strict $.type() == "array" && !exists($[*] ? (!((@.type() == "object" && exists(@.keyvalue() ? (@.key == "name" && (@.value.type() == "string"))) && exists(@.keyvalue() ? (@.key == "secret" && (@.value.type() == "boolean"))) && !exists(@.keyvalue() ? (@.key != "name" && @.key != "secret"))))))') IS TRUE`,
+          ),
+        ],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'files',
+        columns: [
+          col('content_type', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('name', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('persona_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('public', 'bool', {
+            notNull: true,
+            default: lit(false),
+            codecRef: { codecId: 'pg/bool@1' },
+          }),
+          col('size', 'int4', { notNull: true, codecRef: { codecId: 'pg/int4@1' } }),
+          col('updated_at', 'timestamptz', {
+            notNull: true,
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+        ],
+        constraints: [primaryKey(['id'])],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'instructions',
+        columns: [
+          col('content', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('enabled', 'bool', {
+            notNull: true,
+            default: lit(true),
+            codecRef: { codecId: 'pg/bool@1' },
+          }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('name', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('persona_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('updated_at', 'timestamptz', {
+            notNull: true,
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+        ],
+        constraints: [primaryKey(['id'])],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'link_codes',
+        columns: [
+          col('code', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('expires_at', 'timestamptz', {
+            notNull: true,
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('persona_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+        ],
+        constraints: [primaryKey(['code'])],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'links',
+        columns: [
+          col('channel', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('external_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('label', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('last_message_at', 'timestamptz', {
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('line', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('persona_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('phone', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+        ],
+        constraints: [
+          primaryKey(['id']),
+          checkExpression(
+            'links_channel_check_09e64f4c',
+            sql`"channel" IN ('whatsapp', 'whatsapp_v2', 'whatsapp_meta', 'telegram')`,
+          ),
+        ],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'messages',
+        columns: [
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('files', 'jsonb', { codecRef: { codecId: 'pg/jsonb@1' } }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('role', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('session_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('text', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('tool', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('turn_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+        ],
+        constraints: [
+          primaryKey(['id']),
+          checkExpression(
+            'messages_role_check_bc5dc231',
+            sql`"role" IN ('user', 'assistant', 'system')`,
+          ),
+        ],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'meta_lines',
+        columns: [
+          col('access_token', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('app_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('app_secret', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('name', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('number', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('phone_number_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('pin', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('project_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('verify_token', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('waba_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+        ],
+        constraints: [primaryKey(['id'])],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'notes',
+        columns: [
+          col('content', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('persona_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('title', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('updated_at', 'timestamptz', {
+            notNull: true,
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+        ],
+        constraints: [primaryKey(['id'])],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'organizations',
+        columns: [
+          col('clerk_created_at', 'timestamptz', {
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('image_url', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('invitations', 'jsonb', { notNull: true, codecRef: { codecId: 'pg/jsonb@1' } }),
+          col('members', 'jsonb', { notNull: true, codecRef: { codecId: 'pg/jsonb@1' } }),
+          col('members_count', 'int4', {
+            notNull: true,
+            default: lit(0),
+            codecRef: { codecId: 'pg/int4@1' },
+          }),
+          col('name', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('org_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('slug', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('updated_at', 'timestamptz', {
+            notNull: true,
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+        ],
+        constraints: [
+          primaryKey(['id']),
+          checkExpression(
+            'organizations_invitations_shape_25a80c96',
+            sql`jsonb_path_match("invitations", 'strict $.type() == "array" && !exists($[*] ? (!((@.type() == "object" && !exists(@.keyvalue() ? (@.key == "clerkCreatedAt" && !(@.value.type() == "null" || (@.value.type() == "string")))) && exists(@.keyvalue() ? (@.key == "email" && (@.value.type() == "string"))) && exists(@.keyvalue() ? (@.key == "invitationId" && (@.value.type() == "string"))) && exists(@.keyvalue() ? (@.key == "role" && (@.value.type() == "string"))) && exists(@.keyvalue() ? (@.key == "status" && (@.value.type() == "string"))) && !exists(@.keyvalue() ? (@.key != "clerkCreatedAt" && @.key != "email" && @.key != "invitationId" && @.key != "role" && @.key != "status"))))))') IS TRUE`,
+          ),
+          checkExpression(
+            'organizations_members_shape_15ab7947',
+            sql`jsonb_path_match("members", 'strict $.type() == "array" && !exists($[*] ? (!((@.type() == "object" && !exists(@.keyvalue() ? (@.key == "clerkCreatedAt" && !(@.value.type() == "null" || (@.value.type() == "string")))) && exists(@.keyvalue() ? (@.key == "email" && (@.value.type() == "string"))) && !exists(@.keyvalue() ? (@.key == "firstName" && !(@.value.type() == "null" || (@.value.type() == "string")))) && !exists(@.keyvalue() ? (@.key == "imageUrl" && !(@.value.type() == "null" || (@.value.type() == "string")))) && !exists(@.keyvalue() ? (@.key == "lastName" && !(@.value.type() == "null" || (@.value.type() == "string")))) && exists(@.keyvalue() ? (@.key == "membershipId" && (@.value.type() == "string"))) && exists(@.keyvalue() ? (@.key == "role" && (@.value.type() == "string"))) && exists(@.keyvalue() ? (@.key == "userId" && (@.value.type() == "string"))) && !exists(@.keyvalue() ? (@.key != "clerkCreatedAt" && @.key != "email" && @.key != "firstName" && @.key != "imageUrl" && @.key != "lastName" && @.key != "membershipId" && @.key != "role" && @.key != "userId"))))))') IS TRUE`,
+          ),
+        ],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'personas',
+        columns: [
+          col('composio_session_id', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('image_url', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('model', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('models', 'jsonb', {
+            notNull: true,
+            default: lit([]),
+            codecRef: { codecId: 'pg/jsonb@1' },
+          }),
+          col('name', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('org_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('project_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('updated_at', 'timestamptz', {
+            notNull: true,
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+        ],
+        constraints: [
+          primaryKey(['id']),
+          checkExpression(
+            'personas_models_shape_49461cab',
+            sql`jsonb_path_match("models", 'strict $.type() == "array" && !exists($[*] ? (!((@.type() == "object" && exists(@.keyvalue() ? (@.key == "model" && (@.value.type() == "string"))) && exists(@.keyvalue() ? (@.key == "when" && (@.value.type() == "string"))) && !exists(@.keyvalue() ? (@.key != "model" && @.key != "when"))))))') IS TRUE`,
+          ),
+        ],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'projects',
+        columns: [
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('description', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('image_url', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('name', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('org_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('updated_at', 'timestamptz', {
+            notNull: true,
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('user_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+        ],
+        constraints: [primaryKey(['id'])],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'runs',
+        columns: [
+          col('claimed_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('ended_at', 'timestamptz', { codecRef: { codecId: 'pg/timestamptz-string@1' } }),
+          col('event_id', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('link_id', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('persona_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('result', 'jsonb', { codecRef: { codecId: 'pg/jsonb@1' } }),
+          col('schedule_id', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('scheduled_for', 'timestamptz', { codecRef: { codecId: 'pg/timestamptz-string@1' } }),
+          col('session_id', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('source', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('status', 'text', {
+            notNull: true,
+            default: lit('running'),
+            codecRef: { codecId: 'pg/text@1' },
+          }),
+          col('title', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('trigger_id', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('webhook_id', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+        ],
+        constraints: [
+          primaryKey(['id']),
+          checkExpression(
+            'runs_result_shape_f81b50e5',
+            sql`"result" IS NULL OR jsonb_path_match("result", 'strict $.type() == "null" || ($.type() == "object" && exists($.keyvalue() ? (@.key == "notify" && (@.value.type() == "boolean"))) && exists($.keyvalue() ? (@.key == "summary" && (@.value.type() == "string"))) && !exists($.keyvalue() ? (@.key != "notify" && @.key != "summary")))') IS TRUE`,
+          ),
+          checkExpression(
+            'runs_source_check_4a436c3d',
+            sql`"source" IN ('automation', 'webhook', 'trigger')`,
+          ),
+          checkExpression(
+            'runs_status_check_77fab0ab',
+            sql`"status" IN ('running', 'completed', 'failed')`,
+          ),
+        ],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'schedules',
+        columns: [
+          col('at', 'timestamptz', { codecRef: { codecId: 'pg/timestamptz-string@1' } }),
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('cron', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('enabled', 'bool', {
+            notNull: true,
+            default: lit(true),
+            codecRef: { codecId: 'pg/bool@1' },
+          }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('link_id', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('name', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('next_run_at', 'timestamptz', { codecRef: { codecId: 'pg/timestamptz-string@1' } }),
+          col('persona_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('prompt', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('timezone', 'text', {
+            notNull: true,
+            default: lit('UTC'),
+            codecRef: { codecId: 'pg/text@1' },
+          }),
+          col('updated_at', 'timestamptz', {
+            notNull: true,
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+        ],
+        constraints: [primaryKey(['id'])],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'secrets',
+        columns: [
+          col('owner_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('values', 'jsonb', { notNull: true, codecRef: { codecId: 'pg/jsonb@1' } }),
+        ],
+        constraints: [
+          primaryKey(['owner_id']),
+          checkExpression(
+            'secrets_values_shape_075c2ca7',
+            sql`jsonb_path_match("values", 'strict $.type() == "array" && !exists($[*] ? (!((@.type() == "object" && exists(@.keyvalue() ? (@.key == "name" && (@.value.type() == "string"))) && exists(@.keyvalue() ? (@.key == "value" && (@.value.type() == "string"))) && !exists(@.keyvalue() ? (@.key != "name" && @.key != "value"))))))') IS TRUE`,
+          ),
+        ],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'sessions',
+        columns: [
+          col('address', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('channel', 'text', {
+            notNull: true,
+            default: lit('unknown'),
+            codecRef: { codecId: 'pg/text@1' },
+          }),
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('ended_at', 'timestamptz', { codecRef: { codecId: 'pg/timestamptz-string@1' } }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('last_turn_at', 'timestamptz', { codecRef: { codecId: 'pg/timestamptz-string@1' } }),
+          col('persona_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('status', 'text', {
+            notNull: true,
+            default: lit('running'),
+            codecRef: { codecId: 'pg/text@1' },
+          }),
+          col('user_id', 'text', {
+            notNull: true,
+            default: lit('unknown'),
+            codecRef: { codecId: 'pg/text@1' },
+          }),
+        ],
+        constraints: [
+          primaryKey(['id']),
+          checkExpression(
+            'sessions_status_check_51d0fd1b',
+            sql`"status" IN ('running', 'waiting', 'ended', 'failed')`,
+          ),
+        ],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'skills',
+        columns: [
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('description', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('enabled', 'bool', {
+            notNull: true,
+            default: lit(true),
+            codecRef: { codecId: 'pg/bool@1' },
+          }),
+          col('files', 'jsonb', { notNull: true, codecRef: { codecId: 'pg/jsonb@1' } }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('markdown', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('name', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('origin', 'jsonb', { notNull: true, codecRef: { codecId: 'pg/jsonb@1' } }),
+          col('persona_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('updated_at', 'timestamptz', {
+            notNull: true,
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+        ],
+        constraints: [
+          primaryKey(['id']),
+          checkExpression(
+            'skills_files_shape_b1107585',
+            sql`jsonb_path_match("files", 'strict $.type() == "array" && !exists($[*] ? (!((@.type() == "object" && exists(@.keyvalue() ? (@.key == "contents" && (@.value.type() == "string"))) && exists(@.keyvalue() ? (@.key == "path" && (@.value.type() == "string"))) && !exists(@.keyvalue() ? (@.key != "contents" && @.key != "path"))))))') IS TRUE`,
+          ),
+          checkExpression(
+            'skills_origin_shape_4ec07a35',
+            sql`jsonb_path_match("origin", 'strict $.type() == "object" && !exists($.keyvalue() ? (@.key == "id" && !(@.value.type() == "null" || (@.value.type() == "string")))) && exists($.keyvalue() ? (@.key == "kind" && (@.value.type() == "string" && (@.value == "custom" || @.value == "hub" || @.value == "agent")))) && !exists($.keyvalue() ? (@.key != "id" && @.key != "kind"))') IS TRUE`,
+          ),
+        ],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'telegram_bots',
+        columns: [
+          col('bot_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('name', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('project_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('username', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+        ],
+        constraints: [primaryKey(['id'])],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'trigger_events',
+        columns: [
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('data', 'jsonb', { notNull: true, codecRef: { codecId: 'pg/jsonb@1' } }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('run_id', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('trigger_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+        ],
+        constraints: [primaryKey(['id'])],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'triggers',
+        columns: [
+          col('account_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('enabled', 'bool', {
+            notNull: true,
+            default: lit(true),
+            codecRef: { codecId: 'pg/bool@1' },
+          }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('link_id', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('name', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('persona_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('prompt', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('slug', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('updated_at', 'timestamptz', {
+            notNull: true,
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+        ],
+        constraints: [primaryKey(['id'])],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'usage',
+        columns: [
+          col('at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('browser', 'jsonb', { codecRef: { codecId: 'pg/jsonb@1' } }),
+          col('credits', 'numeric', { notNull: true, codecRef: { codecId: 'pg/numeric@1' } }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('org_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('persona_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('project_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('sandbox', 'jsonb', { codecRef: { codecId: 'pg/jsonb@1' } }),
+          col('session_id', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('tokens', 'jsonb', { codecRef: { codecId: 'pg/jsonb@1' } }),
+        ],
+        constraints: [
+          primaryKey(['id']),
+          checkExpression(
+            'usage_browser_shape_4a346f8e',
+            sql`"browser" IS NULL OR jsonb_path_match("browser", 'strict $.type() == "null" || ($.type() == "object" && exists($.keyvalue() ? (@.key == "browserId" && (@.value.type() == "string"))) && exists($.keyvalue() ? (@.key == "inputTokens" && (@.value.type() == "number"))) && exists($.keyvalue() ? (@.key == "marketCost" && (@.value.type() == "string"))) && exists($.keyvalue() ? (@.key == "model" && (@.value.type() == "string"))) && exists($.keyvalue() ? (@.key == "outputTokens" && (@.value.type() == "number"))) && !exists($.keyvalue() ? (@.key != "browserId" && @.key != "inputTokens" && @.key != "marketCost" && @.key != "model" && @.key != "outputTokens")))') IS TRUE`,
+          ),
+          checkExpression(
+            'usage_sandbox_shape_6012725a',
+            sql`"sandbox" IS NULL OR jsonb_path_match("sandbox", 'strict $.type() == "null" || ($.type() == "object" && exists($.keyvalue() ? (@.key == "cpuMs" && (@.value.type() == "number"))) && exists($.keyvalue() ? (@.key == "marketCost" && (@.value.type() == "string"))) && exists($.keyvalue() ? (@.key == "memoryMb" && (@.value.type() == "number"))) && exists($.keyvalue() ? (@.key == "runMs" && (@.value.type() == "number"))) && exists($.keyvalue() ? (@.key == "sandboxId" && (@.value.type() == "string"))) && exists($.keyvalue() ? (@.key == "totalCpuMs" && (@.value.type() == "number"))) && exists($.keyvalue() ? (@.key == "totalRunMs" && (@.value.type() == "number"))) && !exists($.keyvalue() ? (@.key != "cpuMs" && @.key != "marketCost" && @.key != "memoryMb" && @.key != "runMs" && @.key != "sandboxId" && @.key != "totalCpuMs" && @.key != "totalRunMs")))') IS TRUE`,
+          ),
+          checkExpression(
+            'usage_tokens_shape_c63d8867',
+            sql`"tokens" IS NULL OR jsonb_path_match("tokens", 'strict $.type() == "null" || ($.type() == "object" && exists($.keyvalue() ? (@.key == "cacheWriteTokens" && (@.value.type() == "number"))) && exists($.keyvalue() ? (@.key == "cachedInputTokens" && (@.value.type() == "number"))) && !exists($.keyvalue() ? (@.key == "gatewayCost" && !(@.value.type() == "null" || (@.value.type() == "string")))) && exists($.keyvalue() ? (@.key == "inputTokens" && (@.value.type() == "number"))) && !exists($.keyvalue() ? (@.key == "marketCost" && !(@.value.type() == "null" || (@.value.type() == "string")))) && exists($.keyvalue() ? (@.key == "model" && (@.value.type() == "string"))) && exists($.keyvalue() ? (@.key == "outputTokens" && (@.value.type() == "number"))) && !exists($.keyvalue() ? (@.key == "provider" && !(@.value.type() == "null" || (@.value.type() == "string")))) && exists($.keyvalue() ? (@.key == "reasoningTokens" && (@.value.type() == "number"))) && !exists($.keyvalue() ? (@.key != "cacheWriteTokens" && @.key != "cachedInputTokens" && @.key != "gatewayCost" && @.key != "inputTokens" && @.key != "marketCost" && @.key != "model" && @.key != "outputTokens" && @.key != "provider" && @.key != "reasoningTokens")))') IS TRUE`,
+          ),
+        ],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'users',
+        columns: [
+          col('auth_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('email', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('first_name', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('image_url', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('last_name', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('organization_ids', 'text[]', {
+            notNull: true,
+            codecRef: { codecId: 'pg/text@1', many: true },
+          }),
+          col('updated_at', 'timestamptz', {
+            notNull: true,
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+        ],
+        constraints: [
+          primaryKey(['id']),
+          checkExpression(
+            'users_organization_ids_elem_not_null_2a985324',
+            sql`array_position("organization_ids", NULL) IS NULL`,
+          ),
+        ],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'webhooks',
+        columns: [
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('enabled', 'bool', {
+            notNull: true,
+            default: lit(true),
+            codecRef: { codecId: 'pg/bool@1' },
+          }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('link_id', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('name', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('persona_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('prompt', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('secret', 'text', {
+            notNull: true,
+            default: fn(sql`(gen_random_uuid())::text`),
+            codecRef: { codecId: 'pg/text@1' },
+          }),
+          col('updated_at', 'timestamptz', {
+            notNull: true,
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+        ],
+        constraints: [primaryKey(['id'])],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'whatsapp_lines',
+        columns: [
+          col('account_id', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('created_at', 'timestamptz', {
+            notNull: true,
+            default: fn(sql`now()`),
+            codecRef: { codecId: 'pg/timestamptz-string@1' },
+          }),
+          col('id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('number', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('number_id', 'text', { codecRef: { codecId: 'pg/text@1' } }),
+          col('profile_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+          col('project_id', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
+        ],
+        constraints: [primaryKey(['id'])],
+      }),
+      this.addUnique({
+        schema: 'public',
+        table: 'api_keys',
+        constraint: 'api_keys_key_hash_key',
+        columns: ['key_hash'],
+      }),
+      this.addUnique({
+        schema: 'public',
+        table: 'connections',
+        constraint: 'connections_persona_id_name_key',
+        columns: ['persona_id', 'name'],
+      }),
+      this.addUnique({
+        schema: 'public',
+        table: 'instructions',
+        constraint: 'instructions_persona_id_name_key',
+        columns: ['persona_id', 'name'],
+      }),
+      this.addUnique({
+        schema: 'public',
+        table: 'links',
+        constraint: 'links_channel_line_external_id_key',
+        columns: ['channel', 'line', 'external_id'],
+      }),
+      this.addUnique({
+        schema: 'public',
+        table: 'meta_lines',
+        constraint: 'meta_lines_phone_number_id_key',
+        columns: ['phone_number_id'],
+      }),
+      this.addUnique({
+        schema: 'public',
+        table: 'organizations',
+        constraint: 'organizations_org_id_key',
+        columns: ['org_id'],
+      }),
+      this.addUnique({
+        schema: 'public',
+        table: 'runs',
+        constraint: 'runs_event_id_key',
+        columns: ['event_id'],
+      }),
+      this.addUnique({
+        schema: 'public',
+        table: 'runs',
+        constraint: 'runs_schedule_id_scheduled_for_key',
+        columns: ['schedule_id', 'scheduled_for'],
+      }),
+      this.addUnique({
+        schema: 'public',
+        table: 'skills',
+        constraint: 'skills_persona_id_name_key',
+        columns: ['persona_id', 'name'],
+      }),
+      this.addUnique({
+        schema: 'public',
+        table: 'telegram_bots',
+        constraint: 'telegram_bots_bot_id_key',
+        columns: ['bot_id'],
+      }),
+      this.addUnique({
+        schema: 'public',
+        table: 'users',
+        constraint: 'users_auth_id_key',
+        columns: ['auth_id'],
+      }),
+      this.addUnique({
+        schema: 'public',
+        table: 'webhooks',
+        constraint: 'webhooks_secret_key',
+        columns: ['secret'],
+      }),
+      this.addUnique({
+        schema: 'public',
+        table: 'whatsapp_lines',
+        constraint: 'whatsapp_lines_profile_id_key',
+        columns: ['profile_id'],
+      }),
+      this.addUnique({
+        schema: 'public',
+        table: 'whatsapp_lines',
+        constraint: 'whatsapp_lines_number_id_key',
+        columns: ['number_id'],
+      }),
+      this.addUnique({
+        schema: 'public',
+        table: 'whatsapp_lines',
+        constraint: 'whatsapp_lines_account_id_key',
+        columns: ['account_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'api_keys',
+        index: 'api_keys_org_id_idx_36e6cd90',
+        columns: ['org_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'api_keys',
+        index: 'api_keys_user_id_idx_6c952402',
+        columns: ['user_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'browsers',
+        index: 'browsers_persona_id_idx_840c67e2',
+        columns: ['persona_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'chat_state_cache',
+        index: 'chat_state_cache_expires_idx',
+        columns: ['expires_at'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'chat_state_lists',
+        index: 'chat_state_lists_expires_idx',
+        columns: ['expires_at'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'chat_state_locks',
+        index: 'chat_state_locks_expires_idx',
+        columns: ['expires_at'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'chat_state_queues',
+        index: 'chat_state_queues_expires_idx',
+        columns: ['expires_at'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'collect_links',
+        index: 'collect_links_credential_id_idx_f89146a6',
+        columns: ['credential_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'connections',
+        index: 'connections_persona_id_idx_840c67e2',
+        columns: ['persona_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'credentials',
+        index: 'credentials_persona_id_idx_840c67e2',
+        columns: ['persona_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'credentials',
+        index: 'credentials_persona_id_title_idx_f4fca8d8',
+        columns: ['persona_id', 'title'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'files',
+        index: 'files_persona_id_created_at_idx_1eddfd24',
+        columns: ['persona_id', 'created_at'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'files',
+        index: 'files_persona_id_idx_840c67e2',
+        columns: ['persona_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'instructions',
+        index: 'instructions_persona_id_idx_840c67e2',
+        columns: ['persona_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'link_codes',
+        index: 'link_codes_persona_id_idx_840c67e2',
+        columns: ['persona_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'links',
+        index: 'links_persona_id_idx_840c67e2',
+        columns: ['persona_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'messages',
+        index: 'messages_session_id_created_at_idx_d635b073',
+        columns: ['session_id', 'created_at'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'messages',
+        index: 'messages_session_id_idx_00ba47bf',
+        columns: ['session_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'meta_lines',
+        index: 'meta_lines_project_id_idx_6ad92603',
+        columns: ['project_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'notes',
+        index: 'notes_persona_id_idx_840c67e2',
+        columns: ['persona_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'notes',
+        index: 'notes_persona_id_updated_at_idx_d05e25d6',
+        columns: ['persona_id', 'updated_at'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'personas',
+        index: 'personas_org_id_idx_36e6cd90',
+        columns: ['org_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'personas',
+        index: 'personas_project_id_idx_6ad92603',
+        columns: ['project_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'projects',
+        index: 'projects_org_id_idx_36e6cd90',
+        columns: ['org_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'projects',
+        index: 'projects_user_id_idx_6c952402',
+        columns: ['user_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'runs',
+        index: 'runs_link_id_idx_fdb33a76',
+        columns: ['link_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'runs',
+        index: 'runs_persona_id_idx_840c67e2',
+        columns: ['persona_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'runs',
+        index: 'runs_schedule_id_idx_83757f9e',
+        columns: ['schedule_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'runs',
+        index: 'runs_status_claimed_at_idx_3c06d0b9',
+        columns: ['status', 'claimed_at'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'runs',
+        index: 'runs_trigger_id_idx_9b550a5d',
+        columns: ['trigger_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'runs',
+        index: 'runs_webhook_id_idx_bc5fb5d1',
+        columns: ['webhook_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'schedules',
+        index: 'schedules_enabled_next_run_at_idx_efb1f288',
+        columns: ['enabled', 'next_run_at'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'schedules',
+        index: 'schedules_link_id_idx_fdb33a76',
+        columns: ['link_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'schedules',
+        index: 'schedules_persona_id_idx_840c67e2',
+        columns: ['persona_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'sessions',
+        index: 'sessions_address_idx_2629f7e3',
+        columns: ['address'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'sessions',
+        index: 'sessions_persona_id_idx_840c67e2',
+        columns: ['persona_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'skills',
+        index: 'skills_persona_id_idx_840c67e2',
+        columns: ['persona_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'telegram_bots',
+        index: 'telegram_bots_project_id_idx_6ad92603',
+        columns: ['project_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'trigger_events',
+        index: 'trigger_events_run_id_idx_61d39f90',
+        columns: ['run_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'trigger_events',
+        index: 'trigger_events_trigger_id_idx_9b550a5d',
+        columns: ['trigger_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'triggers',
+        index: 'triggers_link_id_idx_fdb33a76',
+        columns: ['link_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'triggers',
+        index: 'triggers_persona_id_idx_840c67e2',
+        columns: ['persona_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'usage',
+        index: 'usage_org_id_at_credits_idx_09dd1c38',
+        columns: ['org_id', 'at', 'credits'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'usage',
+        index: 'usage_project_id_at_idx_e662f53b',
+        columns: ['project_id', 'at'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'usage',
+        index: 'usage_session_id_at_idx_0d730bf2',
+        columns: ['session_id', 'at'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'webhooks',
+        index: 'webhooks_link_id_idx_fdb33a76',
+        columns: ['link_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'webhooks',
+        index: 'webhooks_persona_id_idx_840c67e2',
+        columns: ['persona_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'whatsapp_lines',
+        index: 'whatsapp_lines_project_id_idx_6ad92603',
+        columns: ['project_id'],
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'api_keys',
+        foreignKey: {
+          name: 'api_keys_org_id_fkey',
+          columns: ['org_id'],
+          references: { schema: 'public', table: 'organizations', columns: ['org_id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'api_keys',
+        foreignKey: {
+          name: 'api_keys_user_id_fkey',
+          columns: ['user_id'],
+          references: { schema: 'public', table: 'users', columns: ['auth_id'] },
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'browsers',
+        foreignKey: {
+          name: 'browsers_persona_id_fkey',
+          columns: ['persona_id'],
+          references: { schema: 'public', table: 'personas', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'collect_links',
+        foreignKey: {
+          name: 'collect_links_credential_id_fkey',
+          columns: ['credential_id'],
+          references: { schema: 'public', table: 'credentials', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'connections',
+        foreignKey: {
+          name: 'connections_persona_id_fkey',
+          columns: ['persona_id'],
+          references: { schema: 'public', table: 'personas', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'credentials',
+        foreignKey: {
+          name: 'credentials_persona_id_fkey',
+          columns: ['persona_id'],
+          references: { schema: 'public', table: 'personas', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'files',
+        foreignKey: {
+          name: 'files_persona_id_fkey',
+          columns: ['persona_id'],
+          references: { schema: 'public', table: 'personas', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'instructions',
+        foreignKey: {
+          name: 'instructions_persona_id_fkey',
+          columns: ['persona_id'],
+          references: { schema: 'public', table: 'personas', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'link_codes',
+        foreignKey: {
+          name: 'link_codes_persona_id_fkey',
+          columns: ['persona_id'],
+          references: { schema: 'public', table: 'personas', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'links',
+        foreignKey: {
+          name: 'links_persona_id_fkey',
+          columns: ['persona_id'],
+          references: { schema: 'public', table: 'personas', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'messages',
+        foreignKey: {
+          name: 'messages_session_id_fkey',
+          columns: ['session_id'],
+          references: { schema: 'public', table: 'sessions', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'meta_lines',
+        foreignKey: {
+          name: 'meta_lines_project_id_fkey',
+          columns: ['project_id'],
+          references: { schema: 'public', table: 'projects', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'notes',
+        foreignKey: {
+          name: 'notes_persona_id_fkey',
+          columns: ['persona_id'],
+          references: { schema: 'public', table: 'personas', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'personas',
+        foreignKey: {
+          name: 'personas_project_id_fkey',
+          columns: ['project_id'],
+          references: { schema: 'public', table: 'projects', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'personas',
+        foreignKey: {
+          name: 'personas_org_id_fkey',
+          columns: ['org_id'],
+          references: { schema: 'public', table: 'organizations', columns: ['org_id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'projects',
+        foreignKey: {
+          name: 'projects_org_id_fkey',
+          columns: ['org_id'],
+          references: { schema: 'public', table: 'organizations', columns: ['org_id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'projects',
+        foreignKey: {
+          name: 'projects_user_id_fkey',
+          columns: ['user_id'],
+          references: { schema: 'public', table: 'users', columns: ['auth_id'] },
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'runs',
+        foreignKey: {
+          name: 'runs_persona_id_fkey',
+          columns: ['persona_id'],
+          references: { schema: 'public', table: 'personas', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'runs',
+        foreignKey: {
+          name: 'runs_link_id_fkey',
+          columns: ['link_id'],
+          references: { schema: 'public', table: 'links', columns: ['id'] },
+          onDelete: 'setNull',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'runs',
+        foreignKey: {
+          name: 'runs_schedule_id_fkey',
+          columns: ['schedule_id'],
+          references: { schema: 'public', table: 'schedules', columns: ['id'] },
+          onDelete: 'setNull',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'runs',
+        foreignKey: {
+          name: 'runs_webhook_id_fkey',
+          columns: ['webhook_id'],
+          references: { schema: 'public', table: 'webhooks', columns: ['id'] },
+          onDelete: 'setNull',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'runs',
+        foreignKey: {
+          name: 'runs_trigger_id_fkey',
+          columns: ['trigger_id'],
+          references: { schema: 'public', table: 'triggers', columns: ['id'] },
+          onDelete: 'setNull',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'schedules',
+        foreignKey: {
+          name: 'schedules_persona_id_fkey',
+          columns: ['persona_id'],
+          references: { schema: 'public', table: 'personas', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'schedules',
+        foreignKey: {
+          name: 'schedules_link_id_fkey',
+          columns: ['link_id'],
+          references: { schema: 'public', table: 'links', columns: ['id'] },
+          onDelete: 'setNull',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'sessions',
+        foreignKey: {
+          name: 'sessions_persona_id_fkey',
+          columns: ['persona_id'],
+          references: { schema: 'public', table: 'personas', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'skills',
+        foreignKey: {
+          name: 'skills_persona_id_fkey',
+          columns: ['persona_id'],
+          references: { schema: 'public', table: 'personas', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'telegram_bots',
+        foreignKey: {
+          name: 'telegram_bots_project_id_fkey',
+          columns: ['project_id'],
+          references: { schema: 'public', table: 'projects', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'trigger_events',
+        foreignKey: {
+          name: 'trigger_events_trigger_id_fkey',
+          columns: ['trigger_id'],
+          references: { schema: 'public', table: 'triggers', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'trigger_events',
+        foreignKey: {
+          name: 'trigger_events_run_id_fkey',
+          columns: ['run_id'],
+          references: { schema: 'public', table: 'runs', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'triggers',
+        foreignKey: {
+          name: 'triggers_persona_id_fkey',
+          columns: ['persona_id'],
+          references: { schema: 'public', table: 'personas', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'triggers',
+        foreignKey: {
+          name: 'triggers_link_id_fkey',
+          columns: ['link_id'],
+          references: { schema: 'public', table: 'links', columns: ['id'] },
+          onDelete: 'setNull',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'webhooks',
+        foreignKey: {
+          name: 'webhooks_persona_id_fkey',
+          columns: ['persona_id'],
+          references: { schema: 'public', table: 'personas', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'webhooks',
+        foreignKey: {
+          name: 'webhooks_link_id_fkey',
+          columns: ['link_id'],
+          references: { schema: 'public', table: 'links', columns: ['id'] },
+          onDelete: 'setNull',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'whatsapp_lines',
+        foreignKey: {
+          name: 'whatsapp_lines_project_id_fkey',
+          columns: ['project_id'],
+          references: { schema: 'public', table: 'projects', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+    ];
+  }
+}
+
+MigrationCLI.run(import.meta.url, M);

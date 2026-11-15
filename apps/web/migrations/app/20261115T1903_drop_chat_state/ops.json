@@ -1,0 +1,227 @@
+[
+  {
+    "id": "dropTable.chat_state_cache",
+    "label": "Drop table \"chat_state_cache\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "chat_state_cache"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"chat_state_cache\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"chat_state_cache\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"chat_state_cache\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"chat_state_cache\"",
+        "sql": "DROP TABLE \"public\".\"chat_state_cache\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"chat_state_cache\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"chat_state_cache\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"chat_state_cache\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropTable.chat_state_lists",
+    "label": "Drop table \"chat_state_lists\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "chat_state_lists"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"chat_state_lists\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"chat_state_lists\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"chat_state_lists\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"chat_state_lists\"",
+        "sql": "DROP TABLE \"public\".\"chat_state_lists\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"chat_state_lists\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"chat_state_lists\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"chat_state_lists\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropTable.chat_state_locks",
+    "label": "Drop table \"chat_state_locks\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "chat_state_locks"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"chat_state_locks\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"chat_state_locks\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"chat_state_locks\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"chat_state_locks\"",
+        "sql": "DROP TABLE \"public\".\"chat_state_locks\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"chat_state_locks\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"chat_state_locks\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"chat_state_locks\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropTable.chat_state_queues",
+    "label": "Drop table \"chat_state_queues\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "chat_state_queues"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"chat_state_queues\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"chat_state_queues\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"chat_state_queues\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"chat_state_queues\"",
+        "sql": "DROP TABLE \"public\".\"chat_state_queues\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"chat_state_queues\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"chat_state_queues\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"chat_state_queues\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropTable.chat_state_subscriptions",
+    "label": "Drop table \"chat_state_subscriptions\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "chat_state_subscriptions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"chat_state_subscriptions\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"chat_state_subscriptions\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"chat_state_subscriptions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"chat_state_subscriptions\"",
+        "sql": "DROP TABLE \"public\".\"chat_state_subscriptions\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"chat_state_subscriptions\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"chat_state_subscriptions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"chat_state_subscriptions\""
+        }
+      }
+    ]
+  }
+]
