@@ -16,15 +16,16 @@ Persona needs real services to run: a Postgres database, Clerk, a model key, Aut
 cd apps/web
 pnpm install
 cp .env.example .env.local   # fill it in
-pnpm app:setup               # once: the tables and the plans in Autumn
+pnpm db:migrate              # once: the tables
+pnpm autumn:push             # once: the plans in Autumn
 pnpm dev                     # the app and the agent on http://localhost:3000
 ```
 
-`pnpm app:setup` is safe to run again at any time.
+Both are safe to run again at any time.
 
 ## How the code is laid out
 
-The app is in `apps/web`; the docs site in `apps/docs` and the landing page in `apps/landing` are Next.js projects of their own. Inside `apps/web`:
+The app is in `apps/web`. The docs site in `apps/docs` and the landing page in `apps/landing` are Next.js projects of their own, and `apps/files` is the files Worker. Inside `apps/web`:
 
 - `app/` holds the pages, and the REST API in `app/api`.
 - `agent/` is the eve agent: `instructions/`, `tools/`, `channels/`, `hooks/`, `schedules/`.

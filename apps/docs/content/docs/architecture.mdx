@@ -3,12 +3,14 @@ title: Architecture
 description: One Next.js app with the eve agent inside it, one Postgres database, and a rule for where each piece of logic lives.
 ---
 
-Persona is one Next.js app, `webapp/`, with an [eve](https://eve.dev) agent inside it. `next.config.ts` wraps the Next.js config with `withEve()`. That mounts the agent at `/eve/v1/*` on the app's own origin, in development and on Vercel. There is no second server and no CORS.
+Persona is one Next.js app, `apps/web/`, with an [eve](https://eve.dev) agent inside it. `next.config.ts` wraps the Next.js config with `withEve()`. That mounts the agent at `/eve/v1/*` on the app's own origin, in development and on Vercel. There is no second server and no CORS.
+
+The repository also holds the landing (`apps/landing/`), this site (`apps/docs/`) and the files Worker (`apps/files/`), which serves published files and pictures.
 
 ## The folders
 
 ```
-webapp/
+apps/web/
 ├── app/          pages, and the REST API in app/api
 ├── agent/        the eve agent: instructions, loaders, channels, tools, hooks, schedules, memory, sandbox
 ├── usecases/     every business rule, one file per area
@@ -16,13 +18,13 @@ webapp/
 ├── prisma/       the database contract and client
 ├── hooks/        the app's SWR hooks, one file per area
 ├── components/   app-wide UI
-├── tests/        node:test tests
+├── tests/        Vitest tests: unit/ and integration/
 └── evals/        eve evals
 ```
 
 The rule for logic:
 
-- **`lib/<vendor>.ts`** talks to one third party and nothing else. It does not touch the database. Examples: `lib/composio.ts`, `lib/zernio.ts`, `lib/browser-use.ts`, `lib/r2.ts`.
+- **`lib/<vendor>.ts`** talks to one third party and nothing else. It does not touch the database. Examples: `lib/composio.ts`, `lib/zernio.ts`, `lib/browser-use.ts`, `lib/s3.ts`.
 - **`usecases/<area>.ts`** holds the business rules. A use case is the only way into the logic, whether it needs one service or several. It calls `lib/` and the database.
 - **Routes, pages and agent tools** call use cases. Nothing else does.
 
@@ -125,8 +127,8 @@ The browsers and the servers report to one [PostHog](https://posthog.com) projec
 
 | Layer | File | What it sends |
 | --- | --- | --- |
-| The browser, in the webapp, the landing and the docs | `instrumentation-client.ts` | Page views, clicks, session replays and uncaught errors. The visitor id lives in a cookie on `usepersona.dev`, so one person is one visitor across the three sites. The webapp also reports the errors its `app/error.tsx` catches. |
-| The webapp, signed in | `components/posthog-identify.tsx` | Names the visitor after the Clerk user once Clerk has loaded, and starts a new visitor after a sign-out. |
+| The browser, in the app, the landing and the docs | `instrumentation-client.ts` | Page views, clicks, session replays and uncaught errors. The visitor id lives in a cookie on `usepersona.dev`, so one person is one visitor across the three sites. The app also reports the errors its `app/error.tsx` catches. |
+| The app, signed in | `components/posthog-identify.tsx` | Names the visitor after the Clerk user once Clerk has loaded, and starts a new visitor after a sign-out. |
 | The server, in all three apps | `instrumentation.ts` | The errors Next.js catches in renders, server actions and the proxy, as the visitor whose cookie came with the request. |
 | The REST API | `app/api/handler.ts` | A fault in a route answers a JSON 500 and reports the error the same way. |
 
@@ -145,8 +147,8 @@ What goes where: PostHog gets no conversation text and no files, only events, er
 | A project's own WhatsApp number's keys | Postgres, as columns of its `meta_lines` row |
 | Conversation history and the state of a turn | eve. A copy of each session and each message is in Postgres, in `sessions` and `messages` |
 | Memory | [Supermemory](https://supermemory.ai), one container per persona |
-| File content | Cloudflare R2, one private bucket. A published file carries `public=true` in its metadata, and a Cloudflare Worker serves it on the persona's own host, `{personaId}.usepersona.site` |
-| Pictures of personas and projects | The same bucket, under `uploads/`, served by the Worker to everyone |
+| File content | One private bucket, on any storage that speaks S3 (Cloudflare R2 for us). A published file carries `public=true` in its metadata, and the files Worker (`apps/files`) serves it on the persona's own host, `{personaId}.usepersona.site` |
+| Pictures of personas and projects | The same bucket, under `uploads/`, served by the files Worker to everyone |
 | App accounts | Composio, under the persona's id |
 | Browser sign-ins | Browser Use, one profile per persona |
 | Users and organizations | Clerk, copied into Postgres |

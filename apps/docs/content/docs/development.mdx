@@ -3,39 +3,40 @@ title: Development
 description: Run Persona on your machine, with every environment variable, the database, tests, evals and the deploy to Vercel.
 ---
 
-Persona is three repositories, each with its own lockfile: `webapp`, the app and its agent; `landing`, the landing and the legal pages; and `docs`, this site. Clone them side by side in one folder; the paths on this page start from that folder.
+Persona is one repository with one pnpm workspace: `apps/web`, the app and its agent; `apps/landing`, the landing and the legal pages; `apps/docs`, this site; and `apps/files`, the files Worker. The paths on this page start from the repository's root.
 
 ## What you need
 
-- **Node 24** and **pnpm**. `webapp/` pins Node `24.x` in `engines`.
+- **Node 24** and **pnpm**. `apps/web/` pins Node `24.x` in `engines`.
 - **Postgres 15 or later.**
 - **Docker.** eve runs each session's sandbox in a container locally; without Docker it falls back to a plain shell, and the sandbox setup (`apt-get`, `pnpm`) fails.
 - **A [Clerk](https://clerk.com) application** with organizations on.
 - **Model access** through the Vercel AI Gateway: a `VERCEL_OIDC_TOKEN` from `eve link`, or an `AI_GATEWAY_API_KEY`.
-- **Accounts the code requires before a first chat:** [Autumn](https://useautumn.com) (credits: every turn checks them), Supermemory (loaded with the agent), Composio (the agent builds with it), Cloudflare R2 (files).
+- **Accounts the code requires before a first chat:** [Autumn](https://useautumn.com) (credits: every turn checks them), Supermemory (loaded with the agent), Composio (the agent builds with it), and a bucket on any storage that speaks S3: Cloudflare R2, AWS S3 or MinIO (files).
 - **[Browser Use](https://browser-use.com)** for the browser tools. A first chat runs without it; a browser task fails until it is set.
-- **A domain on Cloudflare for published files,** apart from the app's own domain. Pages that a persona writes run there, on another site than the app, so they can never act with a person's sign-in. One domain serves every persona: each gets a host of its own under it. See [The files Worker](#the-files-worker).
+- **A domain for published files,** apart from the app's own domain. Pages that a persona writes run there, on another site than the app, so they can never act with a person's sign-in. One domain serves every persona: each gets a host of its own under it. See [The files Worker](#the-files-worker).
 - **Accounts for the channels you want:** a Meta app for WhatsApp, a Telegram bot. Kapso and Zernio are legacy WhatsApp providers that our own older chats still use: leave all their variables empty.
 
 ## Run it
 
 ```bash
-cd webapp
-pnpm install
+pnpm install                 # once, anywhere in the repository: every app's packages
+cd apps/web
 cp .env.example .env.local   # fill it in, see Environment
-pnpm app:setup         # once: the tables, the plans in Autumn, and the files bucket and Worker on Cloudflare
-pnpm dev               # the app and the agent on http://localhost:3000
+pnpm db:migrate              # the tables
+pnpm autumn:push             # the plans in Autumn
+pnpm dev                     # the app and the agent on http://localhost:3000
 ```
 
-`pnpm app:setup` runs `pnpm db:migrate`, `pnpm autumn:push` and `pnpm cloudflare:push`. Each one is safe to run again at any time: the migrations run only what is new, `autumn:push` sends only what changed in `autumn.config.ts`, and `cloudflare:push` makes what is missing and sends the Worker's code again.
+Both are safe to run again at any time: the migrations run only what is new, and `autumn:push` sends only what changed in `autumn.config.ts`. Every build runs both too.
 
 `pnpm dev` runs `next dev`. `withEve()` in `next.config.ts` starts the eve agent beside it and sends `/eve/v1/*` to it.
 
-The landing and the legal pages are their own app in `landing/`: `pnpm install`, then `pnpm dev` on http://localhost:3001. Its variables are `NEXT_PUBLIC_APP_URL`, the app's origin, for the Sign in link, and the two PostHog variables below.
+The landing and the legal pages are their own app in `apps/landing/`: `pnpm dev` there, on http://localhost:3001. `pnpm dev` at the repository's root starts the app, the landing and this site at once. Its variables are `NEXT_PUBLIC_APP_URL`, the app's origin, for the Sign in link, and the two PostHog variables below.
 
 ## Environment
 
-All local variables live in `webapp/.env.local`. Prisma reads it too. Keep every key on the Vercel project as well: `vercel env pull` and `eve link` replace the whole file with the project's development variables.
+All local variables live in `apps/web/.env.local`. Prisma reads it too. Keep every key on the Vercel project as well: `vercel env pull` and `eve link` replace the whole file with the project's development variables.
 
 | Variable | What it is for |
 | --- | --- |
@@ -51,11 +52,11 @@ All local variables live in `webapp/.env.local`. Prisma reads it too. Keep every
 | `AUTOMATIONS_SECRET` | The queue routes send it to the agent's own routes that start runs and post reports; those refuse any call without it. A secret you make. |
 | `AUTUMN_SECRET_KEY` | [Autumn](https://useautumn.com): plans, credits and payments. `autumn.config.ts` holds the plans; `pnpm autumn:push` sends them to the account of the key. It matches each plan by its `planId`, so the file holds no ids of any account. |
 | `VERCEL_OIDC_TOKEN` or `AI_GATEWAY_API_KEY` | Model access. The OIDC token also signs the calls to skills.sh. |
-| `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | Cloudflare R2. |
-| `R2_FILES_BUCKET` | The one private bucket that holds the files and the pictures. |
+| `S3_ENDPOINT`, `S3_REGION` | The storage, any that speaks S3: `https://<account id>.r2.cloudflarestorage.com` with `auto` on Cloudflare R2, `https://s3.<region>.amazonaws.com` on AWS S3, or a MinIO server's public address. Browsers, WhatsApp and the model provider open signed links to it, so it must answer on the internet over HTTPS. |
+| `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | The storage's keys. |
+| `S3_FILES_BUCKET` | The one private bucket that holds the files and the pictures. |
 | `FILES_PREVIEW_URL` | Where the app shows a published file: `FILES_PREVIEW_URL/{personaId}/{fileId}` (a host of the app, like `https://files.usepersona.dev`). |
-| `PUBLISHED_FILES_DOMAIN` | The domain of the files Worker, which serves a published file at `https://{personaId}.{domain}/{fileId}` and the pictures at `uploads.{domain}`. A domain of its own on your Cloudflare account, not a name under the app's domain. See [The files Worker](#the-files-worker). |
-| `CLOUDFLARE_API_TOKEN` | For the Cloudflare step of `pnpm app:setup` (`pnpm cloudflare:push`) only; the app never reads it. Make a token for your account and your two domains only, with the least it needs: Workers R2 Storage, Workers Scripts, DNS, Workers Routes and Zone WAF on Edit, and Zone on Read. On Vercel, add it for Development only: `vercel env pull` then keeps it in `.env.local`, and no deployment gets it. |
+| `PUBLISHED_FILES_DOMAIN` | The domain of the files Worker, which serves a published file at `https://{personaId}.{domain}/{fileId}` and the pictures at `uploads.{domain}`. A domain of its own, not a name under the app's domain. See [The files Worker](#the-files-worker). |
 | `SUPERMEMORY_API_KEY` | Memory. |
 | `COMPOSIO_API_KEY`, `COMPOSIO_WEBHOOK_SECRET` | Apps, and the secret Composio signs each trigger event with. |
 | `BROWSER_USE_API_KEY` | The browser. |
@@ -105,7 +106,7 @@ pnpm test                 # unit tests: they need no keys
 pnpm test:integration     # the real database and services
 ```
 
-The tests run on Vitest. Unit tests are in `tests/unit/` and get no keys. Integration tests are in `tests/integration/`, and `vitest.config.ts` gives them the keys from `.env.local`. The billing test needs an Autumn sandbox key (`am_sk_test_`) and talks to Autumn and Stripe's test mode. They call the agent's tools straight, against the real database. Each test makes its own organization, project and persona, and removes them at the end. The media tests call real models and R2, so they cost a few cents. The video test runs only with `TEST_VIDEO=1`. The live Telegram test runs only with `TEST_TELEGRAM_BOT_ID` and `TEST_TELEGRAM_CHAT_ID`, a test bot and a chat linked to a persona: it sends one message through the running dev server (`TEST_APP_URL`, `http://localhost:3000` by default) and checks that the chat got exactly one message for each `chat_say` and `chat_file` call.
+The tests run on Vitest. Unit tests are in `tests/unit/` and get no keys. Integration tests are in `tests/integration/`, and `vitest.config.ts` gives them the keys from `.env.local`. The billing test needs an Autumn sandbox key (`am_sk_test_`) and talks to Autumn and Stripe's test mode. They call the agent's tools straight, against the real database. Each test makes its own organization, project and persona, and removes them at the end. The media tests call real models and the bucket, so they cost a few cents. The video test runs only with `TEST_VIDEO=1`. The live Telegram test runs only with `TEST_TELEGRAM_BOT_ID` and `TEST_TELEGRAM_CHAT_ID`, a test bot and a chat linked to a persona: it sends one message through the running dev server (`TEST_APP_URL`, `http://localhost:3000` by default) and checks that the chat got exactly one message for each `chat_say` and `chat_file` call.
 
 ## Evals
 
@@ -118,19 +119,19 @@ pnpm eval vault                # one folder
 
 ## Deploy
 
-Persona deploys to Vercel as three projects, one per repository. A push to a repository's `main` deploys its project to production.
+Persona deploys to Vercel as three projects from the one repository, each with its app's folder as its Root Directory. A push to `main` deploys each project whose folder changed. The files Worker deploys to Cloudflare, see [The files Worker](#the-files-worker).
 
-- `webapp` (project `persona`) is the app on `app.usepersona.dev`. `withEve()` builds the agent into the same deployment and routes `/eve/v1/*` to it. The one schedule, `agent/schedules/start.ts`, becomes a Vercel Cron Job that runs every minute and puts due runs on Vercel Queues; `vercel.json` hands each queue to its route under `app/api/queues/`. `webapp/package.json`'s `build` script is `pnpm db:migrate && pnpm autumn:push && next build`, so every build, on Vercel or any other host, migrates its database and pushes the plans before it builds; no build setting lives outside the repository.
-- `landing` (project `persona-landing`) is the landing and the legal pages on `usepersona.dev`.
-- `docs` (project `persona-docs`) is this site on `docs.usepersona.dev`.
+- `apps/web` (project `persona`) is the app on `app.usepersona.dev`. `withEve()` builds the agent into the same deployment and routes `/eve/v1/*` to it. The one schedule, `agent/schedules/start.ts`, becomes a Vercel Cron Job that runs every minute and puts due runs on Vercel Queues; `vercel.json` hands each queue to its route under `app/api/queues/`. `apps/web/package.json`'s `build` script is `pnpm db:migrate && pnpm autumn:push && next build`, so every build, on Vercel or any other host, migrates its database and pushes the plans before it builds; no build setting lives outside the repository.
+- `apps/landing` (project `persona-landing`) is the landing and the legal pages on `usepersona.dev`.
+- `apps/docs` (project `persona-docs`) is this site on `docs.usepersona.dev`.
 
 Set every variable from [Environment](#environment) on Production, Preview and Development. On Vercel, the project's OIDC token gives model access, so no gateway key is needed. Set `APP_URL` to the app's origin and `NEXT_PUBLIC_SITE_URL` to the landing's, then point the shared WhatsApp number's and the shared bot's webhooks at the app: see [The shared number and bot](#the-shared-number-and-bot).
 
 The PostHog host on all three projects is PostHog's managed reverse proxy on a subdomain of yours: a `CNAME`, DNS only, to the target PostHog gives for the proxy.
 
-No build touches Cloudflare. Run `pnpm app:setup` once with the environment's variables, and again after a change to `scripts/cloudflare.ts`: its Cloudflare step makes the files bucket, the files Worker and the rate limit, see [The files Worker](#the-files-worker).
+No Vercel build touches Cloudflare. Cloudflare builds the files Worker itself from `apps/files`, see [The files Worker](#the-files-worker).
 
-The app sits behind Cloudflare's proxy in production. With the proxy on, keep the domain's SSL/TLS mode on Full and leave "Always Use HTTPS" off: Vercel redirects to HTTPS itself, and it proves each name for its certificate with a plain HTTP call to `/.well-known/acme-challenge/`, so no setting or rule may redirect, challenge or block that path. The rate limit is one rule on the app's domain: 100 requests per 10 seconds per address on `/api/`, the persona webhooks and the collect page, with the rest of `/eve/v1/` outside it so channels and chats are never throttled. `pnpm app:setup` adds it when the app's domain is on your Cloudflare account and has no rate limit yet, and never changes one that is there. The security headers (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`) come from `next.config.ts`, with or without Cloudflare. Neither is required to run.
+The app sits behind Cloudflare's proxy in production. With the proxy on, keep the domain's SSL/TLS mode on Full and leave "Always Use HTTPS" off: Vercel redirects to HTTPS itself, and it proves each name for its certificate with a plain HTTP call to `/.well-known/acme-challenge/`, so no setting or rule may redirect, challenge or block that path. The rate limit is one rule on the app's domain: 100 requests per 10 seconds per address on `/api/`, the persona webhooks and the collect page, with the rest of `/eve/v1/` outside it so channels and chats are never throttled. Add it by hand in Cloudflare, as a rate limiting rule on the app's zone. The security headers (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`) come from `next.config.ts`, with or without Cloudflare. Neither is required to run.
 
 ### The shared number and bot
 
@@ -166,16 +167,20 @@ curl -X POST "https://graph.facebook.com/v25.0/$META_PHONE_NUMBER_ID" \
 
 ## The files Worker
 
-Published files are served by one Cloudflare Worker in front of the private R2 bucket: `https://<personaId>.<PUBLISHED_FILES_DOMAIN>/<fileId>` serves the object `<personaId>/<fileId>` when its metadata says `public=true`, and anything under `uploads/` (the pictures) always. Its code is in `scripts/cloudflare.ts`, and `pnpm app:setup` puts it live (its `cloudflare:push` step). On each run the command makes what is missing, and sends the Worker's code and the CORS rule again:
+Published files are served by the files Worker in front of the private bucket: `https://<personaId>.<PUBLISHED_FILES_DOMAIN>/<fileId>` serves the object `<personaId>/<fileId>` when its metadata says `public=true`, and anything under `uploads/` (the pictures) always. Its code is `apps/files/files.ts`. It reads the bucket through the S3 API with the app's own five `S3_*` settings, so any storage that speaks S3 works, and it runs in two places:
 
-- the bucket named in `R2_FILES_BUCKET`, with the CORS rule that lets a browser upload to it and read from it with a signed link;
-- the Worker `persona-files`, with the bucket under the name `FILES`;
-- the route `*.<domain>/*` on the zone of `PUBLISHED_FILES_DOMAIN`, and the proxied `AAAA` record `*` with the value `100::` that the route needs (a placeholder: the Worker answers);
+- **On Cloudflare**, as the Worker `persona-files` (`apps/files/wrangler.jsonc`). Cloudflare builds and deploys it from the repository: in the Worker's settings, connect the repository with Workers Builds, root directory `apps/files`, deploy command `npx wrangler deploy`, build watch path `apps/files/*`. Each push to `main` that changes the folder then deploys it.
+- **With Node**, anywhere else, such as Docker Compose: `pnpm start` in `apps/files` serves it on port 3001, with the five `S3_*` settings in its environment. A web server in front sends every `*.<PUBLISHED_FILES_DOMAIN>` request to it.
+
+Set up once, by hand:
+
+- the bucket's CORS rule: `GET`, `PUT` and `HEAD` from any origin, with a `content-type` header. Browsers upload straight to the bucket with a signed link, and read from it with one;
+- on Cloudflare: the five `S3_*` settings as the Worker's secrets, the route `*.<domain>/*` on the zone of `PUBLISHED_FILES_DOMAIN`, and the proxied `AAAA` record `*` with the value `100::` that the route needs (a placeholder: the Worker answers);
 - the rate limit on the app's domain, see [Deploy](#deploy).
 
-It needs `CLOUDFLARE_API_TOKEN`, and `PUBLISHED_FILES_DOMAIN` must be a domain on that Cloudflare account. It is a domain of its own and not a name under the app's domain: the pages a persona writes run on it, and a page on the app's own domain could act with a person's sign-in. Each persona has a host of its own under it, so a page of one persona cannot reach another's.
+`PUBLISHED_FILES_DOMAIN` is a domain of its own and not a name under the app's domain: the pages a persona writes run on it, and a page on the app's own domain could act with a person's sign-in. Each persona has a host of its own under it, so a page of one persona cannot reach another's.
 
-The Worker is set up once per bucket, not per environment: every environment writes the same bucket, so a file published from your machine is live on the Worker's domain at once, and a local `.env.local` points `PUBLISHED_FILES_DOMAIN` and `FILES_PREVIEW_URL` at the same domain and file pages as production. Never set `FILES_PREVIEW_URL` to the app's own local origin: the proxy would take every request for a file page.
+The Worker is set up once per bucket, not per environment: every environment writes the same bucket, so a file published from your machine is live on the Worker's domain at once, and a local `.env.local` points `PUBLISHED_FILES_DOMAIN` and `FILES_PREVIEW_URL` at the same domain and file pages as production. Never set `FILES_PREVIEW_URL` to the app's own origin with no path: the proxy would take every request for a file page. The app's origin with a path, such as `http://localhost:3000/files`, works.
 
 Without the Worker the app still runs, and files open inside the app through signed links. What has no answer is every public address: the link a persona sends for a published file, the "Open" button on a file page, and the pictures under `uploads/`. `FILES_PREVIEW_URL` must still be set, since `proxy.ts` reads it at startup: a second hostname that resolves to the app will do, and the proxy serves the file pages on it.
 
@@ -184,9 +189,8 @@ Leave the "Add security headers" switch of that zone off: its `X-Frame-Options: 
 ## This site
 
 ```bash
-cd docs
-pnpm install
+cd apps/docs
 pnpm dev                       # http://localhost:3002
 ```
 
-Pages are MDX files in `docs/content/docs/`. When a feature changes in `webapp/`, change its page here.
+Pages are MDX files in `apps/docs/content/docs/`. When a feature changes in `apps/web/`, change its page here, in the same pull request.

@@ -138,9 +138,9 @@ Each persona has files: what people send in chats, what the persona makes, and w
 | `contentType` | a media type, such as `image/png` |
 | `size` | up to 2 GB |
 
-Files live in one private Cloudflare R2 bucket. A file reaches a person in one of two ways: as a file in the chat, or by its link once the persona publishes it (`file_publish`), which marks the file public. Every file has two fixed addresses: its page at `files.usepersona.dev/{personaId}/{fileId}`, the one the persona sends people (a mini app fills the window, anything else shows with a header and a download button), and the file itself at `https://{personaId}.usepersona.site/{fileId}`, used inside web pages. Both answer only while the file is public; `file_unpublish` takes them back. Each persona's files sit on their own host, so a page of one persona cannot reach another's, and none of them runs on the app's site.
+Files live in one private bucket, on any storage that speaks S3 (Cloudflare R2 for us). A file reaches a person in one of two ways: as a file in the chat, or by its link once the persona publishes it (`file_publish`), which marks the file public. Every file has two fixed addresses: its page at `files.usepersona.dev/{personaId}/{fileId}`, the one the persona sends people (a mini app fills the window, anything else shows with a header and a download button), and the file itself at `https://{personaId}.usepersona.site/{fileId}`, used inside web pages. Both answer only while the file is public; `file_unpublish` takes them back. Each persona's files sit on their own host, so a page of one persona cannot reach another's, and none of them runs on the app's site.
 
-An upload goes straight from the client to R2. Ask the API for a signed upload URL, `PUT` the bytes to it within 10 minutes, then tell the API the upload is done. The API reads the type and size from R2. A file can also be replaced in place; a published file shows its new content at once.
+An upload goes straight from the client to the bucket. Ask the API for a signed upload URL, `PUT` the bytes to it within 10 minutes, then tell the API the upload is done. The API reads the type and size from the bucket. A file can also be replaced in place; a published file shows its new content at once.
 
 | Tool | What it does |
 | --- | --- |
