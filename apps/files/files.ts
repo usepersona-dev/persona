@@ -8,7 +8,13 @@ import { AwsClient } from "aws4fetch"
 // It reads the bucket through the S3 API with the app's own five S3_* settings, so any storage that speaks S3 works
 
 // The five settings: the Worker's secrets on Cloudflare, the process's settings with Node
-export type Env = { S3_ENDPOINT: string; S3_REGION: string; S3_ACCESS_KEY_ID: string; S3_SECRET_ACCESS_KEY: string; S3_FILES_BUCKET: string }
+export type Env = {
+  S3_ENDPOINT: string;
+  S3_REGION: string;
+  S3_ACCESS_KEY_ID: string;
+  S3_SECRET_ACCESS_KEY: string;
+  S3_FILES_BUCKET: string
+}
 
 const worker = {
   async fetch(request: Request, env: Env): Promise<Response> {
