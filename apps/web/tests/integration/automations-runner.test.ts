@@ -3,7 +3,7 @@ import { afterAll, beforeAll, test } from "vitest"
 
 import automations from "@/agent/channels/automations"
 import { start } from "@/agent/schedules/start"
-import { type AutomationRun, queue, type Report } from "@/lib/queue"
+import { type Job, queue } from "@/lib/queue"
 import { db } from "@/prisma/db"
 import { createAutomation } from "@/usecases/automations"
 import { completeRun, failRun } from "@/usecases/runs"
@@ -14,19 +14,24 @@ type Route = { method: string; path: string; handler: (request: Request, args: n
 let persona: Awaited<ReturnType<typeof createTestPersona>>
 let linkId: string
 
-// Stands in for the queue and the run route: the queue notes each run with its delay and hands it over at once, and the run route gives the run a session unless it has one. A report only has its route noted
-const calls: (AutomationRun & { delaySeconds: number })[] = []
+// Stands in for the queue service and the run route: the queue notes each run with its delay and hands it over at once, and the run route gives the run a session unless it has one. A report only has its route noted
+const calls: { automationId: string; runId: string; delaySeconds: number }[] = []
 const reports: string[] = []
-queue.send = (async (_topic: string, payload: AutomationRun | Report, options?: { delaySeconds?: number }) => {
-  if ("path" in payload) {
-    reports.push(payload.path)
-    return { messageId: "test-report" }
-  }
+queue.send = async (jobs: Job[]) => {
+  for (const job of jobs) {
+    if (job.path.endsWith("/report")) {
+      reports.push(job.path)
+      continue
+    }
 
-  calls.push({ ...payload, delaySeconds: options?.delaySeconds ?? 0 })
-  await db.orm.public.Run.where({ id: payload.runId, sessionId: null }).updateAll({ sessionId: `session-call-${calls.length}` })
-  return { messageId: "test-message" }
-}) as unknown as typeof queue.send
+    const names = job.path.split("/")
+    const automationId = names.at(-2)!
+    const runId = names.at(-1)!
+
+    calls.push({ automationId, runId, delaySeconds: job.delaySeconds })
+    await db.orm.public.Run.where({ id: runId, sessionId: null }).updateAll({ sessionId: `session-call-${calls.length}` })
+  }
+}
 
 beforeAll(async () => {
   persona = await createTestPersona("runner")

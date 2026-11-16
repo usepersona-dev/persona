@@ -5,7 +5,7 @@ description: One Next.js app with the eve agent inside it, one Postgres database
 
 Persona is one Next.js app, `apps/web/`, with an [eve](https://eve.dev) agent inside it. `next.config.ts` wraps the Next.js config with `withEve()`. That mounts the agent at `/eve/v1/*` on the app's own origin, in development and on Vercel. There is no second server and no CORS.
 
-The repository also holds the landing (`apps/landing/`), this site (`apps/docs/`) and the files Worker (`apps/files/`), which serves published files and pictures.
+The repository also holds the landing (`apps/landing/`), this site (`apps/docs/`), the files Worker (`apps/files/`), which serves published files and pictures, and the queue service (`apps/queue/`), which starts each run at its time.
 
 ## The folders
 
@@ -105,7 +105,7 @@ Webhooks and triggers are channels of their own, without the Chat SDK: `POST /ev
 
 One eve schedule, `agent/schedules/start.ts`, runs every minute; on Vercel it is a Cron Job. It fails the runs still going after an hour, then claims the runs to start: one for each automation due within the next ten minutes (a repeating one may start up to ten minutes early, so the many due at the same minute do not all start at once), one for each trigger whose first waiting event is five minutes old, and the runs that never got a session, claimed again five minutes after their start. An automation's next time is stored and indexed, so a tick reads only the due rows; a run is unique per automation and due time, so two ticks at once make no second run. Each of the three claims takes up to 7,000 runs per tick; the next tick takes the rest.
 
-Each claimed run goes on a [Vercel Queue](https://vercel.com/docs/queues) (`lib/queue.ts`): an automation run waits in its topic until its start, a trigger run goes at once. `vercel.json` hands each topic to a route under `app/api/queues/`, which calls the agent's own run route with `AUTOMATIONS_SECRET`. The run's turn ends in the channel's `turn.settled`: a completed turn ends the run with the result it gave, a failed one fails it. A result worth telling, from a run whose chat belongs to the same persona, goes on the reports queue, and the report route sends it to that chat.
+Each claimed run goes to the queue service (`apps/queue`, called through `lib/queue.ts`) as a job: a path on the app and the seconds to wait. The service keeps the jobs in Redis with BullMQ: an automation run waits there until its start, a trigger run goes at once. At a job's time the service calls the agent's own run route with `AUTOMATIONS_SECRET`, and again when the call fails, five tries in all. The run's turn ends in the channel's `turn.settled`: a completed turn ends the run with the result it gave, a failed one fails it. A result worth telling, from a run whose chat belongs to the same persona, goes to the queue service too, as a job for the report route, which sends it to that chat.
 
 ## Usage
 

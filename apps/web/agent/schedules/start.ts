@@ -1,11 +1,9 @@
-import { forEachAsync } from "es-toolkit"
 import { defineSchedule } from "eve/schedules"
 
-import { AUTOMATION_RUNS, queue, TRIGGER_RUNS } from "@/lib/queue"
+import { type Job, queue } from "@/lib/queue"
 import { claimDueRuns, claimTriggerRuns, failStuckRuns, reclaimLostRuns } from "@/usecases/runs"
 
 const LIMIT = 7000
-const PARALLEL = 50
 
 export default defineSchedule({
   cron: "* * * * *",
@@ -22,15 +20,20 @@ export async function start(now: Date) {
   const lost = await reclaimLostRuns(now, LIMIT)
   const runs = [...due, ...triggered, ...lost]
 
-  // Put each run in its queue, which hands it to its run route: an automation run at its start, a trigger run right away. A run the queue never takes is claimed again five minutes after its start
-  await forEachAsync(runs, async (run) => {
-    try {
-      if (run.source === "automation") await queue.send(AUTOMATION_RUNS, { automationId: run.scheduleId!, runId: run.id }, { delaySeconds: secondsUntil(run.claimedAt) })
-      if (run.source === "trigger") await queue.send(TRIGGER_RUNS, { triggerId: run.triggerId!, runId: run.id })
-    } catch (error) {
-      console.error(`Run ${run.id} could not be queued; it is sent again five minutes after its start.`, error)
-    }
-  }, { concurrency: PARALLEL })
+  // One job for each run: the queue service calls the run's route, an automation run at its start, a trigger run right away
+  const jobs: Job[] = []
+  for (const run of runs) {
+    if (run.source === "automation") jobs.push({ path: `/eve/v1/automations/${run.scheduleId}/${run.id}`, delaySeconds: secondsUntil(run.claimedAt) })
+    if (run.source === "trigger") jobs.push({ path: `/eve/v1/triggers/${run.triggerId}/${run.id}`, delaySeconds: 0 })
+  }
+  if (jobs.length === 0) return
+
+  // The jobs go to the queue service in one request. Runs it never takes are claimed again five minutes after their start
+  try {
+    await queue.send(jobs)
+  } catch (error) {
+    console.error(`${jobs.length} runs could not be queued; they are sent again five minutes after their start.`, error)
+  }
 }
 
 // Whole seconds from now until a run's start; a start that has passed is now

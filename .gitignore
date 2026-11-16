@@ -10,3 +10,7 @@ node_modules
 .agents/
 skills-lock.json
 .notes/
+
+# Each app's own local settings
+.env*
+!.env.example
