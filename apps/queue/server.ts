@@ -24,7 +24,7 @@ const jobs = new Queue<Job>("jobs", {
 
 jobs.on("error", (error) => console.error(error))
 
-const worker = new Worker<Job>("jobs", (job) => deliver(job.data, env), { connection: { url: redis }, concurrency: 50 })
+const worker = new Worker<Job>("jobs", (job) => deliver(job.data, env), { connection: { url: redis }, concurrency: 10000 })
 worker.on("error", (error) => console.error(error))
 worker.on("failed", (job, error) => {
   if (!job) return
