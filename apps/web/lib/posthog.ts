@@ -6,7 +6,7 @@ export async function reportError(error: unknown, distinctId: string | undefined
   if (!key) return
 
   const client = new PostHog(key, { host: process.env.NEXT_PUBLIC_POSTHOG_HOST, flushAt: 1, flushInterval: 0 })
-  await client.captureExceptionImmediate(error, distinctId, { ...properties, environment: process.env.VERCEL_ENV ?? "development", deployment: process.env.VERCEL_PROJECT_PRODUCTION_URL ?? "local" })
+  await client.captureExceptionImmediate(error, { distinctId, properties: { ...properties, environment: process.env.VERCEL_ENV ?? "development", deployment: process.env.VERCEL_PROJECT_PRODUCTION_URL ?? "local" } })
   await client.shutdown()
 }
 
