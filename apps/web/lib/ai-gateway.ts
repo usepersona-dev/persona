@@ -1,31 +1,8 @@
 import { gateway } from "ai"
 import { z } from "zod"
 
-export type GatewayModel = {
-  id: string
-  name: string
-  provider: string
-  input: number | null
-  output: number | null
-  context: number | null
-  released: number | null
-  usage: number | null
-  tags: string[]
-  regions: string[]
-}
-
 const CATALOGUE_URL = "https://ai-gateway.vercel.sh/v1/models"
-const LEADERBOARD_URL = "https://vercel.com/api/ai/leaderboard-export?dataset=models&modality=text"
-const LEADERBOARD = z.object({
-  rows: z.array(
-    z.object({
-      date: z.string(),
-      name: z.string(),
-      metric: z.string(),
-      share_percent: z.number(),
-    })
-  ),
-})
+
 const CATALOGUE = z.object({
   data: z.array(
     z.object({
@@ -33,122 +10,130 @@ const CATALOGUE = z.object({
       name: z.string(),
       type: z.string(),
       owned_by: z.string(),
-      context_window: z.number().nullish(),
-      released: z.number().nullish(),
-      tags: z.array(z.string()).nullish(),
-      regions: z.array(z.string()).nullish(),
-      modalities: z.object({
-        input: z.array(z.string()),
-        output: z.array(z.string()),
-      }),
-      pricing: z
-        .object({ input: z.string().optional(), output: z.string().optional() })
-        .nullish(),
+      context_window: z.number().nullable().catch(null),
+      released: z.number().nullable().catch(null),
+      tags: z.array(z.string()).catch([]),
+      pricing: z.object({
+        input: z.string().optional(),
+        output: z.string().optional(),
+      }).catch({}),
     })
   ),
 })
 
-type GatewayCall = {
-  usage?: { inputTokens?: number; outputTokens?: number; inputTokenDetails?: { cacheReadTokens?: number; cacheWriteTokens?: number }; outputTokenDetails?: { reasoningTokens?: number } };
-  providerMetadata?: Readonly<Record<string, unknown>>
-}
-
-const GATEWAY = z.object({
-  marketCost: z.coerce.number().catch(0),
-  cost: z.coerce.number().catch(0),
-  gatewayCost: z.coerce.number().optional().catch(undefined),
-  generationId: z.string().optional(),
-  routing: z.object({ originalModelId: z.string().optional(), finalProvider: z.string().optional() }).optional()
+const GATEWAY_CALL = z.object({
+  usage: z.object({
+    inputTokens: z.number().default(0),
+    outputTokens: z.number().default(0),
+    inputTokenDetails: z.object({
+      cacheReadTokens: z.number().default(0),
+      cacheWriteTokens: z.number().default(0),
+    }).prefault({}),
+    outputTokenDetails: z.object({
+      reasoningTokens: z.number().default(0),
+    }).prefault({}),
+  }).prefault({}),
+  providerMetadata: z.object({
+    gateway: z.object({
+      generationId: z.string().optional(),
+      marketCost: z.coerce.number().default(0),
+      cost: z.coerce.number().default(0),
+      gatewayCost: z.coerce.number().optional().catch(undefined),
+      routing: z.object({
+        originalModelId: z.string().default("unknown"),
+        finalProvider: z.string().nullable().default(null),
+      }).prefault({}),
+    }).prefault({}),
+  }).prefault({}),
 })
 
-// What one call through the gateway used and cost, read from the reply's provider metadata: the generation id, the gateway's list price, and the tokens with the provider that answered. The model is the one asked for, unless the caller names it.
-// A reply without a generation id never reached the gateway, so there is nothing to count
-export function readGatewayCall(call: GatewayCall, model?: string) {
-  const gateway = GATEWAY.parse(call.providerMetadata?.gateway ?? {})
-  if (!gateway.generationId) return null
+export type GatewayModel = Awaited<ReturnType<typeof listModels>>[number]
 
-  const tokens = {
-    model: model ?? gateway.routing?.originalModelId ?? "unknown",
-    provider: gateway.routing?.finalProvider ?? null,
-    inputTokens: call.usage?.inputTokens ?? 0,
-    cachedInputTokens: call.usage?.inputTokenDetails?.cacheReadTokens ?? 0,
-    cacheWriteTokens: call.usage?.inputTokenDetails?.cacheWriteTokens ?? 0,
-    outputTokens: call.usage?.outputTokens ?? 0,
-    reasoningTokens: call.usage?.outputTokenDetails?.reasoningTokens ?? 0,
-    marketCost: String(gateway.marketCost),
-    gatewayCost: String(gateway.gatewayCost ?? gateway.cost)
-  }
-  return { generationId: gateway.generationId, marketCost: gateway.marketCost, tokens }
-}
+// The language models a persona can run on, sorted by id
+export async function listModels() {
+  const response = await fetch(CATALOGUE_URL)
+  if (!response.ok) throw new Error(`The gateway model catalogue answered ${response.status}.`)
 
-// The gateway's record of one generation, in the shape its replies carry as provider metadata. A video clip's price is only in this record. On our own provider key the provider's charge is the upstream cost, and the gateway's own bill is the total cost
-export async function getGenerationMetadata(id: string) {
-  const record = await gateway.getGenerationInfo({ id })
-  let price = record.totalCost
-  if (record.isByok) price = record.upstreamInferenceCost
-
-  const metadata = {
-    generationId: record.id,
-    marketCost: String(price),
-    cost: String(record.totalCost),
-    gatewayCost: String(record.totalCost),
-    routing: { finalProvider: record.providerName }
-  }
-
-  return metadata
-}
-
-export async function listModels(): Promise<GatewayModel[]> {
-  const headers = new Headers()
-  const apiKey = process.env.AI_GATEWAY_API_KEY
-  if (apiKey) headers.set("Authorization", `Bearer ${apiKey}`)
-
-  const [response, usage] = await Promise.all([fetch(CATALOGUE_URL, { headers }), getUsage(),])
-  if (!response.ok) throw new Error(`The gateway model catalogue answered ${response.status}. Set AI_GATEWAY_API_KEY if it now asks for a key.`)
-
-  const catalogue = CATALOGUE.safeParse(await response.json())
+  const body = await response.json()
+  const catalogue = CATALOGUE.safeParse(body)
   if (!catalogue.success) throw new Error("The gateway model catalogue came back in a shape this agent does not understand.")
 
-  const language = catalogue.data.data.filter(
-    (model) =>
-      model.type === "language" &&
-      model.modalities.input.includes("text") &&
-      model.modalities.output.includes("text")
-  )
+  const language = catalogue.data.data.filter((model) => model.type === "language")
+  const models = language.map((model) => ({
+    id: model.id,
+    name: model.name,
+    provider: model.owned_by,
+    input: perMillion(model.pricing.input),
+    output: perMillion(model.pricing.output),
+    context: model.context_window,
+    released: model.released,
+    tags: model.tags,
+  }))
 
-  return language
-    .map((model) => ({
-      id: model.id,
-      name: model.name,
-      provider: model.owned_by,
-      input: perMillion(model.pricing?.input),
-      output: perMillion(model.pricing?.output),
-      context: model.context_window ?? null,
-      released: model.released ?? null,
-      usage: usage.get(model.name) ?? null,
-      tags: model.tags ?? [],
-      regions: model.regions ?? [],
-    }))
-    .sort((first, second) => first.id.localeCompare(second.id))
+  const sorted = models.sort((first, second) => first.id.localeCompare(second.id))
+  return sorted
 }
 
-async function getUsage(): Promise<Map<string, number>> {
-  const from = new Date(Date.now() - 3 * 86_400_000).toISOString().slice(0, 10)
-  const response = await fetch(`${LEADERBOARD_URL}&from=${from}`)
-  if (!response.ok) throw new Error(`The gateway leaderboard answered ${response.status}.`)
+// A model's list price per token, from the model list the AI SDK keeps for five minutes. A cache price the gateway leaves out is the input price; null when the gateway lists no price
+export async function getModelPrice(modelId: string) {
+  const { models } = await gateway.getAvailableModels()
+  const model = models.find((entry) => entry.id === modelId)
+  if (!model) return null
+  if (!model.pricing) return null
 
-  const board = LEADERBOARD.safeParse(await response.json())
-  if (!board.success) throw new Error("The gateway leaderboard came back in a shape this agent does not understand.")
+  const input = Number(model.pricing.input)
 
-  const latest = board.data.rows.reduce((day, row) => (row.date > day ? row.date : day), "")
-  return new Map(
-    board.data.rows
-      .filter((row) => row.date === latest && row.metric === "requests")
-      .map((row) => [row.name, row.share_percent])
-  )
+  let cacheRead = input
+  if (model.pricing.cachedInputTokens) cacheRead = Number(model.pricing.cachedInputTokens)
+
+  let cacheWrite = input
+  if (model.pricing.cacheCreationInputTokens) cacheWrite = Number(model.pricing.cacheCreationInputTokens)
+
+  const price = {
+    input,
+    output: Number(model.pricing.output),
+    cacheRead,
+    cacheWrite,
+  }
+  return price
+}
+
+// What a finished call through the gateway used and cost, from its reply: the generation id, the gateway's list price, and the tokens with the provider that answered. The model is the one asked for, unless the caller names it.
+// A reply without a generation id never reached the gateway, so there is nothing to count
+export function readGatewayCall(call: unknown, model?: string) {
+  const parsed = GATEWAY_CALL.parse(call)
+  const usage = parsed.usage
+  const reported = parsed.providerMetadata.gateway
+  if (!reported.generationId) return null
+
+  let asked = reported.routing.originalModelId
+  if (model) asked = model
+
+  let gatewayCost = reported.cost
+  if (reported.gatewayCost !== undefined) gatewayCost = reported.gatewayCost
+
+  const tokens = {
+    model: asked,
+    provider: reported.routing.finalProvider,
+    inputTokens: usage.inputTokens,
+    cachedInputTokens: usage.inputTokenDetails.cacheReadTokens,
+    cacheWriteTokens: usage.inputTokenDetails.cacheWriteTokens,
+    outputTokens: usage.outputTokens,
+    reasoningTokens: usage.outputTokenDetails.reasoningTokens,
+    marketCost: String(reported.marketCost),
+    gatewayCost: String(gatewayCost)
+  }
+  const read = {
+    generationId: reported.generationId,
+    marketCost: reported.marketCost,
+    tokens
+  }
+  return read
 }
 
 function perMillion(price: string | undefined) {
   if (!price) return null
-  return Number((Number(price) * 1_000_000).toFixed(4))
+  const perToken = Number(price)
+  const rounded = Number((perToken * 1_000_000).toFixed(4))
+  return rounded
 }

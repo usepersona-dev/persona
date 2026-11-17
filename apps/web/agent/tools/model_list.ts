@@ -11,7 +11,6 @@ const SORTS = {
   price: (first: GatewayModel, second: GatewayModel) => (first.input ?? Number.POSITIVE_INFINITY) - (second.input ?? Number.POSITIVE_INFINITY),
   context: (first: GatewayModel, second: GatewayModel) => (second.context ?? 0) - (first.context ?? 0),
   newest: (first: GatewayModel, second: GatewayModel) => (second.released ?? 0) - (first.released ?? 0),
-  popular: (first: GatewayModel, second: GatewayModel) => (second.usage ?? 0) - (first.usage ?? 0),
 }
 
 export default defineTool({
@@ -20,7 +19,7 @@ export default defineTool({
     search: z.string().optional().describe("Part of a model id or name, such as claude or gemini. A provider name such as openai brings back everything that provider serves."),
     tags: z.array(z.string()).optional().describe("Every model that comes back carries all of these, such as vision, reasoning, file-input, web-search or fast."),
     minContext: z.number().int().min(0).optional().describe("The smallest context window, in tokens."),
-    sort: z.enum(["name", "price", "context", "newest", "popular"]).optional().describe("name is alphabetical, price is cheapest input first, context is widest first, newest is most recently released first, popular is most used on the gateway first."),
+    sort: z.enum(["name", "price", "context", "newest"]).optional().describe("name is alphabetical, price is cheapest input first, context is widest first, newest is most recently released first."),
   }),
   label: { start: () => "List models" },
   async execute({ search, tags, minContext, sort }) {

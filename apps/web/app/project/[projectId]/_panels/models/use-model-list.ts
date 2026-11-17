@@ -8,7 +8,6 @@ const PAGE = 10
 
 // The orders of the list. A model the gateway gives no number for goes last.
 export const SORTS: { value: string; label: string; key: (model: Model) => number }[] = [
-  { value: "popular", label: "Most used", key: (model) => (model.usage === null ? Infinity : -model.usage) },
   { value: "newest", label: "Newest", key: (model) => (model.released === null ? Infinity : -model.released) },
   { value: "cheapest", label: "Cheapest", key: (model) => (model.input === null || model.output === null ? Infinity : model.input + model.output) },
 ]
@@ -17,7 +16,7 @@ export const SORTS: { value: string; label: string; key: (model: Model) => numbe
 export function useModelList(persona: Persona) {
   const [query, setQuery] = useState("")
   const [provider, setProvider] = useState("")
-  const [sort, setSort] = useState("popular")
+  const [sort, setSort] = useState("newest")
   const [limit, setLimit] = useState(PAGE)
   const { models, error, isLoading } = useModels()
   const runnable = models ?? []
