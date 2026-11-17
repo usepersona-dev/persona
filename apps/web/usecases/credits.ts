@@ -173,7 +173,8 @@ export async function chargeBrowserRun(personaId: string, browserId: string, run
 // Vercel keeps running totals, so the row keeps them too, and the growth over this sandbox's latest row, whose id starts with its name, is what this count charges. The id is the sandbox's name and total, so a repeat save is nothing
 export async function chargeSandbox(personaId: string, sandbox: Sandbox) {
   const now = {
-    sandboxId: sandbox.name, memoryMb: sandbox.memory ?? 2048,
+    sandboxId: sandbox.name,
+    memoryMb: sandbox.memory ?? 2048,
     totalRunMs: sandbox.totalDurationMs ?? 0,
     totalCpuMs: sandbox.totalActiveCpuDurationMs ?? 0
   }

@@ -1,7 +1,7 @@
-import { Sandbox } from "@vercel/sandbox"
 import { defineHook } from "eve/hooks"
 
 import { environment } from "@/agent/sandbox"
+import { findSandbox, readSandbox } from "@/lib/sandbox"
 import { readCaller, RUN_CHANNELS } from "@/usecases/agent"
 import { chargeSandbox } from "@/usecases/credits"
 
@@ -11,7 +11,7 @@ import { chargeSandbox } from "@/usecases/credits"
 export default defineHook({
   events: {
     async "turn.settled"(_event, ctx) {
-      const { sandboxes: [found] } = await Sandbox.list({ tags: { sessionId: ctx.session.id }, limit: 1 })
+      const found = await findSandbox(ctx.session.id)
       const { personaId, channel } = readCaller(ctx)
       const run = RUN_CHANNELS.includes(channel)
       if (!found || (found.status !== "running" && !run)) return
@@ -19,7 +19,7 @@ export default defineHook({
       const sandbox = await ctx.getSandbox(environment)
       await sandbox.stop()
 
-      const charged = await chargeSandbox(personaId, await Sandbox.get({ name: found.name }))
+      const charged = await chargeSandbox(personaId, await readSandbox(found.name))
       if (!charged.ok) console.warn("Sandbox usage was not saved.", found.name, charged.error.message)
 
       if (run) await sandbox.delete()
