@@ -6,7 +6,7 @@ import { useTelegramBots, type SharedTelegramBot, type TelegramBot } from "@/hoo
 import { useMetaLines, type MetaLine, type SharedMetaNumber } from "@/hooks/whatsapp-meta"
 import { LINK_CODE_HOURS } from "@/lib/link-codes"
 
-// The channels the app offers numbers and bots on. Chats on the legacy numbers (Kapso's and Zernio's) stay, but the app no longer shows those numbers
+// The channels the app offers numbers and bots on. Chats on the legacy number (Kapso's) stay, but the app no longer shows that number
 export type Channel = "whatsapp_meta" | "telegram"
 
 // A number or a bot people write to: Persona's shared one, or one of the project's own. address is what a link keeps as its line; handle builds the chat link.
@@ -81,7 +81,7 @@ function telegramLines(shared: SharedTelegramBot | null | undefined, own: Telegr
 
 function toChat(link: Link, lines: Line[]): Chat {
   const line = lines.find((item) => item.channel === link.channel && item.address === link.line)
-  const names = { whatsapp: `+${link.externalId}`, whatsapp_v2: link.phone ?? "WhatsApp chat", whatsapp_meta: link.phone ?? "WhatsApp chat", telegram: "Telegram chat" }
+  const names = { whatsapp: `+${link.externalId}`, whatsapp_meta: link.phone ?? "WhatsApp chat", telegram: "Telegram chat" }
   const name = link.label ?? names[link.channel]
   const chat = { ...link, name, lineLabel: line?.label ?? null }
   return chat

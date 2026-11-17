@@ -13,7 +13,7 @@ export default function PrivacyPage() {
     <>
       <LegalHeader>
         <LegalTitle>Privacy Policy</LegalTitle>
-        <LegalDescription>Last updated November 6, 2026</LegalDescription>
+        <LegalDescription>Last updated November 18, 2026</LegalDescription>
       </LegalHeader>
       <LegalContent>{privacy}</LegalContent>
     </>

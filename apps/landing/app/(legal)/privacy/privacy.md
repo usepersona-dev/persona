@@ -121,7 +121,7 @@ Information you send us electronically may not be secure in transit. We recommen
 | --- | --- | --- | --- |
 | Messaging | Meta Platforms (WhatsApp Business Platform) | Delivering WhatsApp messages | Global |
 | Messaging | Telegram | Delivering Telegram messages | Global |
-| WhatsApp API access | Kapso, Zernio | WhatsApp Business API integration for chats started before we connected to Meta directly | — |
+| WhatsApp API access | Kapso | WhatsApp Business API integration for chats started before we connected to Meta directly | — |
 | AI models | Google (Vertex AI), Microsoft Azure (OpenAI and Microsoft models), Anthropic, Particle and other model providers, through Vercel AI Gateway | Generating agent responses, transcribing audio, and creating images, audio and video | United States / global |
 | Hosting | Vercel | Hosting the app and the agents, code sandboxes, queues and schedules, AI Gateway, and traces of agent runs | United States |
 | Database | Railway | The Postgres database that holds accounts, agent setup, chat records and usage | United States |

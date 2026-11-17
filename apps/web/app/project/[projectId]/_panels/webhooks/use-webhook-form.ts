@@ -10,7 +10,7 @@ import { useLinks, type Link } from "@/hooks/links"
 import type { Persona } from "@/hooks/personas"
 import { useCreateWebhook, useRemoveWebhook, useUpdateWebhook, type Webhook } from "@/hooks/webhooks"
 
-const CHANNELS: Record<Link["channel"], string> = { whatsapp: "WhatsApp (Legacy)", whatsapp_v2: "WhatsApp (Legacy)", whatsapp_meta: "WhatsApp", telegram: "Telegram" }
+const CHANNELS: Record<Link["channel"], string> = { whatsapp: "WhatsApp (Legacy)", whatsapp_meta: "WhatsApp", telegram: "Telegram" }
 
 // The server checks the same rules
 const Schema = z.object({

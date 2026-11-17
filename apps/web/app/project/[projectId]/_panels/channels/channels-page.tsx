@@ -23,7 +23,6 @@ import { useChannels, type Chat, type Line } from "./use-channels"
 
 const BRAND = {
   whatsapp: { name: "WhatsApp (Legacy)", Icon: WhatsappAppIcon },
-  whatsapp_v2: { name: "WhatsApp (Legacy)", Icon: WhatsappAppIcon },
   whatsapp_meta: { name: "WhatsApp", Icon: WhatsappAppIcon },
   telegram: { name: "Telegram", Icon: TelegramAppIcon },
 }
@@ -215,11 +214,11 @@ function ChatRow({ personaId, chat }: { personaId: string; chat: Chat }) {
   )
 }
 
-// The phone under the person's name: on Kapso it is their WhatsApp id, on Zernio the phone the link kept. None when the name is the phone already, and none on Telegram
+// The phone under the person's name: on Kapso it is their WhatsApp id, on Meta the phone the link kept. None when the name is the phone already, and none on Telegram
 function phoneOf(chat: Chat) {
   if (!chat.label) return null
   if (chat.channel === "whatsapp") { return `+${chat.externalId}` }
-  if (chat.channel === "whatsapp_v2" || chat.channel === "whatsapp_meta") { return chat.phone }
+  if (chat.channel === "whatsapp_meta") { return chat.phone }
   if (chat.channel === "telegram") { return null }
 
   throw new Error(`Unknown channel: ${chat.channel}`)

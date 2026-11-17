@@ -14,7 +14,6 @@ import { planOf, scheduleOf, type Plan } from "./schedule"
 
 const CHANNELS: Record<Link["channel"], string> = {
   whatsapp: "WhatsApp (Legacy)",
-  whatsapp_v2: "WhatsApp (Legacy)",
   whatsapp_meta: "WhatsApp",
   telegram: "Telegram"
 }

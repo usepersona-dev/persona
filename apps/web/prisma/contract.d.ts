@@ -24,9 +24,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'f46f7e5fcc90f0fe22e62ff227ff51e93cce19952a25ecedb7504cb45a5012d0'>;
+  StorageHashBase<'088bce71e784ecdd7cc3a1b0a2fe8accec4987f33204c47221c7e4ae32b4c66a'>;
 export type ExecutionHash =
-  ExecutionHashBase<'679e7adb4072b560b58fc46ce0eeb545cc558e5f75438f7841ad3020760378a2'>;
+  ExecutionHashBase<'f6548e6ce99f01eaee09afb5b1c563342519fcb421456d477da443a80b0f8fee'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -325,8 +325,8 @@ type FieldTypeOverrides = {
     readonly models: {
       readonly Link: {
         readonly channel: {
-          readonly output: 'whatsapp' | 'whatsapp_v2' | 'whatsapp_meta' | 'telegram';
-          readonly input: 'whatsapp' | 'whatsapp_v2' | 'whatsapp_meta' | 'telegram';
+          readonly output: 'whatsapp' | 'whatsapp_meta' | 'telegram';
+          readonly input: 'whatsapp' | 'whatsapp_meta' | 'telegram';
         };
       };
       readonly Message: {
@@ -382,8 +382,8 @@ type ColumnTypeOverrides = {
   readonly public: {
     readonly links: {
       readonly channel: {
-        readonly output: 'whatsapp' | 'whatsapp_v2' | 'whatsapp_meta' | 'telegram';
-        readonly input: 'whatsapp' | 'whatsapp_v2' | 'whatsapp_meta' | 'telegram';
+        readonly output: 'whatsapp' | 'whatsapp_meta' | 'telegram';
+        readonly input: 'whatsapp' | 'whatsapp_meta' | 'telegram';
       };
     };
     readonly messages: {
@@ -760,17 +760,6 @@ export namespace Models {
     runs: public_Run[];
     readonly [RelationKeys]?: 'link' | 'persona' | 'runs';
   };
-  export type public_WhatsappLine = {
-    accountId: FieldOutputTypes['public']['WhatsappLine']['accountId'];
-    createdAt: FieldOutputTypes['public']['WhatsappLine']['createdAt'];
-    id: FieldOutputTypes['public']['WhatsappLine']['id'];
-    number: FieldOutputTypes['public']['WhatsappLine']['number'];
-    numberId: FieldOutputTypes['public']['WhatsappLine']['numberId'];
-    profileId: FieldOutputTypes['public']['WhatsappLine']['profileId'];
-    projectId: FieldOutputTypes['public']['WhatsappLine']['projectId'];
-    project: public_Project;
-    readonly [RelationKeys]?: 'project';
-  };
 }
 
 export declare const models: {
@@ -801,7 +790,6 @@ export declare const models: {
     Usage: Models.public_Usage;
     User: Models.public_User;
     Webhook: Models.public_Webhook;
-    WhatsappLine: Models.public_WhatsappLine;
   };
 };
 
@@ -3114,86 +3102,11 @@ type ContractBase = Omit<
                 },
               ];
             };
-            readonly whatsapp_lines: {
-              columns: {
-                readonly account_id: {
-                  readonly dataType: 'pg/text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                  readonly many: false;
-                };
-                readonly created_at: {
-                  readonly dataType: 'pg/timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                  readonly many: false;
-                };
-                readonly id: {
-                  readonly dataType: 'pg/text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                  readonly many: false;
-                };
-                readonly number: {
-                  readonly dataType: 'pg/text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                  readonly many: false;
-                };
-                readonly number_id: {
-                  readonly dataType: 'pg/text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                  readonly many: false;
-                };
-                readonly profile_id: {
-                  readonly dataType: 'pg/text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                  readonly many: false;
-                };
-                readonly project_id: {
-                  readonly dataType: 'pg/text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                  readonly many: false;
-                };
-              };
-              primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [
-                { readonly columns: readonly ['profile_id'] },
-                { readonly columns: readonly ['number_id'] },
-                { readonly columns: readonly ['account_id'] },
-              ];
-              indexes: readonly [
-                {
-                  readonly name: 'whatsapp_lines_project_id_idx_6ad92603';
-                  readonly prefix: 'whatsapp_lines_project_id_idx';
-                  readonly columns: readonly ['project_id'];
-                  readonly unique: false;
-                },
-              ];
-              foreignKeys: readonly [
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'whatsapp_lines';
-                    readonly columns: readonly ['project_id'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'projects';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-              ];
-            };
           };
           readonly valueSet: {
             readonly Channel: {
               readonly kind: 'valueSet';
-              readonly values: readonly ['whatsapp', 'whatsapp_v2', 'whatsapp_meta', 'telegram'];
+              readonly values: readonly ['whatsapp', 'whatsapp_meta', 'telegram'];
             };
             readonly MessageRole: {
               readonly kind: 'valueSet';
@@ -3591,10 +3504,6 @@ type ContractBase = Omit<
     readonly usage: { readonly namespace: 'public' & NamespaceId; readonly model: 'Usage' };
     readonly users: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
     readonly webhooks: { readonly namespace: 'public' & NamespaceId; readonly model: 'Webhook' };
-    readonly whatsapp_lines: {
-      readonly namespace: 'public' & NamespaceId;
-      readonly model: 'WhatsappLine';
-    };
   };
   readonly domain: {
     readonly namespaces: {
@@ -5678,75 +5587,12 @@ type ContractBase = Omit<
               };
             };
           };
-          readonly WhatsappLine: {
-            readonly fields: {
-              readonly accountId: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly createdAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-              readonly id: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly number: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly numberId: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly profileId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly projectId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-            };
-            readonly relations: {
-              readonly project: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Project';
-                };
-                readonly cardinality: 'N:1';
-                readonly nullable: false;
-                readonly on: {
-                  readonly localFields: readonly ['projectId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-            };
-            readonly storage: {
-              readonly table: 'whatsapp_lines';
-              readonly namespaceId: 'public';
-              readonly fields: {
-                readonly accountId: { readonly column: 'account_id' };
-                readonly createdAt: { readonly column: 'created_at' };
-                readonly id: { readonly column: 'id' };
-                readonly number: { readonly column: 'number' };
-                readonly numberId: { readonly column: 'number_id' };
-                readonly profileId: { readonly column: 'profile_id' };
-                readonly projectId: { readonly column: 'project_id' };
-              };
-            };
-          };
         };
         readonly enum: {
           readonly Channel: {
             readonly codecId: 'pg/text@1';
             readonly members: readonly [
               { readonly name: 'whatsapp'; readonly value: 'whatsapp' },
-              { readonly name: 'whatsapp_v2'; readonly value: 'whatsapp_v2' },
               { readonly name: 'whatsapp_meta'; readonly value: 'whatsapp_meta' },
               { readonly name: 'telegram'; readonly value: 'telegram' },
             ];
@@ -5796,7 +5642,6 @@ type ContractBase = Omit<
         readonly enumMemberTypes?: {
           readonly Channel: readonly [
             { readonly name: 'whatsapp'; readonly value: 'whatsapp' },
-            { readonly name: 'whatsapp_v2'; readonly value: 'whatsapp_v2' },
             { readonly name: 'whatsapp_meta'; readonly value: 'whatsapp_meta' },
             { readonly name: 'telegram'; readonly value: 'telegram' },
           ];
@@ -6122,14 +5967,6 @@ type ContractBase = Omit<
           readonly ref: {
             readonly entry: 'webhooks';
             readonly field: 'updated_at';
-            readonly namespace: 'public';
-          };
-        },
-        {
-          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
-          readonly ref: {
-            readonly entry: 'whatsapp_lines';
-            readonly field: 'id';
             readonly namespace: 'public';
           };
         },

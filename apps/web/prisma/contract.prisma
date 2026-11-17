@@ -133,7 +133,6 @@ enum OriginKind {
 enum Channel {
   @@type("pg/text@1")
   whatsapp      = "whatsapp"
-  whatsapp_v2   = "whatsapp_v2"
   whatsapp_meta = "whatsapp_meta"
   telegram      = "telegram"
 }
@@ -496,21 +495,6 @@ model Run {
   @@unique([scheduleId, scheduledFor])
   @@index([status, claimedAt])
   @@map("runs")
-}
-
-// One of a project's own WhatsApp numbers at Zernio: an empty line first, then a number bought onto it (numberId) or one the person brings through Meta's sign-up, which a sync fills in. Either gets its account once Meta's sign-up connects the number (accountId).
-// Each line has its own Zernio profile: Zernio pins a bought number to the profile it was bought on and connects the number from there, and a profile can refuse a second WhatsApp number (one_whatsapp_per_profile).
-model WhatsappLine {
-  id        String            @id @onCreate(cuid(2))
-  projectId String            @map("project_id")
-  project   Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  profileId String            @unique @map("profile_id")
-  numberId  String?           @unique @map("number_id")
-  accountId String?           @unique @map("account_id")
-  number    String?
-  createdAt TimestamptzString @default(now()) @map("created_at")
-
-  @@map("whatsapp_lines")
 }
 
 // A WhatsApp number straight on Meta's Cloud API, in a customer's own Meta account, with its keys on the row: the system user's token, the app's secret, our webhook verify token, and the PIN when we registered the number

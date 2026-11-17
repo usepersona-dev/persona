@@ -107,10 +107,6 @@
     "webhooks": {
       "model": "Webhook",
       "namespace": "public"
-    },
-    "whatsapp_lines": {
-      "model": "WhatsappLine",
-      "namespace": "public"
     }
   },
   "domain": {
@@ -123,10 +119,6 @@
               {
                 "name": "whatsapp",
                 "value": "whatsapp"
-              },
-              {
-                "name": "whatsapp_v2",
-                "value": "whatsapp_v2"
               },
               {
                 "name": "whatsapp_meta",
@@ -3420,104 +3412,6 @@
               "namespaceId": "public",
               "table": "webhooks"
             }
-          },
-          "WhatsappLine": {
-            "fields": {
-              "accountId": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "createdAt": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "kind": "scalar"
-                }
-              },
-              "id": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "number": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "numberId": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "profileId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "projectId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              }
-            },
-            "relations": {
-              "project": {
-                "cardinality": "N:1",
-                "nullable": false,
-                "on": {
-                  "localFields": [
-                    "projectId"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "Project",
-                  "namespace": "public"
-                }
-              }
-            },
-            "storage": {
-              "fields": {
-                "accountId": {
-                  "column": "account_id"
-                },
-                "createdAt": {
-                  "column": "created_at"
-                },
-                "id": {
-                  "column": "id"
-                },
-                "number": {
-                  "column": "number"
-                },
-                "numberId": {
-                  "column": "number_id"
-                },
-                "profileId": {
-                  "column": "profile_id"
-                },
-                "projectId": {
-                  "column": "project_id"
-                }
-              },
-              "namespaceId": "public",
-              "table": "whatsapp_lines"
-            }
           }
         }
       }
@@ -4243,8 +4137,8 @@
             "links": {
               "checks": [
                 {
-                  "expression": "\"channel\" IN ('whatsapp', 'whatsapp_v2', 'whatsapp_meta', 'telegram')",
-                  "name": "links_channel_check_09e64f4c",
+                  "expression": "\"channel\" IN ('whatsapp', 'whatsapp_meta', 'telegram')",
+                  "name": "links_channel_check_b321d83f",
                   "prefix": "links_channel_check"
                 }
               ],
@@ -6369,103 +6263,6 @@
                   ]
                 }
               ]
-            },
-            "whatsapp_lines": {
-              "columns": {
-                "account_id": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": true
-                },
-                "created_at": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "dataType": "pg/timestamptz",
-                  "default": {
-                    "expression": "now()",
-                    "kind": "function"
-                  },
-                  "nullable": false
-                },
-                "id": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": false
-                },
-                "number": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": true
-                },
-                "number_id": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": true
-                },
-                "profile_id": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": false
-                },
-                "project_id": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": false
-                }
-              },
-              "foreignKeys": [
-                {
-                  "index": {
-                    "name": "whatsapp_lines_project_id_idx_6ad92603"
-                  },
-                  "onDelete": "cascade",
-                  "source": {
-                    "columns": [
-                      "project_id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "whatsapp_lines"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "projects"
-                  }
-                }
-              ],
-              "indexes": [
-                {
-                  "columns": [
-                    "project_id"
-                  ],
-                  "name": "whatsapp_lines_project_id_idx_6ad92603",
-                  "prefix": "whatsapp_lines_project_id_idx",
-                  "unique": false
-                }
-              ],
-              "primaryKey": {
-                "columns": [
-                  "id"
-                ]
-              },
-              "uniques": [
-                {
-                  "columns": [
-                    "profile_id"
-                  ]
-                },
-                {
-                  "columns": [
-                    "number_id"
-                  ]
-                },
-                {
-                  "columns": [
-                    "account_id"
-                  ]
-                }
-              ]
             }
           },
           "valueObject": {
@@ -6989,7 +6786,6 @@
               "kind": "valueSet",
               "values": [
                 "whatsapp",
-                "whatsapp_v2",
                 "whatsapp_meta",
                 "telegram"
               ]
@@ -7041,10 +6837,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "f46f7e5fcc90f0fe22e62ff227ff51e93cce19952a25ecedb7504cb45a5012d0"
+    "storageHash": "088bce71e784ecdd7cc3a1b0a2fe8accec4987f33204c47221c7e4ae32b4c66a"
   },
   "execution": {
-    "executionHash": "679e7adb4072b560b58fc46ce0eeb545cc558e5f75438f7841ad3020760378a2",
+    "executionHash": "f6548e6ce99f01eaee09afb5b1c563342519fcb421456d477da443a80b0f8fee",
     "mutations": {
       "defaults": [
         {
@@ -7441,17 +7237,6 @@
           "ref": {
             "entry": "webhooks",
             "field": "updated_at",
-            "namespace": "public"
-          }
-        },
-        {
-          "onCreate": {
-            "id": "cuid2",
-            "kind": "generator"
-          },
-          "ref": {
-            "entry": "whatsapp_lines",
-            "field": "id",
             "namespace": "public"
           }
         }
