@@ -2,7 +2,6 @@ import { z } from "zod"
 
 import type { Sandbox } from "@vercel/sandbox"
 
-import { readGatewayCall } from "@/lib/ai-gateway"
 import * as autumn from "@/lib/autumn"
 import type { getRun } from "@/lib/browser-use"
 import { err, ok, validate } from "@/lib/errors"
@@ -11,7 +10,6 @@ import { db } from "@/prisma/db"
 import type { Caller } from "@/usecases/auth"
 
 export const USD_PER_CREDIT = 0.2
-const VIDEO_CREDITS = 6
 const CPU_USD_PER_HOUR = 0.128
 const MEMORY_USD_PER_GB_HOUR = 0.0212
 
@@ -26,7 +24,6 @@ const spanInput = z.object({
 type UsageInput = {
   id: string;
   personaId: string;
-  sessionId: string | null;
   credits: number;
   usage: {
     tokens?: TokenUsageInput;
@@ -42,49 +39,58 @@ type SpanQuery = {
   timeZone: string
 }
 
-// One model call through the gateway: the gateway's list price in credits and the tokens, under the generation id. A reply that never reached the gateway counts nothing
-export async function chargeGatewayCall(personaId: string, sessionId: string | null, call: Parameters<typeof readGatewayCall>[0], model?: string) {
-  const read = readGatewayCall(call, model)
-  if (!read) return ok(0)
-
-  const charged = await chargeUsage({
-    id: read.generationId,
-    personaId, sessionId,
-    credits: read.marketCost / USD_PER_CREDIT,
-    usage: { tokens: read.tokens }
-  })
-  return charged
+type Tokens = {
+  inputTokens?: number;
+  outputTokens?: number;
+  inputTokenDetails?: { cacheReadTokens?: number; cacheWriteTokens?: number };
+  outputTokenDetails?: { reasoningTokens?: number }
 }
 
-// One finished video clip: the gateway's reply names the generation but carries no price, so a clip costs a fixed 6 credits, $1.20 in the gateway's records
-export async function chargeVideoClip(personaId: string, model: string, generationId: string) {
-  const tokens = { model, provider: null, inputTokens: 0, cachedInputTokens: 0, cacheWriteTokens: 0, outputTokens: 0, reasoningTokens: 0, marketCost: null, gatewayCost: null }
+type ModelCall = {
+  id: string;
+  model: string;
+  provider?: string | null;
+  marketCost: number;
+  gatewayCost?: number | null
+}
+
+// One model call at the gateway's list price, under the caller's id, with the provider that answered, what the gateway took and the tokens it used. A call priced by the image, character or second reports no tokens, so it saves zeros
+export async function chargeModelCall(personaId: string, call: ModelCall, usage: Tokens = {}) {
+  const tokens = {
+    model: call.model,
+    provider: call.provider ?? null,
+    inputTokens: usage.inputTokens ?? 0,
+    cachedInputTokens: usage.inputTokenDetails?.cacheReadTokens ?? 0,
+    cacheWriteTokens: usage.inputTokenDetails?.cacheWriteTokens ?? 0,
+    outputTokens: usage.outputTokens ?? 0,
+    reasoningTokens: usage.outputTokenDetails?.reasoningTokens ?? 0,
+    marketCost: String(call.marketCost),
+    gatewayCost: call.gatewayCost?.toString() ?? null
+  }
   const charged = await chargeUsage({
-    id: generationId,
+    id: call.id,
     personaId,
-    sessionId: null,
-    credits: VIDEO_CREDITS,
+    credits: call.marketCost / USD_PER_CREDIT,
     usage: { tokens }
   })
   return charged
 }
 
 // One finished browser task: Browser Use's price for its AI and web search, in credits. The browser's time and proxy are billed on the browser and are not saved
-export async function chargeBrowserRun(personaId: string, sessionId: string | null, browserId: string, run: Awaited<ReturnType<typeof getRun>>) {
+export async function chargeBrowserRun(personaId: string, browserId: string, run: Awaited<ReturnType<typeof getRun>>) {
   const browser = { browserId, model: run.model, inputTokens: run.totalInputTokens, outputTokens: run.totalOutputTokens, marketCost: run.totalCostUsd }
   const charged = await chargeUsage({
     id: run.id,
     personaId,
-    sessionId,
     credits: Number(run.totalCostUsd) / USD_PER_CREDIT,
     usage: { browser }
   })
   return charged
 }
 
-// Sandbox time since the session's sandbox was last counted, at Vercel's list prices (vercel.com/docs/sandbox/pricing, 2026-09-10): active CPU by the hour, memory by the GB-hour in whole minutes.
-// Vercel keeps running totals, so the row keeps them too, and the growth over the session's latest sandbox row is what this count charges. The id is the sandbox's name and total, so a repeat save is nothing
-export async function chargeSandbox(personaId: string, sessionId: string, sandbox: Sandbox) {
+// Sandbox time since this sandbox was last counted, at Vercel's list prices (vercel.com/docs/sandbox/pricing, 2026-09-10): active CPU by the hour, memory by the GB-hour in whole minutes.
+// Vercel keeps running totals, so the row keeps them too, and the growth over this sandbox's latest row, whose id starts with its name, is what this count charges. The id is the sandbox's name and total, so a repeat save is nothing
+export async function chargeSandbox(personaId: string, sandbox: Sandbox) {
   const now = {
     sandboxId: sandbox.name, memoryMb: sandbox.memory ?? 2048,
     totalRunMs: sandbox.totalDurationMs ?? 0,
@@ -92,8 +98,7 @@ export async function chargeSandbox(personaId: string, sessionId: string, sandbo
   }
 
   const latest = await db.orm.public.Usage
-    .where({ sessionId })
-    .where((usage) => usage.sandbox.isNotNull())
+    .where((usage) => usage.id.ilike(`${now.sandboxId}:%`))
     .orderBy((usage) => usage.at.desc())
     .select("sandbox")
     .first()
@@ -111,7 +116,7 @@ export async function chargeSandbox(personaId: string, sessionId: string, sandbo
 
   const charged = await chargeUsage({
     id: `${now.sandboxId}:${now.totalRunMs}`,
-    personaId, sessionId,
+    personaId,
     credits: marketCost / USD_PER_CREDIT,
     usage: { sandbox: { ...now, runMs, cpuMs, marketCost: String(marketCost) } }
   })
@@ -130,7 +135,6 @@ export async function chargeUsage(input: UsageInput) {
     orgId: persona.orgId,
     projectId: persona.projectId,
     personaId: input.personaId,
-    sessionId: input.sessionId,
     credits: String(input.credits),
     ...input.usage
   }

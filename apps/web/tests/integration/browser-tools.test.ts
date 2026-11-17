@@ -82,7 +82,7 @@ test("browser: a browser that isn't the persona's is out of reach", async () => 
 
 async function waitForAnswer(browserId: string, runId: string) {
   for (let check = 0; check < 90; check++) {
-    const answer = await getBrowserAndTask(persona.caller, persona.personaId, browserId, runId, null)
+    const answer = await getBrowserAndTask(persona.caller, persona.personaId, browserId, runId)
     assert.ok(answer.ok)
     if (answer.value.status !== "Working") return answer.value
     await sleep(2000)

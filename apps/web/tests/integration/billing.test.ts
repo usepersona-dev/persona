@@ -218,7 +218,7 @@ async function readBilling(org: Organization) {
 
 async function charge(org: Organization, id: string, credits: number) {
   const tokens = { model: "billing-test", provider: null, inputTokens: 0, cachedInputTokens: 0, cacheWriteTokens: 0, outputTokens: 0, reasoningTokens: 0, marketCost: null, gatewayCost: null }
-  const charged = await chargeUsage({ id, personaId: org.personaId, sessionId: null, credits, usage: { tokens } })
+  const charged = await chargeUsage({ id, personaId: org.personaId, credits, usage: { tokens } })
   return charged
 }
 

@@ -54,7 +54,6 @@ async function wait(ctx: WorkflowStepToolContext, browserId: string, runId: stri
   "use step"
   const { caller, personaId } = readCaller(ctx)
 
-  const sessionId = ctx.session.parent?.rootSessionId ?? ctx.session.id
   const stepEndsAt = Date.now() + STEP_MS
 
   while (Date.now() < stepEndsAt) {
@@ -63,7 +62,7 @@ async function wait(ctx: WorkflowStepToolContext, browserId: string, runId: stri
       return { status: "Stopped", message: "It ran for 30 minutes without finishing, so it stopped where it got to. Send the task again to the same browser to go on.", browserId }
     }
 
-    const answer = await getBrowserAndTask(caller, personaId, browserId, runId, sessionId)
+    const answer = await getBrowserAndTask(caller, personaId, browserId, runId)
     if (!answer.ok) return { status: "Stopped", message: answer.error.message, browserId }
     if (answer.value.status !== "Working") return { ...answer.value, browserId }
 

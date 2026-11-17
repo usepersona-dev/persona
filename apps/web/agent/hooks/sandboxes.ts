@@ -19,7 +19,7 @@ export default defineHook({
       const sandbox = await ctx.getSandbox(environment)
       await sandbox.stop()
 
-      const charged = await chargeSandbox(personaId, ctx.session.id, await Sandbox.get({ name: found.name }))
+      const charged = await chargeSandbox(personaId, await Sandbox.get({ name: found.name }))
       if (!charged.ok) console.warn("Sandbox usage was not saved.", found.name, charged.error.message)
 
       if (run) await sandbox.delete()

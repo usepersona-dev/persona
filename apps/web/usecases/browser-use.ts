@@ -87,7 +87,7 @@ export async function removeBrowserAndTask(caller: Caller, personaId: string, br
   return ok(undefined)
 }
 
-export async function getBrowserAndTask(caller: Caller, personaId: string, browserId: string, runId: string, sessionId: string | null) {
+export async function getBrowserAndTask(caller: Caller, personaId: string, browserId: string, runId: string) {
   const browser = await findBrowser(caller, personaId, browserId)
   if (!browser.ok) return browser
 
@@ -96,7 +96,7 @@ export async function getBrowserAndTask(caller: Caller, personaId: string, brows
 
   const run = await getRun(runId)
 
-  const charged = await chargeBrowserRun(personaId, sessionId, browserId, run)
+  const charged = await chargeBrowserRun(personaId, browserId, run)
   if (!charged.ok) return charged
 
   const parsed = answer.safeParse(run.output)
