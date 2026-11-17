@@ -328,7 +328,6 @@ model Usage {
   orgId     String            @map("org_id")
   projectId String            @map("project_id")
   personaId String            @map("persona_id")
-  sessionId String?           @map("session_id")
   credits   Decimal
   tokens    TokenUsage?
   browser   BrowserUsage?
@@ -337,7 +336,6 @@ model Usage {
 
   @@index([orgId, at, credits])
   @@index([projectId, at])
-  @@index([sessionId, at])
   @@map("usage")
 }
 

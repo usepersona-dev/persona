@@ -3070,13 +3070,6 @@
                   "plane": "storage"
                 }
               },
-              "sessionId": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
               "tokens": {
                 "nullable": true,
                 "type": {
@@ -3114,9 +3107,6 @@
                 },
                 "sandbox": {
                   "column": "sandbox"
-                },
-                "sessionId": {
-                  "column": "session_id"
                 },
                 "tokens": {
                   "column": "tokens"
@@ -6043,11 +6033,6 @@
                   "dataType": "pg/jsonb",
                   "nullable": true
                 },
-                "session_id": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": true
-                },
                 "tokens": {
                   "codecId": "pg/jsonb@1",
                   "dataType": "pg/jsonb",
@@ -6073,15 +6058,6 @@
                   ],
                   "name": "usage_project_id_at_idx_e662f53b",
                   "prefix": "usage_project_id_at_idx",
-                  "unique": false
-                },
-                {
-                  "columns": [
-                    "session_id",
-                    "at"
-                  ],
-                  "name": "usage_session_id_at_idx_0d730bf2",
-                  "prefix": "usage_session_id_at_idx",
                   "unique": false
                 }
               ],
@@ -6831,7 +6807,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "4c3d08763c757982a29f748291557c111adb75bc9a0fa98bf8293e3eb04da491"
+    "storageHash": "ecf2dd927f84690f6ccfa79a238d7e44e6cb4e4c49f22cf93e0bf5f175a13928"
   },
   "execution": {
     "executionHash": "679e7adb4072b560b58fc46ce0eeb545cc558e5f75438f7841ad3020760378a2",

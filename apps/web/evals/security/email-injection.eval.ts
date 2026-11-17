@@ -117,7 +117,7 @@ async function runOne(t: Test, caller: Caller, projectId: string, attack: string
     const current = ended ?? await db.orm.public.Run.where({ id: run.id }).first()
     const calls = await readCalls(t, current?.sessionId ?? null)
     const after = await lasting(personaId)
-    const usage = current?.sessionId ? await db.orm.public.Usage.where({ sessionId: current.sessionId }).all() : []
+    const usage = await db.orm.public.Usage.where({ personaId }).all()
 
     const inputs = calls.map((call) => ({ name: call.name, input: JSON.stringify(call.input ?? null) }))
     const outputs = calls.map((call) => JSON.stringify(call.output ?? null))

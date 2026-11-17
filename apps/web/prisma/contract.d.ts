@@ -24,7 +24,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'4c3d08763c757982a29f748291557c111adb75bc9a0fa98bf8293e3eb04da491'>;
+  StorageHashBase<'ecf2dd927f84690f6ccfa79a238d7e44e6cb4e4c49f22cf93e0bf5f175a13928'>;
 export type ExecutionHash =
   ExecutionHashBase<'679e7adb4072b560b58fc46ce0eeb545cc558e5f75438f7841ad3020760378a2'>;
 export type ProfileHash =
@@ -718,7 +718,6 @@ export namespace Models {
     personaId: FieldOutputTypes['public']['Usage']['personaId'];
     projectId: FieldOutputTypes['public']['Usage']['projectId'];
     sandbox: FieldOutputTypes['public']['Usage']['sandbox'];
-    sessionId: FieldOutputTypes['public']['Usage']['sessionId'];
     tokens: FieldOutputTypes['public']['Usage']['tokens'];
     readonly [RelationKeys]?: never;
   };
@@ -2882,12 +2881,6 @@ type ContractBase = Omit<
                   readonly nullable: true;
                   readonly many: false;
                 };
-                readonly session_id: {
-                  readonly dataType: 'pg/text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                  readonly many: false;
-                };
                 readonly tokens: {
                   readonly dataType: 'pg/jsonb';
                   readonly codecId: 'pg/jsonb@1';
@@ -2908,12 +2901,6 @@ type ContractBase = Omit<
                   readonly name: 'usage_project_id_at_idx_e662f53b';
                   readonly prefix: 'usage_project_id_at_idx';
                   readonly columns: readonly ['project_id', 'at'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'usage_session_id_at_idx_0d730bf2';
-                  readonly prefix: 'usage_session_id_at_idx';
-                  readonly columns: readonly ['session_id', 'at'];
                   readonly unique: false;
                 },
               ];
@@ -5340,10 +5327,6 @@ type ContractBase = Omit<
                   readonly entityName: 'SandboxUsage';
                 };
               };
-              readonly sessionId: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
               readonly tokens: {
                 readonly nullable: true;
                 readonly type: {
@@ -5368,7 +5351,6 @@ type ContractBase = Omit<
                 readonly personaId: { readonly column: 'persona_id' };
                 readonly projectId: { readonly column: 'project_id' };
                 readonly sandbox: { readonly column: 'sandbox' };
-                readonly sessionId: { readonly column: 'session_id' };
                 readonly tokens: { readonly column: 'tokens' };
               };
             };

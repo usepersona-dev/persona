@@ -1,0 +1,99 @@
+[
+  {
+    "id": "dropIndex.usage.usage_session_id_at_idx_0d730bf2",
+    "label": "Drop index \"usage_session_id_at_idx_0d730bf2\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "usage_session_id_at_idx_0d730bf2",
+        "table": "usage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"usage_session_id_at_idx_0d730bf2\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"usage_session_id_at_idx_0d730bf2\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"usage_session_id_at_idx_0d730bf2\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"usage_session_id_at_idx_0d730bf2\"",
+        "sql": "DROP INDEX \"public\".\"usage_session_id_at_idx_0d730bf2\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"usage_session_id_at_idx_0d730bf2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"usage_session_id_at_idx_0d730bf2\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"usage_session_id_at_idx_0d730bf2\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropColumn.usage.session_id",
+    "label": "Drop column \"session_id\" from \"usage\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "session_id",
+        "table": "usage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"session_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "usage",
+          "session_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"session_id\" on \"usage\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"session_id\"",
+        "sql": "ALTER TABLE \"public\".\"usage\" DROP COLUMN \"session_id\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"session_id\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "usage",
+          "session_id"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"session_id\" on \"usage\""
+        }
+      }
+    ]
+  }
+]
