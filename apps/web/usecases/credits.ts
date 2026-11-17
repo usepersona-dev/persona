@@ -6,14 +6,13 @@ import { getImageModelPrice, getSpeechModelPrice, getTextModelPrice, getTranscri
 import * as autumn from "@/lib/autumn"
 import type { getRun } from "@/lib/browser-use"
 import { err, ok, validate } from "@/lib/errors"
-import type { BrowserUsageInput, SandboxUsageInput, TokenUsageInput } from "@/prisma/contract.d"
+import type { BrowserUsageInput, ImageUsageInput, SandboxUsageInput, SpeechUsageInput, TokenUsageInput, TranscriptionUsageInput, VideoUsageInput } from "@/prisma/contract.d"
 import { db } from "@/prisma/db"
 import type { Caller } from "@/usecases/auth"
 
 export const USD_PER_CREDIT = 0.2
 const CPU_USD_PER_HOUR = 0.128
 const MEMORY_USD_PER_GB_HOUR = 0.0212
-const NO_TOKENS = { inputTokens: 0, cachedInputTokens: 0, cacheWriteTokens: 0, outputTokens: 0, reasoningTokens: 0 }
 
 
 const spanInput = z.object({
@@ -29,6 +28,10 @@ type UsageInput = {
   credits: number;
   usage: {
     tokens?: TokenUsageInput;
+    image?: ImageUsageInput;
+    speech?: SpeechUsageInput;
+    transcription?: TranscriptionUsageInput;
+    video?: VideoUsageInput;
     browser?: BrowserUsageInput;
     sandbox?: SandboxUsageInput
   }
@@ -64,7 +67,8 @@ type TextTokens = {
   reasoningTokens?: number
 }
 
-type MadeImages = { images: number; size: string; inputTokens: number; reasoningTokens: number }
+type MadeImages = { images: number; size: string }
+type MadeImagesWithText = MadeImages & { inputTokens: number; outputTokens: number; reasoningTokens: number }
 type MadeVideo = { seconds: number; resolution: string; audio: boolean }
 
 // One model call at the gateway's list price, under the caller's id, with the provider that answered, what the gateway took and the tokens it used. A call priced by the image, character or second reports no tokens, so it saves zeros
@@ -109,19 +113,35 @@ export async function chargeText(personaId: string, id: string, model: string, u
   return charged
 }
 
-// Images a model made: each at the list price of its size, plus the prompt and the model's thinking at its token prices
+// Images an image model made, each at its size's list price
 export async function chargeImage(personaId: string, model: string, made: MadeImages) {
-  const image = await getImageModelPrice(model, made.size)
-  const text = await getTextModelPrice(model)
-  if (image === null || !text) return err("not_found", `The gateway lists no image price for ${model}.`)
+  const perImage = await getImageModelPrice(model, made.size)
+  if (perImage === null) return err("not_found", `The gateway lists no price for ${model}.`)
 
-  const cost = made.images * image + made.inputTokens * text.input + made.reasoningTokens * text.output
-  const tokens = { model, provider: null, ...NO_TOKENS, inputTokens: made.inputTokens, reasoningTokens: made.reasoningTokens, marketCost: String(cost), gatewayCost: null }
+  const cost = made.images * perImage
+  const image = { model, ...made, inputTokens: 0, outputTokens: 0, reasoningTokens: 0, marketCost: String(cost) }
   const charged = await chargeUsage({
     id: crypto.randomUUID(),
     personaId,
     credits: cost / USD_PER_CREDIT,
-    usage: { tokens }
+    usage: { image }
+  })
+  return charged
+}
+
+// Images a text model drew in its answer, such as Gemini's Nano Banana: each image at its size's list price, plus the prompt and the model's thinking at its token prices. The image's own tokens are in the image price
+export async function chargeImageWithText(personaId: string, model: string, made: MadeImagesWithText) {
+  const perImage = await getImageModelPrice(model, made.size)
+  const text = await getTextModelPrice(model)
+  if (perImage === null || !text) return err("not_found", `The gateway lists no price for ${model}.`)
+
+  const cost = made.images * perImage + made.inputTokens * text.input + made.reasoningTokens * text.output
+  const image = { model, ...made, marketCost: String(cost) }
+  const charged = await chargeUsage({
+    id: crypto.randomUUID(),
+    personaId,
+    credits: cost / USD_PER_CREDIT,
+    usage: { image }
   })
   return charged
 }
@@ -132,13 +152,12 @@ export async function chargeSpeech(personaId: string, model: string, characters:
   if (perCharacter === null) return err("not_found", `The gateway lists no price for ${model}.`)
 
   const cost = characters * perCharacter
-
-  const tokens = { model, provider: null, ...NO_TOKENS, marketCost: String(cost), gatewayCost: null }
+  const speech = { model, characters, marketCost: String(cost) }
   const charged = await chargeUsage({
     id: crypto.randomUUID(),
     personaId,
     credits: cost / USD_PER_CREDIT,
-    usage: { tokens }
+    usage: { speech }
   })
   return charged
 }
@@ -149,12 +168,12 @@ export async function chargeTranscription(personaId: string, model: string, seco
   if (perSecond === null) return err("not_found", `The gateway lists no price for ${model}.`)
 
   const cost = seconds * perSecond
-  const tokens = { model, provider: null, ...NO_TOKENS, marketCost: String(cost), gatewayCost: null }
+  const transcription = { model, seconds: String(seconds), marketCost: String(cost) }
   const charged = await chargeUsage({
     id: crypto.randomUUID(),
     personaId,
     credits: cost / USD_PER_CREDIT,
-    usage: { tokens }
+    usage: { transcription }
   })
   return charged
 }
@@ -165,12 +184,12 @@ export async function chargeVideo(personaId: string, model: string, made: MadeVi
   if (perSecond === null) return err("not_found", `The gateway lists no ${made.resolution} price for ${model}.`)
 
   const cost = made.seconds * perSecond
-  const tokens = { model, provider: null, ...NO_TOKENS, marketCost: String(cost), gatewayCost: null }
+  const video = { model, ...made, marketCost: String(cost) }
   const charged = await chargeUsage({
     id: crypto.randomUUID(),
     personaId,
     credits: cost / USD_PER_CREDIT,
-    usage: { tokens }
+    usage: { video }
   })
   return charged
 }
@@ -223,7 +242,7 @@ export async function chargeSandbox(personaId: string, sandbox: Sandbox) {
   return charged
 }
 
-// Saves one thing an organization used: its price in credits and what it was, under its kind (tokens for an AI call, browser for a browser task, sandbox for sandbox time), then takes the credits from its balance on Autumn. A repeated id saves and takes nothing.
+// Saves one thing an organization used: its price in credits and what it was, under its kind (tokens for a text model, image, speech, transcription or video for media, browser for a browser task, sandbox for sandbox time), then takes the credits from its balance on Autumn. A repeated id saves and takes nothing.
 // The saved row is the record, so a refusal from Autumn is logged and the usage still counts as saved
 export async function chargeUsage(input: UsageInput) {
   const persona = await db.orm.public.Persona.where({ id: input.personaId }).select("orgId", "projectId").first()

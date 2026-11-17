@@ -66,6 +66,7 @@ type ImageUsage {
   images          Int
   size            String
   inputTokens     Int
+  outputTokens    Int
   reasoningTokens Int
   marketCost      Decimal
 }

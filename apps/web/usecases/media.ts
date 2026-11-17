@@ -1,10 +1,10 @@
 import { Mp3Encoder } from "@breezystack/lamejs"
-import { experimental_getVideoStatus, experimental_startVideo, generateSpeech, generateText, type JSONValue, type LanguageModelUsage, transcribe } from "ai"
+import { experimental_getVideoStatus, experimental_startVideo, generateSpeech, generateText, type JSONValue, transcribe } from "ai"
 import { z } from "zod"
 
 import { err, ok, validate } from "@/lib/errors"
 import type { Caller } from "@/usecases/auth"
-import { chargeModelCall } from "@/usecases/credits"
+import { chargeImageWithText, chargeSpeech, chargeText, chargeTranscription, chargeVideo } from "@/usecases/credits"
 import { getFileSignedUrl, saveFile } from "@/usecases/files"
 import { getPersona } from "@/usecases/personas"
 
@@ -12,8 +12,8 @@ export type StartedVideo = { model: string; operation: JSONValue; name: string }
 
 const IMAGE_MODEL = "google/gemini-nano-banana-2.1"
 const VIDEO_MODEL = "google/veo-3.1-fast-generate-001"
-// The clip veo makes by default is 8 seconds with sound, at the gateway's $0.15 a second. Its reply names no price
-const VIDEO_USD = 1.2
+// The clip veo is asked for, which is what a video is charged for. The AI SDK names 720p as 1280x720
+const VIDEO_CLIP = { seconds: 8, resolution: "720p", audio: true }
 const READ_MODEL = "google/gemini-3.8-flash"
 const SPEECH_MODEL = "google/gemini-3.8-flash-tts"
 // Microsoft's speech model runs on our own Azure key. On Hebrew voice notes it wrote fewer wrong words than Gemini's transcribe model, which runs only on Vercel's key, in a third of the time
@@ -32,7 +32,6 @@ const editInput = z.object({ images: z.array(url).min(1, "Give at least one imag
 const videoInput = z.object({ prompt })
 const speechInput = z.object({ text: z.string().trim().min(1, "Give the text to say.").max(4096, "Keep the text under 4,096 characters."), voice: z.enum(VOICES).optional() })
 const describeInput = z.object({ url, question: z.string().trim().max(2000).optional() })
-const GENERATION = z.object({ gateway: z.object({ generationId: z.string(), marketCost: z.coerce.number().optional(), gatewayCost: z.coerce.number().nullish(), routing: z.object({ finalProvider: z.string().nullish() }).optional() }) })
 
 export async function createImage(caller: Caller, personaId: string, input: z.input<typeof imageInput>) {
   const parsed = validate(imageInput, input)
@@ -43,7 +42,8 @@ export async function createImage(caller: Caller, personaId: string, input: z.in
   if (!persona.ok) return persona
 
   const created = await generateText({ model: IMAGE_MODEL, prompt })
-  await chargeReply(personaId, IMAGE_MODEL, created.finalStep.providerMetadata, created.usage)
+  const drawn = { images: created.files.length, size: "default", inputTokens: created.usage.inputTokens ?? 0, outputTokens: created.usage.outputTokens ?? 0, reasoningTokens: created.usage.outputTokenDetails.reasoningTokens ?? 0 }
+  await chargeImageWithText(personaId, IMAGE_MODEL, drawn).catch((error) => console.warn("Media usage was not saved.", IMAGE_MODEL, error))
   const [image] = created.files
   if (!image) return err("invalid", created.text || "The model made no image. Describe it another way.")
 
@@ -61,7 +61,8 @@ export async function editImage(caller: Caller, personaId: string, input: z.inpu
 
   const content = [...images.map((source) => ({ type: "file" as const, data: new URL(source), mediaType: "image" })), { type: "text" as const, text: prompt }]
   const edited = await generateText({ model: IMAGE_MODEL, messages: [{ role: "user", content }] })
-  await chargeReply(personaId, IMAGE_MODEL, edited.finalStep.providerMetadata, edited.usage)
+  const drawn = { images: edited.files.length, size: "default", inputTokens: edited.usage.inputTokens ?? 0, outputTokens: edited.usage.outputTokens ?? 0, reasoningTokens: edited.usage.outputTokenDetails.reasoningTokens ?? 0 }
+  await chargeImageWithText(personaId, IMAGE_MODEL, drawn).catch((error) => console.warn("Media usage was not saved.", IMAGE_MODEL, error))
   const [image] = edited.files
   if (!image) return err("invalid", edited.text || "The model made no image. Describe the change another way.")
 
@@ -77,7 +78,7 @@ export async function startVideo(caller: Caller, personaId: string, input: z.inp
   const persona = await getPersona(caller, personaId)
   if (!persona.ok) return persona
 
-  const { operation } = await experimental_startVideo({ model: VIDEO_MODEL, prompt })
+  const { operation } = await experimental_startVideo({ model: VIDEO_MODEL, prompt, duration: VIDEO_CLIP.seconds, resolution: "1280x720", generateAudio: VIDEO_CLIP.audio })
   const started: StartedVideo = { model: VIDEO_MODEL, operation, name: prompt }
   return ok(started)
 }
@@ -90,9 +91,7 @@ export async function readVideo(caller: Caller, personaId: string, video: Starte
   if (status.status === "error") throw new Error(`The video could not be made: ${status.error}`)
   if (status.status === "pending") return ok(null)
 
-  // A failed count is logged and the clip still arrives
-  const { generationId } = GENERATION.parse(status.providerMetadata).gateway
-  await chargeModelCall(personaId, { id: generationId, model: video.model, marketCost: VIDEO_USD }).catch((error) => console.warn("Video usage was not saved.", generationId, error))
+  await chargeVideo(personaId, video.model, VIDEO_CLIP).catch((error) => console.warn("Media usage was not saved.", video.model, error))
 
   const [first] = status.videos
   if (first.type === "uploaded") { throw new Error("The video could not be made: the provider sent no file.") }
@@ -118,7 +117,7 @@ export async function createSpeech(caller: Caller, personaId: string, input: z.i
 
   // Gemini speaks only WAV, and WhatsApp refuses a WAV but plays an MP3, so the recording is stored as an MP3
   const speech = await generateSpeech({ model: SPEECH_MODEL, text, voice: voice ?? "Kore", outputFormat: "wav" })
-  await chargeReply(personaId, SPEECH_MODEL, speech.providerMetadata)
+  await chargeSpeech(personaId, SPEECH_MODEL, text.length).catch((error) => console.warn("Media usage was not saved.", SPEECH_MODEL, error))
   const mp3 = toMp3(speech.audio.uint8Array)
   const file = await store(caller, personaId, text, mp3, "audio/mpeg")
   return file
@@ -130,7 +129,7 @@ export async function transcribeAudio(caller: Caller, personaId: string, audio: 
   if (!persona.ok) return persona
 
   const transcribed = await transcribe({ model: TRANSCRIBE_MODEL, audio })
-  await chargeReply(personaId, TRANSCRIBE_MODEL, transcribed.providerMetadata)
+  await chargeTranscription(personaId, TRANSCRIBE_MODEL, transcribed.durationInSeconds ?? 0).catch((error) => console.warn("Media usage was not saved.", TRANSCRIBE_MODEL, error))
   const transcript = { text: transcribed.text, language: transcribed.language ?? null, durationInSeconds: transcribed.durationInSeconds ?? null }
   return ok(transcript)
 }
@@ -151,7 +150,9 @@ export async function describeMedia(caller: Caller, personaId: string, input: z.
   const mediaType = probe.headers.get("content-type")?.split(";")[0] ?? mediaTypeOf(url)
   const content = [{ type: "file" as const, data: new URL(url), mediaType }, { type: "text" as const, text: question || DESCRIBE }]
   const described = await generateText({ model: READ_MODEL, messages: [{ role: "user", content }] })
-  await chargeReply(personaId, READ_MODEL, described.finalStep.providerMetadata, described.usage)
+  const usage = described.usage
+  const tokens = { inputTokens: usage.inputTokens ?? 0, outputTokens: usage.outputTokens ?? 0, cacheReadTokens: usage.inputTokenDetails.cacheReadTokens, cacheWriteTokens: usage.inputTokenDetails.cacheWriteTokens, reasoningTokens: usage.outputTokenDetails.reasoningTokens }
+  await chargeText(personaId, crypto.randomUUID(), READ_MODEL, tokens).catch((error) => console.warn("Media usage was not saved.", READ_MODEL, error))
   return ok({ text: described.text })
 }
 
@@ -205,17 +206,4 @@ function toMp3(wav: Uint8Array) {
   // lamejs hands back Int8Arrays, though its types say Uint8Array, and Buffer.concat takes only bytes
   const mp3 = Buffer.concat([Buffer.from(body.buffer, body.byteOffset, body.byteLength), Buffer.from(end.buffer, end.byteOffset, end.byteLength)])
   return mp3
-}
-
-// A media call at the gateway's list price, under its generation id. A failed count is logged and the media still arrives
-async function chargeReply(personaId: string, model: string, providerMetadata: unknown, usage?: LanguageModelUsage) {
-  try {
-    const { generationId, marketCost, gatewayCost, routing } = GENERATION.parse(providerMetadata).gateway
-    if (marketCost === undefined) return console.warn("Media usage was not saved: the gateway sent no price.", model)
-
-    const charged = await chargeModelCall(personaId, { id: generationId, model, provider: routing?.finalProvider, marketCost, gatewayCost }, usage)
-    if (!charged.ok) console.warn("Media usage was not saved.", model, charged.error.message)
-  } catch (error) {
-    console.warn("Media usage was not saved.", model, error)
-  }
 }

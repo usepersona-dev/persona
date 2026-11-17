@@ -6030,8 +6030,8 @@
                   "prefix": "usage_browser_shape"
                 },
                 {
-                  "expression": "\"image\" IS NULL OR jsonb_path_match(\"image\", 'strict $.type() == \"null\" || ($.type() == \"object\" && exists($.keyvalue() ? (@.key == \"images\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"inputTokens\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"marketCost\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"model\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"reasoningTokens\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"size\" && (@.value.type() == \"string\"))) && !exists($.keyvalue() ? (@.key != \"images\" && @.key != \"inputTokens\" && @.key != \"marketCost\" && @.key != \"model\" && @.key != \"reasoningTokens\" && @.key != \"size\")))') IS TRUE",
-                  "name": "usage_image_shape_b1f49dfc",
+                  "expression": "\"image\" IS NULL OR jsonb_path_match(\"image\", 'strict $.type() == \"null\" || ($.type() == \"object\" && exists($.keyvalue() ? (@.key == \"images\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"inputTokens\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"marketCost\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"model\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"outputTokens\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"reasoningTokens\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"size\" && (@.value.type() == \"string\"))) && !exists($.keyvalue() ? (@.key != \"images\" && @.key != \"inputTokens\" && @.key != \"marketCost\" && @.key != \"model\" && @.key != \"outputTokens\" && @.key != \"reasoningTokens\" && @.key != \"size\")))') IS TRUE",
+                  "name": "usage_image_shape_2e146052",
                   "prefix": "usage_image_shape"
                 },
                 {
@@ -6556,6 +6556,13 @@
                     "kind": "scalar"
                   }
                 },
+                "outputTokens": {
+                  "nullable": false,
+                  "type": {
+                    "codecId": "pg/int4@1",
+                    "kind": "scalar"
+                  }
+                },
                 "reasoningTokens": {
                   "nullable": false,
                   "type": {
@@ -7034,7 +7041,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "dab5eb8a8acb14153e94f4f800fe8bbda34809c0ab4d233612977a4dee9c5d98"
+    "storageHash": "f46f7e5fcc90f0fe22e62ff227ff51e93cce19952a25ecedb7504cb45a5012d0"
   },
   "execution": {
     "executionHash": "679e7adb4072b560b58fc46ce0eeb545cc558e5f75438f7841ad3020760378a2",

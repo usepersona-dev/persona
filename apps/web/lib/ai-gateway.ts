@@ -67,14 +67,14 @@ export async function getTextModelPrice(modelId: string) {
   return price
 }
 
-// One image's price at a size, such as "1K" or "default". A model with one price for every image has it as its flat price; null when the gateway lists neither
+// One image's price at a size, such as "1K" or "default", or the model's flat price for every image. null when the gateway lists no per-image price for the model, such as one priced by tokens, or does not list the model
 export async function getImageModelPrice(modelId: string, size = "default") {
   const model = await findModel(modelId)
   if (!model) return null
 
   const sized = model.pricing.image_dimension_quality_pricing.find((entry) => entry.size === size)
-  if (sized) return sized.cost
-  return model.pricing.image ?? null
+  const price = sized?.cost ?? model.pricing.image ?? null
+  return price
 }
 
 // A speech model's price per character of the text it reads out; 0 for a model priced another way, such as Gemini's by audio token. null when the gateway does not list the model

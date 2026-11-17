@@ -1,0 +1,129 @@
+[
+  {
+    "id": "dropCheckConstraint.usage.usage_image_shape_b1f49dfc",
+    "label": "Drop check constraint \"usage_image_shape_b1f49dfc\" on \"usage\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "usage_image_shape_b1f49dfc",
+        "table": "usage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"usage_image_shape_b1f49dfc\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "usage_image_shape_b1f49dfc",
+          "public",
+          "\"public\".\"usage\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"usage_image_shape_b1f49dfc\" on \"usage\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"usage_image_shape_b1f49dfc\"",
+        "sql": "ALTER TABLE \"public\".\"usage\" DROP CONSTRAINT \"usage_image_shape_b1f49dfc\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"usage_image_shape_b1f49dfc\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "usage_image_shape_b1f49dfc",
+          "public",
+          "\"public\".\"usage\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"usage_image_shape_b1f49dfc\" on \"usage\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "fillStoredKey.usage.image.$.outputTokens",
+    "label": "Fill key \"outputTokens\" at path \"$\" in column \"image\" of \"usage\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "image",
+        "table": "usage"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "fill key \"outputTokens\" at path \"$\" in column \"image\" of \"usage\" in every object that lacks it or holds JSON null there",
+        "sql": "UPDATE \"public\".\"usage\" SET \"image\" = CASE WHEN jsonb_typeof((\"image\"::jsonb)) = 'object' AND coalesce((\"image\"::jsonb) -> 'outputTokens', 'null'::jsonb) = 'null'::jsonb THEN (\"image\"::jsonb) || jsonb_build_object('outputTokens', $1::jsonb) ELSE (\"image\"::jsonb) END WHERE jsonb_path_exists((\"image\"::jsonb), 'strict $ ? (@.type() == \"object\" && !(exists(@.keyvalue() ? (@.key == \"outputTokens\" && @.value.type() != \"null\"))))')",
+        "params": [
+          "0"
+        ]
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify every object at path \"$\" in column \"image\" of \"usage\" has key \"outputTokens\"",
+        "sql": "SELECT NOT EXISTS (SELECT 1 FROM \"public\".\"usage\" WHERE jsonb_path_exists((\"image\"::jsonb), 'strict $ ? (@.type() == \"object\" && !(exists(@.keyvalue() ? (@.key == \"outputTokens\" && @.value.type() != \"null\"))))')) AS result"
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.usage.usage_image_shape_2e146052",
+    "label": "Add check constraint \"usage_image_shape_2e146052\" on \"usage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "usage_image_shape_2e146052",
+        "table": "usage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"usage_image_shape_2e146052\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "usage_image_shape_2e146052",
+          "public",
+          "\"public\".\"usage\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"usage_image_shape_2e146052\" on \"usage\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"usage_image_shape_2e146052\"",
+        "sql": "ALTER TABLE \"public\".\"usage\" ADD CONSTRAINT \"usage_image_shape_2e146052\" CHECK (\"image\" IS NULL OR jsonb_path_match(\"image\", 'strict $.type() == \"null\" || ($.type() == \"object\" && exists($.keyvalue() ? (@.key == \"images\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"inputTokens\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"marketCost\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"model\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"outputTokens\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"reasoningTokens\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"size\" && (@.value.type() == \"string\"))) && !exists($.keyvalue() ? (@.key != \"images\" && @.key != \"inputTokens\" && @.key != \"marketCost\" && @.key != \"model\" && @.key != \"outputTokens\" && @.key != \"reasoningTokens\" && @.key != \"size\")))') IS TRUE)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"usage_image_shape_2e146052\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "usage_image_shape_2e146052",
+          "public",
+          "\"public\".\"usage\"",
+          "c"
+        ]
+      }
+    ]
+  }
+]
