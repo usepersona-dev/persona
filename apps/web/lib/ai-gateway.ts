@@ -6,28 +6,28 @@ const CATALOGUE_SECONDS = 24 * 60 * 60
 
 const PRICE = z.coerce.number().optional().catch(undefined)
 
-const MODELS = z.array(
-  z.object({
-    id: z.string(),
-    name: z.string(),
-    type: z.string(),
-    owned_by: z.string(),
-    context_window: z.number().nullable().catch(null),
-    released: z.number().nullable().catch(null),
-    tags: z.array(z.string()).catch([]),
-    pricing: z.object({
-      input: PRICE,
-      output: PRICE,
-      input_cache_read: PRICE,
-      input_cache_write: PRICE,
-      image: PRICE,
-      image_dimension_quality_pricing: z.array(z.object({ size: z.string().optional(), quality: z.string().optional(), cost: z.coerce.number() })).catch([]),
-      speech_input_character_cost: PRICE,
-      transcription_duration_cost_per_second: PRICE,
-      video_duration_pricing: z.array(z.object({ resolution: z.string(), audio: z.boolean().optional(), cost_per_second: z.coerce.number() })).catch([]),
-    }).catch({ image_dimension_quality_pricing: [], video_duration_pricing: [] }),
-  })
-)
+const MODEL = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: z.string(),
+  owned_by: z.string(),
+  context_window: z.number().nullable().catch(null),
+  released: z.number().nullable().catch(null),
+  tags: z.array(z.string()).catch([]),
+  pricing: z.object({
+    input: PRICE,
+    output: PRICE,
+    input_cache_read: PRICE,
+    input_cache_write: PRICE,
+    image: PRICE,
+    image_dimension_quality_pricing: z.array(z.object({ size: z.string().optional(), quality: z.string().optional(), cost: z.coerce.number() })).catch([]),
+    speech_input_character_cost: PRICE,
+    transcription_duration_cost_per_second: PRICE,
+    video_duration_pricing: z.array(z.object({ resolution: z.string(), audio: z.boolean().optional(), cost_per_second: z.coerce.number() })).catch([]),
+  }).catch({ image_dimension_quality_pricing: [], video_duration_pricing: [] }),
+})
+
+const MODELS = z.array(MODEL)
 
 const CATALOGUE = z.object({ data: MODELS })
 
@@ -105,10 +105,16 @@ export async function getVideoModelPrice(modelId: string, resolution: string, au
   return tier.cost_per_second
 }
 
+// One model from the gateway's list, kept a day on its own in Vercel's runtime cache, so a lookup reads its small entry and not the whole list; null when the gateway does not list it
 async function findModel(modelId: string) {
+  const cache = getCache({ namespace: "ai-gateway" })
+  const cached = await cache.get(`model:${modelId}`)
+  if (cached !== null) return MODEL.parse(cached)
+
   const catalogue = await readCatalogue()
-  const model = catalogue.find((entry) => entry.id === modelId)
-  return model ?? null
+  const model = catalogue.find((entry) => entry.id === modelId) ?? null
+  if (model) await cache.set(`model:${modelId}`, model, { ttl: CATALOGUE_SECONDS })
+  return model
 }
 
 // The gateway's model list with its prices, fetched at most once a day: Vercel's runtime cache keeps it between calls
