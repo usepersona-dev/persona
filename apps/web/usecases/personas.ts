@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-import { listModels as listGatewayModels } from "@/lib/ai-gateway"
+import { listLanguageModels as listGatewayModels } from "@/lib/ai-gateway"
 import { deleteAccounts, deleteSession, deleteTrigger } from "@/lib/composio"
 import { err, ok, validate, withoutUndefined } from "@/lib/errors"
 import { s3Files } from "@/lib/s3"
