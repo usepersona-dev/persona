@@ -44,21 +44,6 @@ type SpanQuery = {
   timeZone: string
 }
 
-type Tokens = {
-  inputTokens?: number;
-  outputTokens?: number;
-  inputTokenDetails?: { cacheReadTokens?: number; cacheWriteTokens?: number };
-  outputTokenDetails?: { reasoningTokens?: number }
-}
-
-type ModelCall = {
-  id: string;
-  model: string;
-  provider?: string | null;
-  marketCost: number;
-  gatewayCost?: number | null
-}
-
 type TextTokens = {
   inputTokens: number;
   outputTokens: number;
@@ -70,28 +55,6 @@ type TextTokens = {
 type MadeImages = { images: number; size: string }
 type MadeImagesWithText = MadeImages & { inputTokens: number; outputTokens: number; reasoningTokens: number }
 type MadeVideo = { seconds: number; resolution: string; audio: boolean }
-
-// One model call at the gateway's list price, under the caller's id, with the provider that answered, what the gateway took and the tokens it used. A call priced by the image, character or second reports no tokens, so it saves zeros
-export async function chargeModelCall(personaId: string, call: ModelCall, usage: Tokens = {}) {
-  const tokens = {
-    model: call.model,
-    provider: call.provider ?? null,
-    inputTokens: usage.inputTokens ?? 0,
-    cachedInputTokens: usage.inputTokenDetails?.cacheReadTokens ?? 0,
-    cacheWriteTokens: usage.inputTokenDetails?.cacheWriteTokens ?? 0,
-    outputTokens: usage.outputTokens ?? 0,
-    reasoningTokens: usage.outputTokenDetails?.reasoningTokens ?? 0,
-    marketCost: String(call.marketCost),
-    gatewayCost: call.gatewayCost?.toString() ?? null
-  }
-  const charged = await chargeUsage({
-    id: call.id,
-    personaId,
-    credits: call.marketCost / USD_PER_CREDIT,
-    usage: { tokens }
-  })
-  return charged
-}
 
 // A text model's answer at its list price per token, under the caller's id. The input count includes the cached tokens
 export async function chargeText(personaId: string, id: string, model: string, usage: TextTokens) {
