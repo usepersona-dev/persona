@@ -8,7 +8,7 @@ export const onRequestError: Instrumentation.onRequestError = async (error, requ
   const visitor = visitorOf(request.headers, key)
   const { PostHog } = await import("posthog-node")
   const client = new PostHog(key, { host: process.env.NEXT_PUBLIC_POSTHOG_HOST, flushAt: 1, flushInterval: 0 })
-  await client.captureExceptionImmediate(error, visitor, { path: request.path, method: request.method, routerKind: context.routerKind, routeType: context.routeType, environment: process.env.VERCEL_ENV ?? "development" })
+  await client.captureExceptionImmediate(error, { distinctId: visitor, properties: { path: request.path, method: request.method, routerKind: context.routerKind, routeType: context.routeType, environment: process.env.VERCEL_ENV ?? "development" } })
   await client.shutdown()
 }
 
