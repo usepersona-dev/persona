@@ -3,7 +3,7 @@ title: Development
 description: Run Persona on your machine, with every environment variable, the database, tests, evals and the deploy to Vercel.
 ---
 
-Persona is one repository with one pnpm workspace: `apps/web`, the app and its agent; `apps/landing`, the landing and the legal pages; `apps/docs`, this site; `apps/files`, the files Worker; and `apps/queue`, the queue service. The paths on this page start from the repository's root.
+Persona is one repository with one pnpm workspace: `apps/web`, the app and its agent; `apps/landing`, the landing and the legal pages; `apps/docs`, this site; and `apps/files`, the files Worker. The paths on this page start from the repository's root.
 
 ## What you need
 
@@ -51,8 +51,7 @@ All local variables live in `apps/web/.env.local`. Prisma reads it too. Keep eve
 | `NEXT_PUBLIC_SITE_URL` | The landing's origin. The logo, the home page, Terms and Privacy links point at it. |
 | `AGENT_TOKEN_SECRET` | Signs the agent tokens of the web channel. A secret you make. |
 | `SECRETS_KEY` | Seals every value in the secrets table (AES-256-GCM): 32 random bytes in base64 (`node -e 'console.log(require("crypto").randomBytes(32).toString("base64"))'`). Required: without it the build fails. A lost key loses every value. Development and Preview share the dev database, so they take the same value; Production takes its own. |
-| `AUTOMATIONS_SECRET` | The queue service sends it to the agent's own routes that start runs and post reports; those refuse any call without it. A secret you make, the same value in the app and in the queue service. |
-| `QUEUE_URL`, `QUEUE_SECRET` | The queue service's address, and the secret the app sends with the runs and reports it hands over. A secret you make, the same value in the app and in the queue service. See [The queue service](#the-queue-service). |
+| `AUTOMATIONS_SECRET` | The queue routes send it to the agent's own routes that start runs and post reports; those refuse any call without it. A secret you make. |
 | `AUTUMN_SECRET_KEY` | [Autumn](https://useautumn.com): plans, credits and payments. `autumn.config.ts` holds the plans; `pnpm autumn:push` sends them to the account of the key. It matches each plan by its `planId`, so the file holds no ids of any account. The sandbox key (`am_sk_test_`) goes in `.env.local` and on Development and Preview; the live key (`am_sk_live_`) only on Production. |
 | `VERCEL_OIDC_TOKEN` or `AI_GATEWAY_API_KEY` | Model access. The OIDC token also signs the calls to skills.sh. |
 | `NEXT_PUBLIC_SKILLS_HUB_ENABLED` | `true` shows Discover on the Skills page, which lists skills.sh. skills.sh takes only a Vercel OIDC token, so set `true` where that token is and `false` anywhere else. Read when the app builds. |
@@ -123,9 +122,9 @@ pnpm eval vault                # one folder
 
 ## Deploy
 
-Persona deploys to Vercel as three projects from the one repository, each with its app's folder as its Root Directory. A push to `main` deploys each project whose folder changed. The files Worker deploys to Cloudflare, see [The files Worker](#the-files-worker). The queue service runs on a server that is always on, see [The queue service](#the-queue-service).
+Persona deploys to Vercel as three projects from the one repository, each with its app's folder as its Root Directory. A push to `main` deploys each project whose folder changed. The files Worker deploys to Cloudflare, see [The files Worker](#the-files-worker).
 
-- `apps/web` (project `persona`) is the app on `app.usepersona.dev`. `withEve()` builds the agent into the same deployment and routes `/eve/v1/*` to it. The one schedule, `agent/schedules/start.ts`, becomes a Vercel Cron Job that runs every minute and sends due runs to the queue service. `apps/web/package.json`'s `build` script is `pnpm db:migrate && pnpm autumn:push && next build`, so every build, on Vercel or any other host, migrates its database and pushes the plans before it builds; no build setting lives outside the repository.
+- `apps/web` (project `persona`) is the app on `app.usepersona.dev`. `withEve()` builds the agent into the same deployment and routes `/eve/v1/*` to it. The one schedule, `agent/schedules/start.ts`, becomes a Vercel Cron Job that runs every minute and puts due runs on Vercel Queues; `vercel.json` hands each queue to its route under `app/api/queues/`. `apps/web/package.json`'s `build` script is `pnpm db:migrate && pnpm autumn:push && next build`, so every build, on Vercel or any other host, migrates its database and pushes the plans before it builds; no build setting lives outside the repository.
 - `apps/landing` (project `persona-landing`) is the landing and the legal pages on `usepersona.dev`.
 - `apps/docs` (project `persona-docs`) is this site on `docs.usepersona.dev`.
 
@@ -189,23 +188,6 @@ The Worker is set up once per bucket, not per environment: every environment wri
 Without the Worker the app still runs, and files open inside the app through signed links. What has no answer is every public address: the link a persona sends for a published file, the "Open" button on a file page, and the pictures under `uploads/`. `FILES_PREVIEW_URL` must still be set, since `proxy.ts` reads it at startup: a second hostname that resolves to the app will do, and the proxy serves the file pages on it.
 
 Leave the "Add security headers" switch of that zone off: its `X-Frame-Options: SAMEORIGIN` would stop the app's file pages from framing a file.
-
-## The queue service
-
-Automations and triggers start at their time through the queue service, `apps/queue`. The app hands it jobs, each a path on the app and the seconds to wait (`POST /jobs` with `QUEUE_SECRET`). The service keeps the jobs in Redis with BullMQ, and at a job's time it calls that path on the app with `AUTOMATIONS_SECRET`. A call that fails is made again after 5, 10, 20 and 40 seconds, five tries in all; a path that is gone (404) is dropped.
-
-It is a Node server that is always on, so it does not run on Vercel: `pnpm start` in `apps/queue` serves it on port 3003, on any host that runs Node, such as Railway or Docker Compose. Its settings, all required:
-
-| Variable | What it is for |
-| --- | --- |
-| `APP_URL` | The app's origin. Each job's path is called on it. |
-| `REDIS_URL` | The Redis that keeps the jobs; the app's own Redis works. Their keys start with `bull:`. |
-| `QUEUE_SECRET` | The app sends it with its jobs. The same value as the app's. |
-| `AUTOMATIONS_SECRET` | Sent with each call to the app. The same value as the app's. |
-
-Run one queue service for each app: a service calls only the app of its `APP_URL`, and two services on one Redis take each other's jobs. `GET /health` answers 200 while it runs.
-
-Without the queue service the app still runs. What does not happen: no automation or trigger starts, and no run reports to its chat.
 
 ## This site
 

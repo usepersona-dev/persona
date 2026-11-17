@@ -6,7 +6,7 @@ import { channel as metaChannel, encodePrincipal as metaPrincipal, encodeThreadI
 import { channel as telegramChannel, encodePrincipal as telegramPrincipal, encodeThreadId as telegramThreadId } from "@/agent/channels/telegram"
 import { channel as whatsappChannel, encodePrincipal as whatsappPrincipal, encodeThreadId as whatsappThreadId } from "@/agent/channels/whatsapp"
 import { channel as zernioChannel, encodePrincipal as zernioPrincipal, encodeThreadId as zernioThreadId } from "@/agent/channels/zernio"
-import { queue } from "@/lib/queue"
+import { queue, REPORTS } from "@/lib/queue"
 import { db } from "@/prisma/db"
 import { toPrincipal } from "@/usecases/agent"
 import { completeRun, failRun, runResult } from "@/usecases/runs"
@@ -51,7 +51,7 @@ const channel = defineChannel<undefined, void, Run>({
       return Response.json({ ok: true, runId: run.id }, { status: 202 })
     }),
 
-    // Tells the run's chat what came of it: the queue service calls it as soon as a run worth telling ends, with AUTOMATIONS_SECRET. The run id is the delivery key, so a run the queue hands over again reaches the chat once
+    // Tells the run's chat what came of it: the queue's consumer (app/api/queues/reports) calls it as soon as a run worth telling ends, with AUTOMATIONS_SECRET. The run id is the delivery key, so a run the queue hands over again reaches the chat once
     POST("/eve/v1/webhooks/:webhookId/:runId/report", async (request, { params, to }) => {
       const secret = process.env.AUTOMATIONS_SECRET
       if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) return Response.json({ error: "Not allowed." }, { status: 401 })
@@ -110,7 +110,7 @@ const channel = defineChannel<undefined, void, Run>({
 
         try {
           const [run] = await completeRun(runId, ctx.session.id, result)
-          if (run?.result?.notify && run.link?.personaId === run.personaId) await queue.send([{ path: `/eve/v1/webhooks/${run.webhookId}/${run.id}/report`, delaySeconds: 0 }])
+          if (run?.result?.notify && run.link?.personaId === run.personaId) await queue.send(REPORTS, { path: `/eve/v1/webhooks/${run.webhookId}/${run.id}/report` })
         } catch (error) {
           console.error("Could not end a run or queue its report.", error)
         }

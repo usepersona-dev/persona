@@ -3,7 +3,7 @@ import { afterAll, beforeAll, test } from "vitest"
 
 import automations from "@/agent/channels/automations"
 import { start } from "@/agent/schedules/start"
-import { type Job, queue } from "@/lib/queue"
+import { type AutomationRun, queue, type Report } from "@/lib/queue"
 import { db } from "@/prisma/db"
 import { createAutomation } from "@/usecases/automations"
 import { completeRun, failRun } from "@/usecases/runs"
@@ -14,24 +14,23 @@ type Route = { method: string; path: string; handler: (request: Request, args: n
 let persona: Awaited<ReturnType<typeof createTestPersona>>
 let linkId: string
 
-// Stands in for the queue service and the run route: the queue notes each run with its delay and hands it over at once, and the run route gives the run a session unless it has one. A report only has its route noted
-const calls: { automationId: string; runId: string; delaySeconds: number }[] = []
+// Stands in for the queue and the run route: the queue notes each run with its delay and hands it over at once, and the run route gives the run a session unless it has one. A report only has its route noted
+const calls: (AutomationRun & { delaySeconds: number })[] = []
 const reports: string[] = []
-queue.send = async (jobs: Job[]) => {
-  for (const job of jobs) {
-    if (job.path.endsWith("/report")) {
-      reports.push(job.path)
-      continue
-    }
-
-    const names = job.path.split("/")
-    const automationId = names.at(-2)!
-    const runId = names.at(-1)!
-
-    calls.push({ automationId, runId, delaySeconds: job.delaySeconds })
-    await db.orm.public.Run.where({ id: runId, sessionId: null }).updateAll({ sessionId: `session-call-${calls.length}` })
+queue.sendBatch = (async (_topic: string, messages: { payload: AutomationRun; delaySeconds?: number }[]) => {
+  const results = []
+  for (const message of messages) {
+    calls.push({ ...message.payload, delaySeconds: message.delaySeconds ?? 0 })
+    await db.orm.public.Run.where({ id: message.payload.runId, sessionId: null }).updateAll({ sessionId: `session-call-${calls.length}` })
+    results.push({ status: "sent", messageId: "test-message" })
   }
-}
+  return results
+}) as unknown as typeof queue.sendBatch
+
+queue.send = (async (_topic: string, payload: Report) => {
+  reports.push(payload.path)
+  return { messageId: "test-report" }
+}) as unknown as typeof queue.send
 
 beforeAll(async () => {
   persona = await createTestPersona("runner")
