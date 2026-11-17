@@ -2,6 +2,7 @@ import { z } from "zod"
 
 import type { Sandbox } from "@vercel/sandbox"
 
+import { getImageModelPrice, getSpeechModelPrice, getTextModelPrice, getTranscriptionModelPrice, getVideoModelPrice } from "@/lib/ai-gateway"
 import * as autumn from "@/lib/autumn"
 import type { getRun } from "@/lib/browser-use"
 import { err, ok, validate } from "@/lib/errors"
@@ -12,6 +13,7 @@ import type { Caller } from "@/usecases/auth"
 export const USD_PER_CREDIT = 0.2
 const CPU_USD_PER_HOUR = 0.128
 const MEMORY_USD_PER_GB_HOUR = 0.0212
+const NO_TOKENS = { inputTokens: 0, cachedInputTokens: 0, cacheWriteTokens: 0, outputTokens: 0, reasoningTokens: 0 }
 
 
 const spanInput = z.object({
@@ -54,6 +56,17 @@ type ModelCall = {
   gatewayCost?: number | null
 }
 
+type TextTokens = {
+  inputTokens: number;
+  outputTokens: number;
+  cacheReadTokens?: number;
+  cacheWriteTokens?: number;
+  reasoningTokens?: number
+}
+
+type MadeImages = { images: number; size: string; inputTokens: number; reasoningTokens: number }
+type MadeVideo = { seconds: number; resolution: string; audio: boolean }
+
 // One model call at the gateway's list price, under the caller's id, with the provider that answered, what the gateway took and the tokens it used. A call priced by the image, character or second reports no tokens, so it saves zeros
 export async function chargeModelCall(personaId: string, call: ModelCall, usage: Tokens = {}) {
   const tokens = {
@@ -71,6 +84,92 @@ export async function chargeModelCall(personaId: string, call: ModelCall, usage:
     id: call.id,
     personaId,
     credits: call.marketCost / USD_PER_CREDIT,
+    usage: { tokens }
+  })
+  return charged
+}
+
+// A text model's answer at its list price per token, under the caller's id. The input count includes the cached tokens
+export async function chargeText(personaId: string, id: string, model: string, usage: TextTokens) {
+  const price = await getTextModelPrice(model)
+  if (!price) return err("not_found", `The gateway lists no price for ${model}.`)
+
+  const cacheRead = usage.cacheReadTokens ?? 0
+  const cacheWrite = usage.cacheWriteTokens ?? 0
+  const fresh = usage.inputTokens - cacheRead - cacheWrite
+  const cost = fresh * price.input + cacheRead * price.cacheRead + cacheWrite * price.cacheWrite + usage.outputTokens * price.output
+
+  const tokens = { model, provider: null, inputTokens: usage.inputTokens, cachedInputTokens: cacheRead, cacheWriteTokens: cacheWrite, outputTokens: usage.outputTokens, reasoningTokens: usage.reasoningTokens ?? 0, marketCost: String(cost), gatewayCost: null }
+  const charged = await chargeUsage({
+    id,
+    personaId,
+    credits: cost / USD_PER_CREDIT,
+    usage: { tokens }
+  })
+  return charged
+}
+
+// Images a model made: each at the list price of its size, plus the prompt and the model's thinking at its token prices
+export async function chargeImage(personaId: string, model: string, made: MadeImages) {
+  const image = await getImageModelPrice(model, made.size)
+  const text = await getTextModelPrice(model)
+  if (image === null || !text) return err("not_found", `The gateway lists no image price for ${model}.`)
+
+  const cost = made.images * image + made.inputTokens * text.input + made.reasoningTokens * text.output
+  const tokens = { model, provider: null, ...NO_TOKENS, inputTokens: made.inputTokens, reasoningTokens: made.reasoningTokens, marketCost: String(cost), gatewayCost: null }
+  const charged = await chargeUsage({
+    id: crypto.randomUUID(),
+    personaId,
+    credits: cost / USD_PER_CREDIT,
+    usage: { tokens }
+  })
+  return charged
+}
+
+// Speech a model made, at its list price per character of the text read out
+export async function chargeSpeech(personaId: string, model: string, characters: number) {
+  const perCharacter = await getSpeechModelPrice(model)
+  if (perCharacter === null) return err("not_found", `The gateway lists no price for ${model}.`)
+
+  const cost = characters * perCharacter
+
+  const tokens = { model, provider: null, ...NO_TOKENS, marketCost: String(cost), gatewayCost: null }
+  const charged = await chargeUsage({
+    id: crypto.randomUUID(),
+    personaId,
+    credits: cost / USD_PER_CREDIT,
+    usage: { tokens }
+  })
+  return charged
+}
+
+// Audio a model transcribed, at its list price per second
+export async function chargeTranscription(personaId: string, model: string, seconds: number) {
+  const perSecond = await getTranscriptionModelPrice(model)
+  if (perSecond === null) return err("not_found", `The gateway lists no price for ${model}.`)
+
+  const cost = seconds * perSecond
+  const tokens = { model, provider: null, ...NO_TOKENS, marketCost: String(cost), gatewayCost: null }
+  const charged = await chargeUsage({
+    id: crypto.randomUUID(),
+    personaId,
+    credits: cost / USD_PER_CREDIT,
+    usage: { tokens }
+  })
+  return charged
+}
+
+// A video clip a model made, at its list price per second for the clip's resolution and sound
+export async function chargeVideo(personaId: string, model: string, made: MadeVideo) {
+  const perSecond = await getVideoModelPrice(model, made.resolution, made.audio)
+  if (perSecond === null) return err("not_found", `The gateway lists no ${made.resolution} price for ${model}.`)
+
+  const cost = made.seconds * perSecond
+  const tokens = { model, provider: null, ...NO_TOKENS, marketCost: String(cost), gatewayCost: null }
+  const charged = await chargeUsage({
+    id: crypto.randomUUID(),
+    personaId,
+    credits: cost / USD_PER_CREDIT,
     usage: { tokens }
   })
   return charged

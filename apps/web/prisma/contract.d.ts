@@ -24,7 +24,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'ecf2dd927f84690f6ccfa79a238d7e44e6cb4e4c49f22cf93e0bf5f175a13928'>;
+  StorageHashBase<'dab5eb8a8acb14153e94f4f800fe8bbda34809c0ab4d233612977a4dee9c5d98'>;
 export type ExecutionHash =
   ExecutionHashBase<'679e7adb4072b560b58fc46ce0eeb545cc558e5f75438f7841ad3020760378a2'>;
 export type ProfileHash =
@@ -293,6 +293,8 @@ export type BrowserUsageOutput = ValueObjectOutputTypes['public']['BrowserUsage'
 export type BrowserUsageInput = ValueObjectInputTypes['public']['BrowserUsage'];
 export type CredentialFieldOutput = ValueObjectOutputTypes['public']['CredentialField'];
 export type CredentialFieldInput = ValueObjectInputTypes['public']['CredentialField'];
+export type ImageUsageOutput = ValueObjectOutputTypes['public']['ImageUsage'];
+export type ImageUsageInput = ValueObjectInputTypes['public']['ImageUsage'];
 export type OrganizationInvitationOutput =
   ValueObjectOutputTypes['public']['OrganizationInvitation'];
 export type OrganizationInvitationInput = ValueObjectInputTypes['public']['OrganizationInvitation'];
@@ -310,8 +312,14 @@ export type SkillFileOutput = ValueObjectOutputTypes['public']['SkillFile'];
 export type SkillFileInput = ValueObjectInputTypes['public']['SkillFile'];
 export type SkillOriginOutput = ValueObjectOutputTypes['public']['SkillOrigin'];
 export type SkillOriginInput = ValueObjectInputTypes['public']['SkillOrigin'];
+export type SpeechUsageOutput = ValueObjectOutputTypes['public']['SpeechUsage'];
+export type SpeechUsageInput = ValueObjectInputTypes['public']['SpeechUsage'];
 export type TokenUsageOutput = ValueObjectOutputTypes['public']['TokenUsage'];
 export type TokenUsageInput = ValueObjectInputTypes['public']['TokenUsage'];
+export type TranscriptionUsageOutput = ValueObjectOutputTypes['public']['TranscriptionUsage'];
+export type TranscriptionUsageInput = ValueObjectInputTypes['public']['TranscriptionUsage'];
+export type VideoUsageOutput = ValueObjectOutputTypes['public']['VideoUsage'];
+export type VideoUsageInput = ValueObjectInputTypes['public']['VideoUsage'];
 type FieldTypeOverrides = {
   readonly public: {
     readonly models: {
@@ -714,11 +722,15 @@ export namespace Models {
     browser: FieldOutputTypes['public']['Usage']['browser'];
     credits: FieldOutputTypes['public']['Usage']['credits'];
     id: FieldOutputTypes['public']['Usage']['id'];
+    image: FieldOutputTypes['public']['Usage']['image'];
     orgId: FieldOutputTypes['public']['Usage']['orgId'];
     personaId: FieldOutputTypes['public']['Usage']['personaId'];
     projectId: FieldOutputTypes['public']['Usage']['projectId'];
     sandbox: FieldOutputTypes['public']['Usage']['sandbox'];
+    speech: FieldOutputTypes['public']['Usage']['speech'];
     tokens: FieldOutputTypes['public']['Usage']['tokens'];
+    transcription: FieldOutputTypes['public']['Usage']['transcription'];
+    video: FieldOutputTypes['public']['Usage']['video'];
     readonly [RelationKeys]?: never;
   };
   export type public_User = {
@@ -2857,6 +2869,12 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly many: false;
                 };
+                readonly image: {
+                  readonly dataType: 'pg/jsonb';
+                  readonly codecId: 'pg/jsonb@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
                 readonly org_id: {
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
@@ -2881,7 +2899,25 @@ type ContractBase = Omit<
                   readonly nullable: true;
                   readonly many: false;
                 };
+                readonly speech: {
+                  readonly dataType: 'pg/jsonb';
+                  readonly codecId: 'pg/jsonb@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
                 readonly tokens: {
+                  readonly dataType: 'pg/jsonb';
+                  readonly codecId: 'pg/jsonb@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly transcription: {
+                  readonly dataType: 'pg/jsonb';
+                  readonly codecId: 'pg/jsonb@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly video: {
                   readonly dataType: 'pg/jsonb';
                   readonly codecId: 'pg/jsonb@1';
                   readonly nullable: true;
@@ -3217,6 +3253,34 @@ type ContractBase = Omit<
                 };
               };
             };
+            readonly ImageUsage: {
+              readonly fields: {
+                readonly images: {
+                  readonly nullable: false;
+                  readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+                };
+                readonly inputTokens: {
+                  readonly nullable: false;
+                  readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+                };
+                readonly marketCost: {
+                  readonly nullable: false;
+                  readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/numeric@1' };
+                };
+                readonly model: {
+                  readonly nullable: false;
+                  readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+                };
+                readonly reasoningTokens: {
+                  readonly nullable: false;
+                  readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+                };
+                readonly size: {
+                  readonly nullable: false;
+                  readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+                };
+              };
+            };
             readonly OrganizationInvitation: {
               readonly fields: {
                 readonly clerkCreatedAt: {
@@ -3369,6 +3433,22 @@ type ContractBase = Omit<
                 };
               };
             };
+            readonly SpeechUsage: {
+              readonly fields: {
+                readonly characters: {
+                  readonly nullable: false;
+                  readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+                };
+                readonly marketCost: {
+                  readonly nullable: false;
+                  readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/numeric@1' };
+                };
+                readonly model: {
+                  readonly nullable: false;
+                  readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+                };
+              };
+            };
             readonly TokenUsage: {
               readonly fields: {
                 readonly cacheWriteTokens: {
@@ -3404,6 +3484,46 @@ type ContractBase = Omit<
                   readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
                 };
                 readonly reasoningTokens: {
+                  readonly nullable: false;
+                  readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+                };
+              };
+            };
+            readonly TranscriptionUsage: {
+              readonly fields: {
+                readonly marketCost: {
+                  readonly nullable: false;
+                  readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/numeric@1' };
+                };
+                readonly model: {
+                  readonly nullable: false;
+                  readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+                };
+                readonly seconds: {
+                  readonly nullable: false;
+                  readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/numeric@1' };
+                };
+              };
+            };
+            readonly VideoUsage: {
+              readonly fields: {
+                readonly audio: {
+                  readonly nullable: false;
+                  readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+                };
+                readonly marketCost: {
+                  readonly nullable: false;
+                  readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/numeric@1' };
+                };
+                readonly model: {
+                  readonly nullable: false;
+                  readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+                };
+                readonly resolution: {
+                  readonly nullable: false;
+                  readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+                };
+                readonly seconds: {
                   readonly nullable: false;
                   readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
                 };
@@ -5305,6 +5425,16 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly image: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'valueObject';
+                  readonly plane: 'storage';
+                  readonly namespaceId: 'public';
+                  readonly entityKind: 'valueObject';
+                  readonly entityName: 'ImageUsage';
+                };
+              };
               readonly orgId: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -5327,6 +5457,16 @@ type ContractBase = Omit<
                   readonly entityName: 'SandboxUsage';
                 };
               };
+              readonly speech: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'valueObject';
+                  readonly plane: 'storage';
+                  readonly namespaceId: 'public';
+                  readonly entityKind: 'valueObject';
+                  readonly entityName: 'SpeechUsage';
+                };
+              };
               readonly tokens: {
                 readonly nullable: true;
                 readonly type: {
@@ -5335,6 +5475,26 @@ type ContractBase = Omit<
                   readonly namespaceId: 'public';
                   readonly entityKind: 'valueObject';
                   readonly entityName: 'TokenUsage';
+                };
+              };
+              readonly transcription: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'valueObject';
+                  readonly plane: 'storage';
+                  readonly namespaceId: 'public';
+                  readonly entityKind: 'valueObject';
+                  readonly entityName: 'TranscriptionUsage';
+                };
+              };
+              readonly video: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'valueObject';
+                  readonly plane: 'storage';
+                  readonly namespaceId: 'public';
+                  readonly entityKind: 'valueObject';
+                  readonly entityName: 'VideoUsage';
                 };
               };
             };
@@ -5347,11 +5507,15 @@ type ContractBase = Omit<
                 readonly browser: { readonly column: 'browser' };
                 readonly credits: { readonly column: 'credits' };
                 readonly id: { readonly column: 'id' };
+                readonly image: { readonly column: 'image' };
                 readonly orgId: { readonly column: 'org_id' };
                 readonly personaId: { readonly column: 'persona_id' };
                 readonly projectId: { readonly column: 'project_id' };
                 readonly sandbox: { readonly column: 'sandbox' };
+                readonly speech: { readonly column: 'speech' };
                 readonly tokens: { readonly column: 'tokens' };
+                readonly transcription: { readonly column: 'transcription' };
+                readonly video: { readonly column: 'video' };
               };
             };
           };

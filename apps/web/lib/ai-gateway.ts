@@ -23,8 +23,6 @@ const MODELS = z.array(
       image: PRICE,
       image_dimension_quality_pricing: z.array(z.object({ size: z.string().optional(), quality: z.string().optional(), cost: z.coerce.number() })).catch([]),
       speech_input_character_cost: PRICE,
-      audio_input_token_cost: PRICE,
-      audio_output_token_cost: PRICE,
       transcription_duration_cost_per_second: PRICE,
       video_duration_pricing: z.array(z.object({ resolution: z.string(), audio: z.boolean().optional(), cost_per_second: z.coerce.number() })).catch([]),
     }).catch({ image_dimension_quality_pricing: [], video_duration_pricing: [] }),
@@ -55,7 +53,7 @@ export async function listLanguageModels() {
 }
 
 // A model's prices per token: input, output, and cache reads and writes, which cost the input price when the gateway lists none. null when the gateway does not list the model
-export async function getTextPrice(modelId: string) {
+export async function getTextModelPrice(modelId: string) {
   const model = await findModel(modelId)
   if (!model) return null
 
@@ -70,7 +68,7 @@ export async function getTextPrice(modelId: string) {
 }
 
 // One image's price at a size, such as "1K" or "default". A model with one price for every image has it as its flat price; null when the gateway lists neither
-export async function getImagePrice(modelId: string, size = "default") {
+export async function getImageModelPrice(modelId: string, size = "default") {
   const model = await findModel(modelId)
   if (!model) return null
 
@@ -79,33 +77,26 @@ export async function getImagePrice(modelId: string, size = "default") {
   return model.pricing.image ?? null
 }
 
-// A speech model's prices: per character of the text read out, per token of that text, and per token of the audio it speaks. A price the gateway does not list is 0; null when it does not list the model
-export async function getSpeechPrice(modelId: string) {
+// A speech model's price per character of the text it reads out; 0 for a model priced another way, such as Gemini's by audio token. null when the gateway does not list the model
+export async function getSpeechModelPrice(modelId: string) {
   const model = await findModel(modelId)
   if (!model) return null
 
-  const price = {
-    character: model.pricing.speech_input_character_cost ?? 0,
-    textToken: model.pricing.input ?? 0,
-    audioToken: model.pricing.audio_output_token_cost ?? 0,
-  }
+  const price = model.pricing.speech_input_character_cost ?? 0
   return price
 }
 
-// A transcription model's prices: per second of audio, or per token of it for the models priced by tokens. A price the gateway does not list is 0; null when it does not list the model
-export async function getTranscriptionPrice(modelId: string) {
+// A transcription model's price per second of audio; 0 for a model priced another way, by audio token. null when the gateway does not list the model
+export async function getTranscriptionModelPrice(modelId: string) {
   const model = await findModel(modelId)
   if (!model) return null
 
-  const price = {
-    second: model.pricing.transcription_duration_cost_per_second ?? 0,
-    audioToken: model.pricing.audio_input_token_cost ?? 0,
-  }
+  const price = model.pricing.transcription_duration_cost_per_second ?? 0
   return price
 }
 
 // A video model's price per second at a resolution, such as "720p", with or without sound; null when the gateway lists none for it
-export async function getVideoPrice(modelId: string, resolution: string, audio: boolean) {
+export async function getVideoModelPrice(modelId: string, resolution: string, audio: boolean) {
   const model = await findModel(modelId)
   if (!model) return null
 

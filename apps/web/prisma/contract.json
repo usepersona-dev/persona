@@ -3039,6 +3039,16 @@
                   "kind": "scalar"
                 }
               },
+              "image": {
+                "nullable": true,
+                "type": {
+                  "entityKind": "valueObject",
+                  "entityName": "ImageUsage",
+                  "kind": "valueObject",
+                  "namespaceId": "public",
+                  "plane": "storage"
+                }
+              },
               "orgId": {
                 "nullable": false,
                 "type": {
@@ -3070,11 +3080,41 @@
                   "plane": "storage"
                 }
               },
+              "speech": {
+                "nullable": true,
+                "type": {
+                  "entityKind": "valueObject",
+                  "entityName": "SpeechUsage",
+                  "kind": "valueObject",
+                  "namespaceId": "public",
+                  "plane": "storage"
+                }
+              },
               "tokens": {
                 "nullable": true,
                 "type": {
                   "entityKind": "valueObject",
                   "entityName": "TokenUsage",
+                  "kind": "valueObject",
+                  "namespaceId": "public",
+                  "plane": "storage"
+                }
+              },
+              "transcription": {
+                "nullable": true,
+                "type": {
+                  "entityKind": "valueObject",
+                  "entityName": "TranscriptionUsage",
+                  "kind": "valueObject",
+                  "namespaceId": "public",
+                  "plane": "storage"
+                }
+              },
+              "video": {
+                "nullable": true,
+                "type": {
+                  "entityKind": "valueObject",
+                  "entityName": "VideoUsage",
                   "kind": "valueObject",
                   "namespaceId": "public",
                   "plane": "storage"
@@ -3096,6 +3136,9 @@
                 "id": {
                   "column": "id"
                 },
+                "image": {
+                  "column": "image"
+                },
                 "orgId": {
                   "column": "org_id"
                 },
@@ -3108,8 +3151,17 @@
                 "sandbox": {
                   "column": "sandbox"
                 },
+                "speech": {
+                  "column": "speech"
+                },
                 "tokens": {
                   "column": "tokens"
+                },
+                "transcription": {
+                  "column": "transcription"
+                },
+                "video": {
+                  "column": "video"
                 }
               },
               "namespaceId": "public",
@@ -5978,14 +6030,34 @@
                   "prefix": "usage_browser_shape"
                 },
                 {
+                  "expression": "\"image\" IS NULL OR jsonb_path_match(\"image\", 'strict $.type() == \"null\" || ($.type() == \"object\" && exists($.keyvalue() ? (@.key == \"images\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"inputTokens\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"marketCost\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"model\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"reasoningTokens\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"size\" && (@.value.type() == \"string\"))) && !exists($.keyvalue() ? (@.key != \"images\" && @.key != \"inputTokens\" && @.key != \"marketCost\" && @.key != \"model\" && @.key != \"reasoningTokens\" && @.key != \"size\")))') IS TRUE",
+                  "name": "usage_image_shape_b1f49dfc",
+                  "prefix": "usage_image_shape"
+                },
+                {
                   "expression": "\"sandbox\" IS NULL OR jsonb_path_match(\"sandbox\", 'strict $.type() == \"null\" || ($.type() == \"object\" && exists($.keyvalue() ? (@.key == \"cpuMs\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"marketCost\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"memoryMb\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"runMs\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"sandboxId\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"totalCpuMs\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"totalRunMs\" && (@.value.type() == \"number\"))) && !exists($.keyvalue() ? (@.key != \"cpuMs\" && @.key != \"marketCost\" && @.key != \"memoryMb\" && @.key != \"runMs\" && @.key != \"sandboxId\" && @.key != \"totalCpuMs\" && @.key != \"totalRunMs\")))') IS TRUE",
                   "name": "usage_sandbox_shape_6012725a",
                   "prefix": "usage_sandbox_shape"
                 },
                 {
+                  "expression": "\"speech\" IS NULL OR jsonb_path_match(\"speech\", 'strict $.type() == \"null\" || ($.type() == \"object\" && exists($.keyvalue() ? (@.key == \"characters\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"marketCost\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"model\" && (@.value.type() == \"string\"))) && !exists($.keyvalue() ? (@.key != \"characters\" && @.key != \"marketCost\" && @.key != \"model\")))') IS TRUE",
+                  "name": "usage_speech_shape_36ed271e",
+                  "prefix": "usage_speech_shape"
+                },
+                {
                   "expression": "\"tokens\" IS NULL OR jsonb_path_match(\"tokens\", 'strict $.type() == \"null\" || ($.type() == \"object\" && exists($.keyvalue() ? (@.key == \"cacheWriteTokens\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"cachedInputTokens\" && (@.value.type() == \"number\"))) && !exists($.keyvalue() ? (@.key == \"gatewayCost\" && !(@.value.type() == \"null\" || (@.value.type() == \"string\")))) && exists($.keyvalue() ? (@.key == \"inputTokens\" && (@.value.type() == \"number\"))) && !exists($.keyvalue() ? (@.key == \"marketCost\" && !(@.value.type() == \"null\" || (@.value.type() == \"string\")))) && exists($.keyvalue() ? (@.key == \"model\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"outputTokens\" && (@.value.type() == \"number\"))) && !exists($.keyvalue() ? (@.key == \"provider\" && !(@.value.type() == \"null\" || (@.value.type() == \"string\")))) && exists($.keyvalue() ? (@.key == \"reasoningTokens\" && (@.value.type() == \"number\"))) && !exists($.keyvalue() ? (@.key != \"cacheWriteTokens\" && @.key != \"cachedInputTokens\" && @.key != \"gatewayCost\" && @.key != \"inputTokens\" && @.key != \"marketCost\" && @.key != \"model\" && @.key != \"outputTokens\" && @.key != \"provider\" && @.key != \"reasoningTokens\")))') IS TRUE",
                   "name": "usage_tokens_shape_c63d8867",
                   "prefix": "usage_tokens_shape"
+                },
+                {
+                  "expression": "\"transcription\" IS NULL OR jsonb_path_match(\"transcription\", 'strict $.type() == \"null\" || ($.type() == \"object\" && exists($.keyvalue() ? (@.key == \"marketCost\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"model\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"seconds\" && (@.value.type() == \"string\"))) && !exists($.keyvalue() ? (@.key != \"marketCost\" && @.key != \"model\" && @.key != \"seconds\")))') IS TRUE",
+                  "name": "usage_transcription_shape_8c236982",
+                  "prefix": "usage_transcription_shape"
+                },
+                {
+                  "expression": "\"video\" IS NULL OR jsonb_path_match(\"video\", 'strict $.type() == \"null\" || ($.type() == \"object\" && exists($.keyvalue() ? (@.key == \"audio\" && (@.value.type() == \"boolean\"))) && exists($.keyvalue() ? (@.key == \"marketCost\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"model\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"resolution\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"seconds\" && (@.value.type() == \"number\"))) && !exists($.keyvalue() ? (@.key != \"audio\" && @.key != \"marketCost\" && @.key != \"model\" && @.key != \"resolution\" && @.key != \"seconds\")))') IS TRUE",
+                  "name": "usage_video_shape_ff1e03c5",
+                  "prefix": "usage_video_shape"
                 }
               ],
               "columns": {
@@ -6013,6 +6085,11 @@
                   "dataType": "pg/text",
                   "nullable": false
                 },
+                "image": {
+                  "codecId": "pg/jsonb@1",
+                  "dataType": "pg/jsonb",
+                  "nullable": true
+                },
                 "org_id": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
@@ -6033,7 +6110,22 @@
                   "dataType": "pg/jsonb",
                   "nullable": true
                 },
+                "speech": {
+                  "codecId": "pg/jsonb@1",
+                  "dataType": "pg/jsonb",
+                  "nullable": true
+                },
                 "tokens": {
+                  "codecId": "pg/jsonb@1",
+                  "dataType": "pg/jsonb",
+                  "nullable": true
+                },
+                "transcription": {
+                  "codecId": "pg/jsonb@1",
+                  "dataType": "pg/jsonb",
+                  "nullable": true
+                },
+                "video": {
                   "codecId": "pg/jsonb@1",
                   "dataType": "pg/jsonb",
                   "nullable": true
@@ -6434,6 +6526,52 @@
                 }
               }
             },
+            "ImageUsage": {
+              "fields": {
+                "images": {
+                  "nullable": false,
+                  "type": {
+                    "codecId": "pg/int4@1",
+                    "kind": "scalar"
+                  }
+                },
+                "inputTokens": {
+                  "nullable": false,
+                  "type": {
+                    "codecId": "pg/int4@1",
+                    "kind": "scalar"
+                  }
+                },
+                "marketCost": {
+                  "nullable": false,
+                  "type": {
+                    "codecId": "pg/numeric@1",
+                    "kind": "scalar"
+                  }
+                },
+                "model": {
+                  "nullable": false,
+                  "type": {
+                    "codecId": "pg/text@1",
+                    "kind": "scalar"
+                  }
+                },
+                "reasoningTokens": {
+                  "nullable": false,
+                  "type": {
+                    "codecId": "pg/int4@1",
+                    "kind": "scalar"
+                  }
+                },
+                "size": {
+                  "nullable": false,
+                  "type": {
+                    "codecId": "pg/text@1",
+                    "kind": "scalar"
+                  }
+                }
+              }
+            },
             "OrganizationInvitation": {
               "fields": {
                 "clerkCreatedAt": {
@@ -6682,6 +6820,31 @@
                 }
               }
             },
+            "SpeechUsage": {
+              "fields": {
+                "characters": {
+                  "nullable": false,
+                  "type": {
+                    "codecId": "pg/int4@1",
+                    "kind": "scalar"
+                  }
+                },
+                "marketCost": {
+                  "nullable": false,
+                  "type": {
+                    "codecId": "pg/numeric@1",
+                    "kind": "scalar"
+                  }
+                },
+                "model": {
+                  "nullable": false,
+                  "type": {
+                    "codecId": "pg/text@1",
+                    "kind": "scalar"
+                  }
+                }
+              }
+            },
             "TokenUsage": {
               "fields": {
                 "cacheWriteTokens": {
@@ -6748,6 +6911,70 @@
                   }
                 }
               }
+            },
+            "TranscriptionUsage": {
+              "fields": {
+                "marketCost": {
+                  "nullable": false,
+                  "type": {
+                    "codecId": "pg/numeric@1",
+                    "kind": "scalar"
+                  }
+                },
+                "model": {
+                  "nullable": false,
+                  "type": {
+                    "codecId": "pg/text@1",
+                    "kind": "scalar"
+                  }
+                },
+                "seconds": {
+                  "nullable": false,
+                  "type": {
+                    "codecId": "pg/numeric@1",
+                    "kind": "scalar"
+                  }
+                }
+              }
+            },
+            "VideoUsage": {
+              "fields": {
+                "audio": {
+                  "nullable": false,
+                  "type": {
+                    "codecId": "pg/bool@1",
+                    "kind": "scalar"
+                  }
+                },
+                "marketCost": {
+                  "nullable": false,
+                  "type": {
+                    "codecId": "pg/numeric@1",
+                    "kind": "scalar"
+                  }
+                },
+                "model": {
+                  "nullable": false,
+                  "type": {
+                    "codecId": "pg/text@1",
+                    "kind": "scalar"
+                  }
+                },
+                "resolution": {
+                  "nullable": false,
+                  "type": {
+                    "codecId": "pg/text@1",
+                    "kind": "scalar"
+                  }
+                },
+                "seconds": {
+                  "nullable": false,
+                  "type": {
+                    "codecId": "pg/int4@1",
+                    "kind": "scalar"
+                  }
+                }
+              }
             }
           },
           "valueSet": {
@@ -6807,7 +7034,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "ecf2dd927f84690f6ccfa79a238d7e44e6cb4e4c49f22cf93e0bf5f175a13928"
+    "storageHash": "dab5eb8a8acb14153e94f4f800fe8bbda34809c0ab4d233612977a4dee9c5d98"
   },
   "execution": {
     "executionHash": "679e7adb4072b560b58fc46ce0eeb545cc558e5f75438f7841ad3020760378a2",

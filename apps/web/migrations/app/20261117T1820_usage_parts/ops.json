@@ -1,0 +1,430 @@
+[
+  {
+    "id": "column.public.usage.image",
+    "label": "Add column \"image\" to \"usage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "image",
+        "table": "usage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"image\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "usage",
+          "image"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"image\" on \"usage\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"image\"",
+        "sql": "ALTER TABLE \"public\".\"usage\" ADD COLUMN \"image\" jsonb"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"image\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "usage",
+          "image"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"image\" on \"usage\""
+        }
+      },
+      {
+        "description": "verify column \"image\" has type \"jsonb\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "usage",
+          "image",
+          "jsonb"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.usage.speech",
+    "label": "Add column \"speech\" to \"usage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "speech",
+        "table": "usage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"speech\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "usage",
+          "speech"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"speech\" on \"usage\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"speech\"",
+        "sql": "ALTER TABLE \"public\".\"usage\" ADD COLUMN \"speech\" jsonb"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"speech\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "usage",
+          "speech"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"speech\" on \"usage\""
+        }
+      },
+      {
+        "description": "verify column \"speech\" has type \"jsonb\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "usage",
+          "speech",
+          "jsonb"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.usage.transcription",
+    "label": "Add column \"transcription\" to \"usage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "transcription",
+        "table": "usage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"transcription\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "usage",
+          "transcription"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"transcription\" on \"usage\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"transcription\"",
+        "sql": "ALTER TABLE \"public\".\"usage\" ADD COLUMN \"transcription\" jsonb"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"transcription\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "usage",
+          "transcription"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"transcription\" on \"usage\""
+        }
+      },
+      {
+        "description": "verify column \"transcription\" has type \"jsonb\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "usage",
+          "transcription",
+          "jsonb"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.usage.video",
+    "label": "Add column \"video\" to \"usage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "video",
+        "table": "usage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"video\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "usage",
+          "video"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"video\" on \"usage\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"video\"",
+        "sql": "ALTER TABLE \"public\".\"usage\" ADD COLUMN \"video\" jsonb"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"video\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "usage",
+          "video"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"video\" on \"usage\""
+        }
+      },
+      {
+        "description": "verify column \"video\" has type \"jsonb\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "usage",
+          "video",
+          "jsonb"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.usage.usage_image_shape_b1f49dfc",
+    "label": "Add check constraint \"usage_image_shape_b1f49dfc\" on \"usage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "usage_image_shape_b1f49dfc",
+        "table": "usage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"usage_image_shape_b1f49dfc\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "usage_image_shape_b1f49dfc",
+          "public",
+          "\"public\".\"usage\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"usage_image_shape_b1f49dfc\" on \"usage\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"usage_image_shape_b1f49dfc\"",
+        "sql": "ALTER TABLE \"public\".\"usage\" ADD CONSTRAINT \"usage_image_shape_b1f49dfc\" CHECK (\"image\" IS NULL OR jsonb_path_match(\"image\", 'strict $.type() == \"null\" || ($.type() == \"object\" && exists($.keyvalue() ? (@.key == \"images\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"inputTokens\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"marketCost\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"model\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"reasoningTokens\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"size\" && (@.value.type() == \"string\"))) && !exists($.keyvalue() ? (@.key != \"images\" && @.key != \"inputTokens\" && @.key != \"marketCost\" && @.key != \"model\" && @.key != \"reasoningTokens\" && @.key != \"size\")))') IS TRUE)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"usage_image_shape_b1f49dfc\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "usage_image_shape_b1f49dfc",
+          "public",
+          "\"public\".\"usage\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.usage.usage_speech_shape_36ed271e",
+    "label": "Add check constraint \"usage_speech_shape_36ed271e\" on \"usage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "usage_speech_shape_36ed271e",
+        "table": "usage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"usage_speech_shape_36ed271e\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "usage_speech_shape_36ed271e",
+          "public",
+          "\"public\".\"usage\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"usage_speech_shape_36ed271e\" on \"usage\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"usage_speech_shape_36ed271e\"",
+        "sql": "ALTER TABLE \"public\".\"usage\" ADD CONSTRAINT \"usage_speech_shape_36ed271e\" CHECK (\"speech\" IS NULL OR jsonb_path_match(\"speech\", 'strict $.type() == \"null\" || ($.type() == \"object\" && exists($.keyvalue() ? (@.key == \"characters\" && (@.value.type() == \"number\"))) && exists($.keyvalue() ? (@.key == \"marketCost\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"model\" && (@.value.type() == \"string\"))) && !exists($.keyvalue() ? (@.key != \"characters\" && @.key != \"marketCost\" && @.key != \"model\")))') IS TRUE)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"usage_speech_shape_36ed271e\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "usage_speech_shape_36ed271e",
+          "public",
+          "\"public\".\"usage\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.usage.usage_transcription_shape_8c236982",
+    "label": "Add check constraint \"usage_transcription_shape_8c236982\" on \"usage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "usage_transcription_shape_8c236982",
+        "table": "usage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"usage_transcription_shape_8c236982\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "usage_transcription_shape_8c236982",
+          "public",
+          "\"public\".\"usage\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"usage_transcription_shape_8c236982\" on \"usage\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"usage_transcription_shape_8c236982\"",
+        "sql": "ALTER TABLE \"public\".\"usage\" ADD CONSTRAINT \"usage_transcription_shape_8c236982\" CHECK (\"transcription\" IS NULL OR jsonb_path_match(\"transcription\", 'strict $.type() == \"null\" || ($.type() == \"object\" && exists($.keyvalue() ? (@.key == \"marketCost\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"model\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"seconds\" && (@.value.type() == \"string\"))) && !exists($.keyvalue() ? (@.key != \"marketCost\" && @.key != \"model\" && @.key != \"seconds\")))') IS TRUE)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"usage_transcription_shape_8c236982\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "usage_transcription_shape_8c236982",
+          "public",
+          "\"public\".\"usage\"",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.usage.usage_video_shape_ff1e03c5",
+    "label": "Add check constraint \"usage_video_shape_ff1e03c5\" on \"usage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "usage_video_shape_ff1e03c5",
+        "table": "usage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"usage_video_shape_ff1e03c5\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "usage_video_shape_ff1e03c5",
+          "public",
+          "\"public\".\"usage\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"usage_video_shape_ff1e03c5\" on \"usage\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"usage_video_shape_ff1e03c5\"",
+        "sql": "ALTER TABLE \"public\".\"usage\" ADD CONSTRAINT \"usage_video_shape_ff1e03c5\" CHECK (\"video\" IS NULL OR jsonb_path_match(\"video\", 'strict $.type() == \"null\" || ($.type() == \"object\" && exists($.keyvalue() ? (@.key == \"audio\" && (@.value.type() == \"boolean\"))) && exists($.keyvalue() ? (@.key == \"marketCost\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"model\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"resolution\" && (@.value.type() == \"string\"))) && exists($.keyvalue() ? (@.key == \"seconds\" && (@.value.type() == \"number\"))) && !exists($.keyvalue() ? (@.key != \"audio\" && @.key != \"marketCost\" && @.key != \"model\" && @.key != \"resolution\" && @.key != \"seconds\")))') IS TRUE)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify check constraint \"usage_video_shape_ff1e03c5\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4)) AS \"result\"",
+        "params": [
+          "usage_video_shape_ff1e03c5",
+          "public",
+          "\"public\".\"usage\"",
+          "c"
+        ]
+      }
+    ]
+  }
+]

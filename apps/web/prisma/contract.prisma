@@ -61,6 +61,35 @@ type TokenUsage {
   gatewayCost       Decimal?
 }
 
+type ImageUsage {
+  model           String
+  images          Int
+  size            String
+  inputTokens     Int
+  reasoningTokens Int
+  marketCost      Decimal
+}
+
+type SpeechUsage {
+  model      String
+  characters Int
+  marketCost Decimal
+}
+
+type TranscriptionUsage {
+  model      String
+  seconds    Decimal
+  marketCost Decimal
+}
+
+type VideoUsage {
+  model      String
+  seconds    Int
+  resolution String
+  audio      Boolean
+  marketCost Decimal
+}
+
 type BrowserUsage {
   browserId    String
   model        String
@@ -328,11 +357,15 @@ model Usage {
   orgId     String            @map("org_id")
   projectId String            @map("project_id")
   personaId String            @map("persona_id")
-  credits   Decimal
-  tokens    TokenUsage?
-  browser   BrowserUsage?
-  sandbox   SandboxUsage?
-  at        TimestamptzString @default(now())
+  credits       Decimal
+  tokens        TokenUsage?
+  image         ImageUsage?
+  speech        SpeechUsage?
+  transcription TranscriptionUsage?
+  video         VideoUsage?
+  browser       BrowserUsage?
+  sandbox       SandboxUsage?
+  at            TimestamptzString @default(now())
 
   @@index([orgId, at, credits])
   @@index([projectId, at])
