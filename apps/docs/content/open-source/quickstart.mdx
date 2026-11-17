@@ -30,7 +30,7 @@ The eve agent lives inside the app, in `agent/`. `next.config.ts` wraps the Next
 
 ## 2. Give it model access
 
-The persona calls its model through the [Vercel AI Gateway](https://vercel.com/docs/ai-gateway). The simple way is an `AI_GATEWAY_API_KEY` in `.env.local`. When the app is a project on Vercel, `eve link` (or `vercel env pull .env.local`) in `apps/web/` writes a `VERCEL_OIDC_TOKEN` instead; it lasts about 12 hours, so run the command again when it expires.
+The persona calls its model through the [Vercel AI Gateway](https://vercel.com/docs/ai-gateway). The simple way is an `AI_GATEWAY_API_KEY` in `.env.local`. When the app is a project on Vercel, `eve link` (or `vercel env pull .env.local`) in `apps/web/` writes a `VERCEL_OIDC_TOKEN` instead; it lasts about 12 hours, so run the command again when it expires. Discover on the Skills page needs the OIDC token: skills.sh takes no other.
 
 <Callout type="warn">
   `vercel env pull` and `eve link` replace all of `.env.local` with the project's variables on Vercel. Put every key on Vercel first, or keep a copy.

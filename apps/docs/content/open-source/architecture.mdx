@@ -73,12 +73,11 @@ At the start of every turn, the agent reads the persona's setup again through th
 | Apps | `agent/connections/apps.ts` | once per turn; an app connected mid-chat is there on the next one |
 | Memory | `agent/memory.ts`, scoped to the persona | every turn |
 
-Three hooks and one instrumentation run around a turn:
+Three hooks run around a turn:
 
-- `agent/hooks/credits.ts` checks the organization's credits before the first model call; with none left, the turn fails before it starts.
-- `agent/hooks/sessions.ts` keeps the `sessions` and `messages` tables: each session with its persona, channel and status, and every message of the conversation. [Usage](#usage) reads it for the persona of a model call, and the chat commands read it for a chat's session.
+- `agent/hooks/credits.ts` checks the organization's credits before the first model call; with none left, the turn fails before it starts. It also charges each model run, see [Usage](#usage).
+- `agent/hooks/sessions.ts` keeps the `sessions` and `messages` tables: each session with its persona, channel and status, and every message of the conversation. The chat commands read it for a chat's session, and the model router reads a chat's latest messages from it.
 - `agent/hooks/sandboxes.ts` stops the session's sandbox at the end of the turn and counts what ran, see [The sandbox](#the-sandbox).
-- `agent/instrumentation/usage.ts` saves every model call as usage, see [Usage](#usage).
 
 A run of an automation, a webhook or a trigger ends in its channel's own `turn.settled` handler (`agent/channels/automations.ts`, `webhooks.ts`, `triggers.ts`), with the result the turn gave or the failure.
 
@@ -86,7 +85,7 @@ A run of an automation, a webhook or a trigger ends in its channel's own `turn.s
 
 Each session gets a sandbox for commands: Vercel Sandbox on Vercel, and Docker or a local sandbox on your machine. Every command runs in a login shell. When the sandbox is first made, `agent/sandbox.ts` adds one line to `~/.profile` that loads `/workspace/.vault.env`. When a session opens its sandbox, it writes the persona's vault variables to that file.
 
-A sandbox runs on to its 5-minute timeout unless something stops it, and asking eve for a session's sandbox starts or resumes one. So `agent/hooks/sandboxes.ts` asks Vercel first, at the end of every turn, for the sandbox eve tagged with the session id (a read that never wakes the machine). A chat's sandbox is stopped only when it is running, and counted as [usage](#usage) from the totals Vercel keeps on it. A run's sandbox is stopped, counted and deleted whatever its state, since a run's session never comes back; one that had already stopped wakes for a moment first. A chat keeps its stopped sandbox: the next use wakes it with its files.
+A sandbox runs on to its 5-minute timeout unless something stops it, and asking eve for a session's sandbox starts or resumes one. So `agent/hooks/sandboxes.ts` asks Vercel first, at the end of every turn, for the sandbox eve tagged with the session id (a read that never wakes the machine). A chat's sandbox is stopped only when it is running, and counted as [usage](#usage) from the totals Vercel keeps on it. A run's sandbox is stopped, counted and deleted whatever its state, since a run's session never comes back; one that had already stopped does not wake. A chat keeps its stopped sandbox: the next use wakes it with its files.
 
 ## Channels
 
@@ -108,15 +107,15 @@ Each claimed run goes on a [Vercel Queue](https://vercel.com/docs/queues) (`lib/
 
 ## Usage
 
-Usage is counted where it happens, one row per thing, written the moment it ends. eve reports each of its model calls (the turns, compaction and subagents) as a `model.call.settled` event, and `agent/instrumentation/usage.ts` saves each one. The media tools count their own calls in `usecases/media.ts`, a browser task counts in `usecases/browser-use.ts`, and the sandbox hook counts a session's sandbox time when it stops it.
+Usage is counted where it happens, one row per thing, written the moment it ends. eve records the tokens of each model run as a `usage.recorded` event, and `agent/hooks/credits.ts` charges each one at the model's list price. The media tools count their own calls in `usecases/media.ts`, a browser task counts in `usecases/browser-use.ts`, and the sandbox hook counts a session's sandbox time when it stops it.
 
-A row in `usage` (the `Usage` model) is one thing an organization used, with the persona's organization and project, the chat's session and the moment it was saved (`at`). Its price is in credits: where the AI Gateway's list price for the call is read, it becomes credits, one credit for each $0.20 (`USD_PER_CREDIT` in `usecases/credits.ts`), and `chargeUsage` writes the credits. What was used sits in one typed field per kind: an AI call fills `tokens` (its model and provider, and its input, cached, cache-write, output and reasoning tokens; `readGatewayCall` in `lib/ai-gateway.ts` reads them from the gateway's reply), a browser task fills `browser`, and sandbox time fills `sandbox` (how long the session's sandbox ran and the CPU it used since the last count, priced at Vercel's list). Its id is the gateway's generation id, or the sandbox's name and total, so nothing is counted twice. `chargeUsage` in `usecases/credits.ts` writes it: one plain insert that never reads credits.
+A row in `usage` (the `Usage` model) is one thing an organization used, with the persona's organization and project and the moment it was saved (`at`). Its price is in credits: the AI Gateway's list price for what was used (`lib/ai-gateway.ts`) becomes credits, one credit for each $0.20 (`USD_PER_CREDIT` in `usecases/credits.ts`). What was used sits in one typed field per kind: a model run fills `tokens` (its model, and its input, cached, cache-write, output and reasoning tokens), a media call fills `image`, `speech`, `transcription` or `video`, a browser task fills `browser`, and sandbox time fills `sandbox` (how long the session's sandbox ran and the CPU it used since the last count, priced at Vercel's list). The id keeps a repeat from counting twice: a model run's place in its session's stream, a browser task's run id, or the sandbox's name and total. `chargeUsage` in `usecases/credits.ts` writes it: one plain insert that never reads credits.
 
 Credits live in Autumn (`lib/autumn.ts`), which also runs Stripe. `autumn.config.ts` holds the plans, and each deploy sends them to the Autumn environment of its key (`pnpm autumn:push`), the way `pnpm db:migrate` runs the migrations. Every organization has the Free plan's credits each month, and a paid plan's credits come on top. Each paid plan also has a price for more credits: they never reset, usage takes them after the month's credits, and they outlive a plan change. Autumn runs auto-reload itself: after each charge it looks at the balance and bills the saved card at that price. `chargeUsage` saves the `usage` row, which stays our record, then takes the credits with Autumn's `track`, with the persona's id on it. The one credits guard, `agent/hooks/credits.ts`, asks Autumn's `check` before a turn's first model call, and an organization's first turn makes its Autumn customer. If Autumn cannot be reached, its SDK lets `check` and `track` through: turns go on, the row is saved, and no credits are taken. The Billing page reads the plan and the credits live from Autumn (`getBilling` in `usecases/billing.ts`).
 
-An eve call's persona comes from its session's row in `sessions`; a media call's from the tool that made it. Reads add up the rows of a time range when they ask. Settings → Usage shows the organization's credits in a range as one total and as an area chart per day (per hour for the last 24 hours) split by project, then a table of the top 5 personas, the other personas in one row and the removed personas. Past the top 5, projects also fold into one gray "other projects" in the bars.
+A model run's persona comes from the session's caller; a media call's from the tool that made it. Reads add up the rows of a time range when they ask. Settings → Usage shows the organization's credits in a range as one total and as an area chart per day (per hour for the last 24 hours) split by project, then a table of the top 5 personas, the other personas in one row and the removed personas. Past the top 5, projects also fold into one gray "other projects" in the bars.
 
-Video clips come back without a price: the gateway's replies name the clip's generation but carry no cost, so `readVideo` in `usecases/media.ts` counts each finished clip at a fixed 6 credits ($1.20, what the gateway's records show for a clip), under the clip's generation id.
+A video clip is counted when it is finished (`readVideo` in `usecases/media.ts`): the clip's seconds at the gateway's list price per second for its resolution and sound.
 
 Not counted: apps (Composio), memory and web search, which the project carries.
 

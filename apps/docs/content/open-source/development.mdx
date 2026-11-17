@@ -53,8 +53,7 @@ All local variables live in `apps/web/.env.local`. Prisma reads it too. Keep eve
 | `SECRETS_KEY` | Seals every value in the secrets table (AES-256-GCM): 32 random bytes in base64 (`node -e 'console.log(require("crypto").randomBytes(32).toString("base64"))'`). Required: without it the build fails. A lost key loses every value. Development and Preview share the dev database, so they take the same value; Production takes its own. |
 | `AUTOMATIONS_SECRET` | The queue routes send it to the agent's own routes that start runs and post reports; those refuse any call without it. A secret you make. |
 | `AUTUMN_SECRET_KEY` | [Autumn](https://useautumn.com): plans, credits and payments. `autumn.config.ts` holds the plans; `pnpm autumn:push` sends them to the account of the key. It matches each plan by its `planId`, so the file holds no ids of any account. The sandbox key (`am_sk_test_`) goes in `.env.local` and on Development and Preview; the live key (`am_sk_live_`) only on Production. |
-| `VERCEL_OIDC_TOKEN` or `AI_GATEWAY_API_KEY` | Model access. The OIDC token also signs the calls to skills.sh. |
-| `NEXT_PUBLIC_SKILLS_HUB_ENABLED` | `true` shows Discover on the Skills page, which lists skills.sh. skills.sh takes only a Vercel OIDC token, so set `true` where that token is and `false` anywhere else. Read when the app builds. |
+| `VERCEL_OIDC_TOKEN` or `AI_GATEWAY_API_KEY` | Model access. The OIDC token also signs the calls to skills.sh: without it, Discover on the Skills page fails. |
 | `S3_ENDPOINT`, `S3_REGION` | The storage, any that speaks S3: `https://<account id>.r2.cloudflarestorage.com` with `auto` on Cloudflare R2, `https://s3.<region>.amazonaws.com` on AWS S3, or a MinIO server's public address. Browsers, WhatsApp and the model provider open signed links to it, so it must answer on the internet over HTTPS. |
 | `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | The storage's keys. |
 | `S3_FILES_BUCKET` | The one private bucket that holds the files and the pictures. |
@@ -172,7 +171,7 @@ curl -X POST "https://graph.facebook.com/v25.0/$META_PHONE_NUMBER_ID" \
 Published files are served by the files Worker in front of the private bucket: `https://<personaId>.<PUBLISHED_FILES_DOMAIN>/<fileId>` serves the object `<personaId>/<fileId>` when its metadata says `public=true`, and anything under `uploads/` (the pictures) always. Its code is `apps/files/files.ts`. It reads the bucket through the S3 API with the app's own five `S3_*` settings, so any storage that speaks S3 works, and it runs in two places:
 
 - **On Cloudflare**, as the Worker `persona-files` (`apps/files/wrangler.jsonc`). Cloudflare builds and deploys it from the repository: in the Worker's settings, connect the repository with Workers Builds, root directory `apps/files`, deploy command `npx wrangler deploy`, build watch path `apps/files/*`. Each push to `main` that changes the folder then deploys it.
-- **With Node**, anywhere else, such as Docker Compose: `pnpm start` in `apps/files` serves it on port 3001, with the five `S3_*` settings in its environment. A web server in front sends every `*.<PUBLISHED_FILES_DOMAIN>` request to it.
+- **With Node**, anywhere else: `pnpm start` in `apps/files` serves it on port 3001, with the five `S3_*` settings in its environment. A web server in front sends every `*.<PUBLISHED_FILES_DOMAIN>` request to it.
 
 Set up once, by hand:
 
