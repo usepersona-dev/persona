@@ -8,11 +8,11 @@ import { db } from "@/prisma/db"
 import type { Caller } from "@/usecases/auth"
 import { getPersona } from "@/usecases/personas"
 import { sharedTelegramBot } from "@/usecases/telegram"
-import { getKapsoSharedNumber, getMetaSharedNumber, getZernioSharedNumber } from "@/usecases/whatsapp-meta"
+import { getKapsoSharedNumber, getMetaSharedNumber } from "@/usecases/whatsapp-meta"
 
-type Channel = "whatsapp" | "whatsapp_v2" | "whatsapp_meta" | "telegram"
+type Channel = "whatsapp" | "whatsapp_meta" | "telegram"
 
-const channel = z.enum(["whatsapp", "whatsapp_v2", "whatsapp_meta", "telegram"])
+const channel = z.enum(["whatsapp", "whatsapp_meta", "telegram"])
 const address = z.object({ channel, line: z.string().min(1), externalId: z.string().min(1) })
 const redeemInput = address.extend({ code: z.string().trim().toLowerCase(), label: z.string().trim().max(120).optional(), phone: z.string().trim().max(32).nullish() })
 
@@ -109,13 +109,6 @@ async function lineServesProject(channel: Channel, line: string, projectId: stri
     const shared = getKapsoSharedNumber()
     if (shared.phoneNumberId === line) return true
     return false
-  }
-
-  if (channel === "whatsapp_v2") {
-    const shared = getZernioSharedNumber()
-    if (shared.accountId === line) return true
-    const ownLine = await db.orm.public.WhatsappLine.where({ accountId: line, projectId }).first()
-    return ownLine !== null
   }
 
   if (channel === "whatsapp_meta") {

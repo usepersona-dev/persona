@@ -41,24 +41,6 @@ export function getKapsoSharedNumber() {
   return shared
 }
 
-// Persona's legacy shared number on Zernio, kept the same way. A link reaches it on whatsapp_v2, by its account id
-export function getZernioSharedNumber() {
-  const accountId = process.env.ZERNIO_WHATSAPP_ACCOUNT_ID
-  if (!accountId) throw new Error("ZERNIO_WHATSAPP_ACCOUNT_ID is not set.")
-
-  const shared = { accountId }
-  return shared
-}
-
-// Whether a Zernio account is one of this deployment's numbers: the shared one, or a project's line. Every deployment shares one Zernio account, so each one's webhook gets every number's messages
-export async function isWhatsappAccount(accountId: string) {
-  const shared = getZernioSharedNumber()
-  if (shared.accountId === accountId) return ok(true)
-
-  const line = await db.orm.public.WhatsappLine.where({ accountId }).first()
-  return ok(line !== null)
-}
-
 // The project's own numbers, and Persona's shared one
 export async function listMetaLines(caller: Caller, projectId: string) {
   const project = await getProject(caller, projectId)

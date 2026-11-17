@@ -16,7 +16,7 @@ Persona is one repository with one pnpm workspace: `apps/web`, the app and its a
 - **Accounts the code requires before a first chat:** [Autumn](https://useautumn.com) (credits: every turn checks them), Supermemory (loaded with the agent), Composio (the agent builds with it), and a bucket on any storage that speaks S3: Cloudflare R2, AWS S3 or MinIO (files).
 - **[Browser Use](https://browser-use.com)** for the browser tools. A first chat runs without it; a browser task fails until it is set.
 - **A domain for published files,** apart from the app's own domain. Pages that a persona writes run there, on another site than the app, so they can never act with a person's sign-in. One domain serves every persona: each gets a host of its own under it. See [The files Worker](#the-files-worker).
-- **Accounts for the channels you want:** a Meta app for WhatsApp, a Telegram bot. Kapso and Zernio are legacy WhatsApp providers that our own older chats still use: leave all their variables empty.
+- **Accounts for the channels you want:** a Meta app for WhatsApp, a Telegram bot. Kapso is a legacy WhatsApp provider that our own older chats still use: leave its variables empty.
 
 ## Run it
 
@@ -64,7 +64,6 @@ All local variables live in `apps/web/.env.local`. Prisma reads it too. Keep eve
 | `COMPOSIO_API_KEY`, `COMPOSIO_WEBHOOK_SECRET` | Apps, and the secret Composio signs each trigger event with. |
 | `BROWSER_USE_API_KEY` | The browser. |
 | `KAPSO_API_KEY`, `KAPSO_WEBHOOK_SECRET`, `KAPSO_PHONE_NUMBER_ID` | Legacy WhatsApp through Kapso, for chats that are already on it. Leave them empty: with no secret, the Kapso webhook refuses every call. |
-| `ZERNIO_API_KEY`, `ZERNIO_WEBHOOK_SECRET`, `ZERNIO_WHATSAPP_ACCOUNT_ID` | Legacy WhatsApp through Zernio, for chats that are already on it. Leave them empty: with no secret, the Zernio webhook refuses every call. |
 | `META_APP_SECRET`, `META_ACCESS_TOKEN`, `META_WEBHOOK_VERIFY_TOKEN` | WhatsApp straight on Meta: the app's secret, a system user's token, and the token Meta sends when it verifies the webhook. |
 | `META_PHONE_NUMBER_ID`, `META_PHONE_NUMBER` | The shared WhatsApp number on Meta, offered to every project. Leave them empty to offer none. |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_BOT_USERNAME`, `TELEGRAM_BOT_NAME` | The shared Telegram bot. |

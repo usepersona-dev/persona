@@ -19,8 +19,6 @@ import { SkillsHubPanel } from "../skills-hub/skills-hub-panel"
 import { SkillPanel } from "./skill-panel"
 import { useSkillList } from "./use-skill-list"
 
-const SKILLS_HUB_ENABLED = process.env.NEXT_PUBLIC_SKILLS_HUB_ENABLED === "true"
-
 // The persona's skills. A row opens its panel (&skill=<id>, or new), and Discover opens skills.sh's hub (&skillsHub=true). Each holds while it slides out.
 export function SkillsPage({ persona }: { persona: Persona }) {
   const panels = usePanels()
@@ -35,12 +33,10 @@ export function SkillsPage({ persona }: { persona: Persona }) {
           Guides <span className="font-semibold text-foreground">{persona.name}</span> follows for specific tasks.
         </SectionDescription>
         <SectionAction>
-          {SKILLS_HUB_ENABLED && (
-            <Button variant="outline" size="sm" onClick={panels.openSkillsHub}>
-              <CompassIcon data-icon="inline-start" />
-              Discover
-            </Button>
-          )}
+          <Button variant="outline" size="sm" onClick={panels.openSkillsHub}>
+            <CompassIcon data-icon="inline-start" />
+            Discover
+          </Button>
           <Button size="sm" onClick={() => panels.openSkill("new")}>
             <PlusIcon data-icon="inline-start" />
             New
@@ -116,7 +112,7 @@ export function SkillsPage({ persona }: { persona: Persona }) {
         </ScreenSection>
       )}
       {(panels.skill.data === "new" || edited) && <SkillPanel key={panels.skill.data} persona={persona} skillId={edited?.id ?? null} open={panels.skill.open} onOpenChange={(open) => !open && panels.closeSkill()} />}
-      {SKILLS_HUB_ENABLED && panels.skillsHub.data && <SkillsHubPanel persona={persona} open={panels.skillsHub.open} onOpenChange={(open) => !open && panels.closeSkillsHub()} />}
+      {panels.skillsHub.data && <SkillsHubPanel persona={persona} open={panels.skillsHub.open} onOpenChange={(open) => !open && panels.closeSkillsHub()} />}
     </Section>
   )
 }

@@ -15,7 +15,7 @@ Slack and iMessage are coming soon.
 
 ## Numbers and bots
 
-Persona has one **shared** WhatsApp number, on Meta, and one **shared** Telegram bot. They serve every project. Persona's older numbers on [Kapso](https://kapso.ai) and [Zernio](https://zernio.com), and a project's own Zernio lines, are legacy: the chats already on them keep working, but the app no longer shows them or adds new ones.
+Persona has one **shared** WhatsApp number, on Meta, and one **shared** Telegram bot. They serve every project. Persona's older number on [Kapso](https://kapso.ai) is legacy: the chats already on it keep working, but the app no longer shows it or adds new ones.
 
 A project can add its **own** numbers and bots. An own number or bot serves only that project's personas. In the app, they are in the project's settings, under **WhatsApp** and **Telegram**.
 
@@ -44,9 +44,9 @@ A message from a chat with no link gets a short reply that explains how to link.
 | --- | --- |
 | Text | the text |
 | A photo or a PDF | the saved file's id, and the file itself, so the model sees it |
-| A voice note | its words, with the saved file's id. Kapso's number uses Kapso's transcript. On Meta numbers, Zernio's numbers and Telegram, Persona transcribes it with `microsoft/mai-transcribe-2`. |
+| A voice note | its words, with the saved file's id. Kapso's number uses Kapso's transcript. On Meta numbers and Telegram, Persona transcribes it with `microsoft/mai-transcribe-2`. |
 | Another file | the saved file's id, with its name and type |
-| A reply that quotes a message | the text, and the quoted message's words. On Meta and Zernio numbers. |
+| A reply that quotes a message | the text, and the quoted message's words. On Meta numbers. |
 
 Every photo, voice note and file is saved to the persona's files first. A message with no text and no file gets the reply "I can't read that kind of message yet."
 

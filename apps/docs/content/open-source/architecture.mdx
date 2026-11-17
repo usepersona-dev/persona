@@ -24,7 +24,7 @@ apps/web/
 
 The rule for logic:
 
-- **`lib/<vendor>.ts`** talks to one third party and nothing else. It does not touch the database. Examples: `lib/composio.ts`, `lib/zernio.ts`, `lib/browser-use.ts`, `lib/s3.ts`.
+- **`lib/<vendor>.ts`** talks to one third party and nothing else. It does not touch the database. Examples: `lib/composio.ts`, `lib/browser-use.ts`, `lib/s3.ts`.
 - **`usecases/<area>.ts`** holds the business rules. A use case is the only way into the logic, whether it needs one service or several. It calls `lib/` and the database.
 - **Routes, pages and agent tools** call use cases. Nothing else does.
 
@@ -53,7 +53,7 @@ Every use case takes a caller, `{ orgId, userId }`, and checks that the row belo
 | A person in the app | the Clerk session. `getSession()` copies the Clerk user and organization into the database the first time they are seen. There is no Clerk webhook. |
 | An API key | `Authorization: Bearer persona_sk_…`. Only the key's SHA-256 hash is stored. |
 | The web channel | an agent token: an HS256 JWT signed with `AGENT_TOKEN_SECRET`, issuer `persona`, audience `persona-agent`, valid for 15 minutes. Its claims name the organization, the user and the persona. |
-| A Telegram or WhatsApp chat | the chat's link. The user is `telegram:<bot>:<chat>`, `whatsapp_meta:<number>:<person>` on Meta, `whatsapp:<number>:<person>` on Kapso, or `whatsapp_v2:<account>:<conversation>` on Zernio. |
+| A Telegram or WhatsApp chat | the chat's link. The user is `telegram:<bot>:<chat>`, `whatsapp_meta:<number>:<person>` on Meta, or `whatsapp:<number>:<person>` on Kapso. |
 | An automation run | the automation. The user is `automation:<automation id>`. |
 | A trigger run | the trigger, whose events Composio signs. The user is `trigger:<trigger id>`. |
 | A webhook call | the webhook's secret address. The user is `webhook:<webhook id>`. |
@@ -94,7 +94,6 @@ WhatsApp and Telegram run through eve's bridge to the Vercel Chat SDK (`chat` on
 
 - **WhatsApp on Meta:** one adapter per number, opened from the webhook path (`/eve/v1/meta/{phoneNumberId}`) with that number's keys: the shared number's from the environment, a project's own number's from its line.
 - **WhatsApp on Kapso (legacy):** one Kapso adapter serves the first shared number. The number comes from the webhook path.
-- **WhatsApp on Zernio (legacy):** one Zernio adapter serves the second shared number and the projects' old lines, all through one webhook. It answers only the numbers this environment has.
 - **Telegram:** one router adapter opens the right bot from the webhook path and reads that bot's token: the shared bot's from the environment, an own bot's from the secrets table.
 
 The Chat SDK keeps its state in Redis, under keys that start with `chat:<channel>:`. Each thread id carries the persona's id, so linking a chat to another persona starts another session.

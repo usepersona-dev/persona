@@ -5,7 +5,6 @@ import { z } from "zod"
 import { channel as metaChannel, encodePrincipal as metaPrincipal, encodeThreadId as metaThreadId } from "@/agent/channels/meta"
 import { channel as telegramChannel, encodePrincipal as telegramPrincipal, encodeThreadId as telegramThreadId } from "@/agent/channels/telegram"
 import { channel as whatsappChannel, encodePrincipal as whatsappPrincipal, encodeThreadId as whatsappThreadId } from "@/agent/channels/whatsapp"
-import { channel as zernioChannel, encodePrincipal as zernioPrincipal, encodeThreadId as zernioThreadId } from "@/agent/channels/zernio"
 import { queue, REPORTS } from "@/lib/queue"
 import { db } from "@/prisma/db"
 import { toPrincipal } from "@/usecases/agent"
@@ -73,10 +72,6 @@ const channel = defineChannel<undefined, void, Run>({
       if (link.channel === "whatsapp") {
         const { auth } = whatsappPrincipal(run.persona.orgId, link)
         await to(whatsappChannel, { threadId: whatsappThreadId(link.line, link.externalId, run.personaId) }).send(message, { auth, turnPolicy: "queue", idempotencyKey })
-      }
-      if (link.channel === "whatsapp_v2") {
-        const { auth } = zernioPrincipal(run.persona.orgId, link)
-        await to(zernioChannel, { threadId: zernioThreadId(link.line, link.externalId, run.personaId) }).send(message, { auth, turnPolicy: "queue", idempotencyKey })
       }
       if (link.channel === "whatsapp_meta") {
         const { auth } = metaPrincipal(run.persona.orgId, link)

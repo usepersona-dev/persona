@@ -223,7 +223,7 @@ The body reaches the persona as a file. [Personas](/personas#webhooks) tells how
 | `GET /api/personas/{personaId}/links` | | the linked chats: `[{ id, channel, line, externalId, label, phone, lastMessageAt }]` |
 | `DELETE /api/links/{channel}/{line}/{externalId}` | | `204` |
 
-`channel` is `whatsapp_meta` (a WhatsApp number on Meta) or `telegram`. Chats from before can also be on the legacy numbers: `whatsapp` (Kapso's number) and `whatsapp_v2` (a Zernio number). `line` is the number's id (the phone number id on Meta and on Kapso, Zernio's account id) or the Telegram bot's id. `externalId` is the person's WhatsApp id on Meta and on Kapso, the conversation id on Zernio, or the Telegram chat id. `label` is the person's name on the platform when the chat linked, and `phone` is the person's phone on Meta and on Zernio (`null` elsewhere, and for a person WhatsApp knows only by a user id).
+`channel` is `whatsapp_meta` (a WhatsApp number on Meta) or `telegram`. Chats from before can also be on the legacy number: `whatsapp` (Kapso's number). `line` is the number's id (the phone number id on Meta and on Kapso) or the Telegram bot's id. `externalId` is the person's WhatsApp id on Meta and on Kapso, or the Telegram chat id. `label` is the person's name on the platform when the chat linked, and `phone` is the person's phone on Meta (`null` elsewhere, and for a person WhatsApp knows only by a user id).
 
 ## API keys
 
