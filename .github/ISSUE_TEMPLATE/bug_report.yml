@@ -1,0 +1,50 @@
+name: Bug report
+description: Something in Persona does not work as it should.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: A security problem? Do not open an issue. Read the [security policy](https://github.com/usepersona-dev/persona-monorepo/security/policy) and write to us.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, and what went wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open …
+        2. Send …
+        3. See …
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where it runs
+      options:
+        - The hosted app (app.usepersona.dev)
+        - My own deployment
+        - On my machine
+    validations:
+      required: true
+  - type: input
+    id: commit
+    attributes:
+      label: Commit
+      description: On your own deployment or your machine, the commit you run (`git rev-parse --short HEAD`).
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Remove keys, tokens and personal data first.

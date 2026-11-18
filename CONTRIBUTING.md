@@ -8,6 +8,8 @@ Thank you for wanting to help. This page says how to get the app running, what w
 - A bigger change, or a new feature: open an issue first, so we can agree on its shape before you write it.
 - A security problem: do not open an issue. Read [SECURITY.md](SECURITY.md) and write to us.
 
+Everyone here follows our [Code of Conduct](CODE_OF_CONDUCT.md).
+
 ## Set up
 
 Persona needs real services to run: a Postgres database, a Redis, Clerk, a model key, Autumn, Supermemory, Composio, a bucket on any storage that speaks S3 (Cloudflare R2, AWS S3 or MinIO) and a domain for published files, plus Browser Use for the browser tools. [Development](https://docs.usepersona.dev/open-source/development) has the full list and every environment variable.
@@ -51,7 +53,7 @@ pnpm test:integration     # uses the real database, and some tests call real mod
 
 - Keep a pull request to one change, and say what it does and why.
 - Add a screenshot for a change people can see.
-- When behavior changes, change its page in the `docs` repository too.
+- When behavior changes, change its page in `apps/docs` too, in the same pull request.
 
 ## License of your contribution
 
