@@ -4,6 +4,7 @@ import Image from "next/image"
 // The landing page's logo: the painted cloud on its sky tile and "persona" in Nunito
 export function baseOptions(): BaseLayoutProps {
   return {
+    githubUrl: "https://github.com/usepersona-dev/persona-monorepo",
     nav: {
       title: (
         <>
