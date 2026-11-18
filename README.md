@@ -32,13 +32,29 @@ https://github.com/user-attachments/assets/94a988ea-ef29-4cf4-98af-d619557b03d7
 
 ## Features
 
-- **WhatsApp, Telegram and web chat**, with a chat of their own for each person.
-- **Your voice and your rules:** instructions, skills, and a choice of models on the Vercel AI Gateway.
-- **Memory** for each persona, and notes it keeps by itself.
-- **Real work:** apps such as Gmail and Calendar, MCP servers, a vault for logins, a browser and a sandbox.
-- **Runs on its own:** schedules, webhooks and app triggers, and it tells the person what came of them.
-- **Files and pages:** images, video and voice notes, and pages published on each persona's own address.
-- **Credits and billing** with Autumn and Stripe, and an API for everything the app does.
+- **Instructions:** the rules your persona follows. Switch each one on or off.
+- **Skills:** guides for specific tasks. Write your own, or add one from [skills.sh](https://skills.sh).
+- **Automations:** tasks that run on a schedule and report back to the person.
+- **Models:** choose several models on the [Vercel AI Gateway](https://vercel.com/ai-gateway) and say what each one is for. Jev, a routing model, reads the chat and picks the best one for each turn.
+- **Media,** powered by the [Vercel AI Gateway](https://vercel.com/ai-gateway): create and edit images, make short videos, turn text into speech, write down recordings, and read photos, PDFs and videos.
+- **Integrations and triggers,** powered by [Composio](https://composio.dev): apps such as Gmail and Calendar, and app events that start the persona.
+- **Browser,** powered by [Browser Use](https://browser-use.com): a browser of the persona's own. When a site asks for a code, you take over in a live view.
+- **Memory,** powered by [Supermemory](https://supermemory.ai): it remembers each person, and keeps notes of its own.
+- **Secure vault:** logins, cards and keys the persona can use, each value sealed with AES-256-GCM. The model never sees them.
+- **Channels:**
+  - ✅ WhatsApp: bring your own numbers, as many as you need in each project.
+  - ✅ Telegram: bring your own bots, as many as you need in each project.
+  - ✅ Web chat.
+  - 🔜 Slack.
+  - 🔜 iMessage.
+- **Payments** 🔜: [Stripe Link](https://link.com) and AgentCard, so a persona can pay for things.
+- **Webhooks:** a link that starts the persona when another system calls it.
+- **MCP servers:** connect any MCP server as a set of tools.
+- **Secure file system,** powered by [Cloudflare R2](https://www.cloudflare.com/developer-platform/products/r2/) or any storage that speaks S3: private files open only through short-lived signed links, and public pages are published on each persona's own address, on a domain apart from the app.
+- **Sandbox:** the persona runs code in a sandbox of its own.
+- **Usage and billing,** powered by [Autumn](https://useautumn.com): credits for each model call, plans, and payments with Stripe.
+- **Auth and teams,** powered by [Clerk](https://clerk.com): sign-in, organizations and invites.
+- **Full API control:** everything the app does is in the [REST API](https://docs.usepersona.dev/api), with an API key.
 
 ## Roadmap
 
