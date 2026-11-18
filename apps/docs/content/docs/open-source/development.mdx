@@ -11,7 +11,7 @@ Persona is one repository with one pnpm workspace: `apps/web`, the app and its a
 - **Postgres 15 or later.**
 - **Redis 6 or later,** for the chat channels' state.
 - **Docker.** eve runs each session's sandbox in a container locally; without Docker it falls back to a plain shell, and the sandbox setup (`apt-get`, `pnpm`) fails.
-- **A [Clerk](https://clerk.com) application** with organizations on.
+- **A [Clerk](https://clerk.com) application** with organizations on. See [Clerk](#clerk).
 - **Model access** through the Vercel AI Gateway: a `VERCEL_OIDC_TOKEN` from `eve link`, or an `AI_GATEWAY_API_KEY`.
 - **Accounts the code requires before a first chat:** [Autumn](https://useautumn.com) (credits: every turn checks them), Supermemory (loaded with the agent), Composio (the agent builds with it), and a bucket on any storage that speaks S3: Cloudflare R2, AWS S3 or MinIO (files).
 - **[Browser Use](https://browser-use.com)** for the browser tools. A first chat runs without it; a browser task fails until it is set.
@@ -68,6 +68,24 @@ All local variables live in `apps/web/.env.local`. Prisma reads it too. Keep eve
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_BOT_USERNAME`, `TELEGRAM_BOT_NAME` | The shared Telegram bot. |
 | `TELEGRAM_WEBHOOK_SECRET` | Telegram sends it with every webhook, for every bot. |
 | `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST` | PostHog: the project's token and the host events go to. The landing and the docs take the same two. Leave the key empty to send nothing. See [Observability](/open-source/architecture#observability). |
+
+## Clerk
+
+Persona signs people in with Clerk and keeps each team in a Clerk organization. Set up the Clerk application like this:
+
+1. **Turn on organizations.** In the Clerk Dashboard, open **Organization settings**, select **Enable Organizations**, and keep **Membership required**, Clerk's default. The app works only inside an organization: a person who has none goes to `/orgs` to make one or to accept an invitation. Without organizations, the app treats every person as signed out.
+2. **Let people make organizations.** Keep **Allow user-created organizations** on, because the `/orgs` page needs it. Under **Organization limit**, you can cap how many organizations each person makes.
+3. **Check the membership limit.** Each organization takes 5 members by default. Change it under **Membership limit**: up to 20 members, or more with Clerk's B2B Authentication add-on.
+4. **Keep the default roles,** Admin and Member. The app invites every member as an Admin (`org:admin`).
+5. **Put the keys in the environment.** `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` come from **API keys**. The four sign-in variables stay `/sign-in`, `/sign-up` and `/`; the Deploy button fills them in.
+
+Development or production keys:
+
+- **Development keys** (`pk_test_…`) work on `localhost` and on Vercel's own address, with no DNS. A development instance takes up to 100 users and is not for real customers.
+- **Production keys** (`pk_live_…`) need a domain you own. Add the DNS records from Clerk's **Domains** page; they can take up to 48 hours. Production keys do not work on Vercel's own `*.vercel.app` address.
+- **Social sign-in** in production, such as Google, needs OAuth credentials of your own. In development, Clerk lends shared ones.
+
+No webhook is needed: the app asks Clerk for a person or an organization when it needs one.
 
 ## The database
 
