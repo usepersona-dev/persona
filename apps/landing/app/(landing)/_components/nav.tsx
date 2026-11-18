@@ -4,7 +4,7 @@ import { Menu } from "lucide-react"
 import { useEffect } from "react"
 
 import { useScrolledPast } from "../_hooks/use-scrolled-past"
-import { APP, DOCS, HOW_LINKS, SIGN_UP } from "../_lib/content"
+import { APP, DOCS, GITHUB, HOW_LINKS, SIGN_UP } from "../_lib/content"
 import { Icon, Mark } from "./marks"
 
 // The top bar: nothing behind it at the top of the page, then a slim paper bar once the page scrolls. Both hold the logo, Start free and the menu.
@@ -69,6 +69,7 @@ function BarContent() {
             <hr />
             <a href="#questions">Questions</a>
             <a href={DOCS}>Docs</a>
+            <a href={GITHUB}>Source code</a>
             <a href={APP}>Sign in</a>
           </div>
         </details>

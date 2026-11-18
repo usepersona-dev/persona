@@ -16,7 +16,16 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/usepersona-dev/persona-monorepo/stargazers"><img src="https://img.shields.io/github/stars/usepersona-dev/persona-monorepo?style=flat" alt="GitHub stars"></a>
+  <a href="https://github.com/usepersona-dev/persona-monorepo/network/members"><img src="https://img.shields.io/github/forks/usepersona-dev/persona-monorepo?style=flat" alt="GitHub forks"></a>
+  <a href="https://github.com/usepersona-dev/persona-monorepo/graphs/contributors"><img src="https://img.shields.io/github/contributors/usepersona-dev/persona-monorepo?style=flat" alt="Contributors"></a>
+  <a href="https://github.com/usepersona-dev/persona-monorepo/commits/main"><img src="https://img.shields.io/github/last-commit/usepersona-dev/persona-monorepo?style=flat" alt="Last commit"></a>
+  <a href="https://github.com/usepersona-dev/persona-monorepo/issues"><img src="https://img.shields.io/github/issues/usepersona-dev/persona-monorepo?style=flat" alt="Open issues"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License: AGPL-3.0"></a>
+</p>
+
+<p align="center">
+  If Persona is useful to you, give it a ⭐ on GitHub. It helps other people find it.
 </p>
 
 ## Features
@@ -73,6 +82,21 @@ It needs a Vercel Pro team, since the agent's schedule runs every minute. Read t
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) to set up and send a change. Found a security issue? Read [SECURITY.md](SECURITY.md) and write to us first.
 
+<a href="https://github.com/usepersona-dev/persona-monorepo/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=usepersona-dev/persona-monorepo" alt="The people who contribute to Persona">
+</a>
+
+## Star history
+
+<a href="https://www.star-history.com/#usepersona-dev/persona-monorepo&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=usepersona-dev/persona-monorepo&type=Date&theme=dark">
+    <img src="https://api.star-history.com/svg?repos=usepersona-dev/persona-monorepo&type=Date" alt="Star history of Persona">
+  </picture>
+</a>
+
 ## License
 
 [AGPL-3.0](LICENSE) © 2026 Odinex, Inc.
+
+Persona and the Persona logo are trademarks of Odinex, Inc. The license covers the code. It gives no right to use the name or the logo.

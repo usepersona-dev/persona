@@ -3,6 +3,7 @@
 export const APP = `${process.env.NEXT_PUBLIC_APP_URL}`
 export const SIGN_UP = `${process.env.NEXT_PUBLIC_APP_URL}/sign-up`
 export const DOCS = `${process.env.NEXT_PUBLIC_DOCS_URL}`
+export const GITHUB = "https://github.com/usepersona-dev/persona-monorepo"
 
 export const CHANNELS = [
   { id: "whatsapp", name: "WhatsApp" },
@@ -167,6 +168,7 @@ export const FOOTER = {
         { href: DOCS, label: "Docs" },
         { href: `${DOCS}/quickstart`, label: "Quickstart" },
         { href: `${DOCS}/api`, label: "API" },
+        { href: GITHUB, label: "Source code" },
       ],
     },
     {
