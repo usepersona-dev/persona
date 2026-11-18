@@ -47,7 +47,6 @@ https://github.com/user-attachments/assets/94a988ea-ef29-4cf4-98af-d619557b03d7
   - ✅ Web chat.
   - 🔜 Slack.
   - 🔜 iMessage.
-- **Payments** 🔜: [Stripe Link](https://link.com) and AgentCard, so a persona can pay for things.
 - **Webhooks:** a link that starts the persona when another system calls it.
 - **MCP servers:** connect any MCP server as a set of tools.
 - **Secure file system,** powered by [Cloudflare R2](https://www.cloudflare.com/developer-platform/products/r2/) or any storage that speaks S3: private files open only through short-lived signed links, and public pages are published on each persona's own address, on a domain apart from the app.
@@ -59,7 +58,6 @@ https://github.com/user-attachments/assets/94a988ea-ef29-4cf4-98af-d619557b03d7
 ## Roadmap
 
 - **A new chat experience** in the web app.
-- **Tools you switch on and off** for each persona.
 - **Payments:** AgentCard, Stripe Link and open commerce protocols, so a persona can pay for things.
 - **iMessage and Slack**, next to WhatsApp, Telegram and the web.
 - **Android and iOS apps.**
