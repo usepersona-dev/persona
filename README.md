@@ -42,6 +42,14 @@
 - **Files and pages:** images, video and voice notes, and pages published on each persona's own address.
 - **Credits and billing** with Autumn and Stripe, and an API for everything the app does.
 
+## Roadmap
+
+- **A new chat experience** in the web app.
+- **Tools you switch on and off** for each persona.
+- **Payments:** AgentCard, Stripe Link and open commerce protocols, so a persona can pay for things.
+- **iMessage and Slack**, next to WhatsApp, Telegram and the web.
+- **Android and iOS apps.**
+
 ## What's in this repo
 
 - [apps/web](apps/web): the app and the agent.
