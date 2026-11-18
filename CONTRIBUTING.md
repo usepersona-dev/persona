@@ -57,4 +57,4 @@ pnpm test:integration     # uses the real database, and some tests call real mod
 
 ## License of your contribution
 
-Persona is published under the [GNU Affero General Public License v3.0 only](LICENSE). By sending a pull request you confirm that you wrote the change or have the right to send it, and your contribution is licensed under the same terms.
+Persona is published under the [GNU Affero General Public License v3.0 only](LICENSE). By sending a pull request you confirm that you wrote the change or have the right to send it. You license your contribution to everyone under the same terms, and to Odinex, Inc. also under the [MIT License](https://opensource.org/license/mit), so that Odinex can offer Persona under other licenses too.

@@ -5,7 +5,7 @@
 <h1 align="center">Persona</h1>
 
 <p align="center">
-  Your expertise and your rules, as an AI agent people talk to on WhatsApp, Telegram and the web.
+  The agent factory. Make AI agents with your rules, skills and apps, and put them on WhatsApp, Telegram and the web.
 </p>
 
 <p align="center">

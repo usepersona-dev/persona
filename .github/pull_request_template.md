@@ -12,4 +12,4 @@
 - [ ] `pnpm lint` passes
 - [ ] `pnpm test` passes
 - [ ] When behavior changes, its page in `apps/docs` changes too
-- [ ] I wrote this change or have the right to send it, under the [license of contributions](https://github.com/usepersona-dev/persona-monorepo/blob/main/CONTRIBUTING.md#license-of-your-contribution)
+- [ ] I wrote this change or have the right to send it, and I license it under the AGPL-3.0-only and to Odinex, Inc. under the MIT License, as [CONTRIBUTING](https://github.com/usepersona-dev/persona-monorepo/blob/main/CONTRIBUTING.md#license-of-your-contribution) says
