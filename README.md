@@ -28,6 +28,10 @@
   If Persona is useful to you, give it a ⭐ on GitHub. It helps other people find it.
 </p>
 
+<p align="center">
+  <img src=".github/assets/inside.gif" alt="A bakery's agents on one canvas: talk to an agent, write its rules, add skills, connect apps, set automations and watch usage" width="100%">
+</p>
+
 ## Features
 
 - **WhatsApp, Telegram and web chat**, with a chat of their own for each person.
@@ -65,7 +69,15 @@ pnpm dev                     # http://localhost:3000
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fusepersona-dev%2Fpersona-monorepo%2Ftree%2Fmain%2Fapps%2Fweb&project-name=persona&repository-name=persona&demo-title=Read%20the%20deployment%20guide%20first&demo-description=Persona%20needs%20a%20Vercel%20Pro%20team%2C%20a%20Postgres%20database%2C%20a%20Redis%2C%20and%20accounts%20for%20Clerk%2C%20Autumn%2C%20Supermemory%2C%20Composio%20and%20Cloudflare.%20The%20guide%20shows%20each%20step.&demo-url=https%3A%2F%2Fdocs.usepersona.dev%2Fopen-source%2Fdevelopment%23deploy&demo-image=https%3A%2F%2Fraw.githubusercontent.com%2Fusepersona-dev%2Fpersona-monorepo%2Fmain%2F.github%2Fassets%2Fbanner.jpg&env=APP_URL%2CNEXT_PUBLIC_SITE_URL%2CDATABASE_URL%2CREDIS_URL%2CNEXT_PUBLIC_CLERK_PUBLISHABLE_KEY%2CCLERK_SECRET_KEY%2CNEXT_PUBLIC_CLERK_SIGN_IN_URL%2CNEXT_PUBLIC_CLERK_SIGN_UP_URL%2CNEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL%2CNEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL%2CAUTUMN_SECRET_KEY%2CAGENT_TOKEN_SECRET%2CSECRETS_KEY%2CAUTOMATIONS_SECRET%2CSUPERMEMORY_API_KEY%2CCOMPOSIO_API_KEY%2CCOMPOSIO_WEBHOOK_SECRET%2CS3_ENDPOINT%2CS3_REGION%2CS3_ACCESS_KEY_ID%2CS3_SECRET_ACCESS_KEY%2CS3_FILES_BUCKET%2CFILES_PREVIEW_URL%2CPUBLISHED_FILES_DOMAIN&envDefaults=%7B%22NEXT_PUBLIC_CLERK_SIGN_IN_URL%22%3A%22%2Fsign-in%22%2C%22NEXT_PUBLIC_CLERK_SIGN_UP_URL%22%3A%22%2Fsign-up%22%2C%22NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL%22%3A%22%2F%22%2C%22NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL%22%3A%22%2F%22%7D&envDescription=Persona%20needs%20each%20of%20these%20to%20run.%20Read%20the%20deployment%20guide%20first%3B%20the%20Environment%20section%20says%20where%20each%20one%20comes%20from.&envLink=https%3A%2F%2Fdocs.usepersona.dev%2Fopen-source%2Fdevelopment%23environment)
 
-It needs a Vercel Pro team, since the agent's schedule runs every minute. Read the [deployment guide](https://docs.usepersona.dev/open-source/development#deploy) first. Every build migrates its database and pushes the plans itself, and the files Worker deploys to Cloudflare from [apps/files](apps/files). No Postgres or Redis yet? The Vercel Marketplace has both, Neon and Upstash.
+How to make it work:
+
+1. **Use a Vercel Pro team.** The agent's schedule runs every minute; on Hobby, schedules run once a day.
+2. **Have a Postgres, a Redis and the accounts in [What you need](https://docs.usepersona.dev/open-source/development#what-you-need).** No Postgres or Redis yet? The Vercel Marketplace has both, Neon and Upstash. For Neon, use the direct address (Neon calls it unpooled).
+3. **Click the button.** Vercel copies `apps/web` into a new repository of yours and asks for the settings. The [Environment](https://docs.usepersona.dev/open-source/development#environment) table says where each one comes from. For `APP_URL`, write the address the project will get, usually `https://<project name>.vercel.app`, and change it after the first deploy if Vercel gives another.
+4. **Deploy.** The first build makes the tables and pushes the plans to Autumn.
+5. **Then, if you want them:** the files Worker for published files ([apps/files](apps/files)), and a WhatsApp number or Telegram bot of your own ([Channel webhooks](https://docs.usepersona.dev/open-source/development#channel-webhooks)).
+
+The button's copy has only `apps/web`. To pull our updates later, fork the repository instead, then in Vercel: **New Project → Import → Root Directory `apps/web`**. That is how our own projects build. The [deployment guide](https://docs.usepersona.dev/open-source/development#deploy) has every step.
 
 ## Built with
 
