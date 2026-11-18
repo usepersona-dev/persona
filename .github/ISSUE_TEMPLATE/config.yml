@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security problem
-    url: https://github.com/usepersona-dev/persona-monorepo/security/policy
+    url: https://github.com/usepersona-dev/persona/security/policy
     about: Do not open an issue. Read the security policy and write to us.
   - name: Questions and docs
     url: https://docs.usepersona.dev

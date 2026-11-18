@@ -4,7 +4,7 @@ labels: ["bug"]
 body:
   - type: markdown
     attributes:
-      value: A security problem? Do not open an issue. Read the [security policy](https://github.com/usepersona-dev/persona-monorepo/security/policy) and write to us.
+      value: A security problem? Do not open an issue. Read the [security policy](https://github.com/usepersona-dev/persona/security/policy) and write to us.
   - type: textarea
     id: what-happened
     attributes:
