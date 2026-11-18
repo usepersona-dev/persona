@@ -28,9 +28,7 @@
   If Persona is useful to you, give it a ⭐ on GitHub. It helps other people find it.
 </p>
 
-<p align="center">
-  <img src=".github/assets/inside.gif" alt="A bakery's agents on one canvas: talk to an agent, write its rules, add skills, connect apps, set automations and watch usage" width="100%">
-</p>
+https://github.com/user-attachments/assets/94a988ea-ef29-4cf4-98af-d619557b03d7
 
 ## Features
 
