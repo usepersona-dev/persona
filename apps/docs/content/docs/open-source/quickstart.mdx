@@ -11,7 +11,7 @@ This page takes you from a clone of the repository to a persona that answers you
 
 ## 1. Run it
 
-You need **Node 24**, **pnpm**, **Postgres 15 or later**, **Redis 6 or later**, **Docker** (the agent's sandbox runs in it locally) and a **[Clerk](https://clerk.com)** application with organizations on, plus the accounts the code requires before a first chat: Autumn, Supermemory, Composio, and a bucket on any storage that speaks S3 (Cloudflare R2, AWS S3 or MinIO) with a domain for published files. Browser Use runs the browser tools. [Development](/development#what-you-need) has the list and every environment variable.
+You need **Node 24**, **pnpm**, **Postgres 15 or later**, **Redis 6 or later**, **Docker** (the agent's sandbox runs in it locally) and a **[Clerk](https://clerk.com)** application with organizations on, plus the accounts the code requires before a first chat: Autumn, Supermemory, Composio, and a bucket on any storage that speaks S3 (Cloudflare R2, AWS S3 or MinIO) with a domain for published files. Browser Use runs the browser tools. [Development](/open-source/development#what-you-need) has the list and every environment variable.
 
 ```bash
 git clone https://github.com/usepersona-dev/persona-monorepo.git
@@ -26,7 +26,7 @@ pnpm dev                       # http://localhost:3000
 
 The eve agent lives inside the app, in `agent/`. `next.config.ts` wraps the Next.js config with `withEve()`, so `pnpm dev` starts the agent too and serves it at `/eve/v1/*` on the same origin. There is no second server to start.
 
-[Development](/development#environment) lists every environment variable and what needs it.
+[Development](/open-source/development#environment) lists every environment variable and what needs it.
 
 ## 2. Give it model access
 

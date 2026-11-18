@@ -19,7 +19,7 @@ Persona has one **shared** WhatsApp number, on Meta, and one **shared** Telegram
 
 A project can add its **own** numbers and bots. An own number or bot serves only that project's personas. In the app, they are in the project's settings, under **WhatsApp** and **Telegram**.
 
-- **WhatsApp.** In the project's settings, open **WhatsApp**, then **Add** and **Bring your number**. Give the number's phone number ID and messaging account ID (both on your Meta app's **WhatsApp > API Setup** page), the app's ID and secret, and a system user's token for the app. Persona tests them with Meta, points the app's webhook at Persona, subscribes the number's account, registers the number if it is not registered yet, and keeps the keys on the line, which never sends them back. A refused step shows Meta's own words. Removing the number leaves it in your Meta account.
+- **WhatsApp.** For a number of your own, write to us at info@usepersona.dev and we connect it for you. Persona keeps the number's keys on the line, which never sends them back. Removing the number leaves it in your Meta account.
 - **Telegram.** Make a bot with [BotFather](https://t.me/BotFather), then send its token to `POST /api/projects/{projectId}/telegram-bots`. Persona checks the token, sets the bot's webhook and keeps the token as a secret.
 
 Removing a bot or a number also removes every chat link on it. A removed number stays in your Meta account.

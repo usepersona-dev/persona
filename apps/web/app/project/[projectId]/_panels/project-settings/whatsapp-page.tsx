@@ -1,6 +1,6 @@
 "use client"
 
-import { CloudOffIcon, EllipsisIcon, PlusIcon, Trash2Icon } from "lucide-react"
+import { CloudOffIcon, EllipsisIcon, MailIcon, Trash2Icon } from "lucide-react"
 import { useState } from "react"
 
 import { WhatsappAppIcon } from "@/components/icons"
@@ -17,22 +17,19 @@ import { toast } from "@/components/ui/toast"
 import type { Project } from "@/hooks/projects"
 import { useMetaLines, useRemoveMetaLine, type MetaLine } from "@/hooks/whatsapp-meta"
 
-import { ConnectNumberDialog } from "./connect-number-dialog"
-
-// WhatsApp: the project's own numbers, then Persona's shared one. Add is Meta's Bring your number, which connects a number in the person's own Meta account, with their own app
+// WhatsApp: the project's own numbers, then Persona's shared one. A number of the project's own comes by asking us: Contact us writes an email, and we connect the number
 export function WhatsappPage({ project }: { project: Project }) {
   const { shared, lines, error, isLoading } = useMetaLines(project.id)
-  const [bringing, setBringing] = useState(false)
 
   return (
     <Section>
       <SectionHeader>
         <SectionTitle>WhatsApp</SectionTitle>
-        <SectionDescription>The numbers this project answers on.</SectionDescription>
+        <SectionDescription>The numbers this project answers on. For a number of your own, write to us.</SectionDescription>
         <SectionAction>
-          <Button size="sm" onClick={() => setBringing(true)}>
-            <PlusIcon data-icon="inline-start" />
-            Add
+          <Button size="sm" variant="outline" nativeButton={false} render={<a href={contactHref(project)} />}>
+            <MailIcon data-icon="inline-start" />
+            Contact us
           </Button>
         </SectionAction>
       </SectionHeader>
@@ -62,9 +59,16 @@ export function WhatsappPage({ project }: { project: Project }) {
           {shared && <SharedRow number={shared.number} />}
         </ScreenRows>
       )}
-      <ConnectNumberDialog projectId={project.id} open={bringing} onOpenChange={setBringing} />
     </Section>
   )
+}
+
+// An email to us that names the project, so we know where to connect the number
+function contactHref(project: Project) {
+  const subject = encodeURIComponent(`Our own WhatsApp number: ${project.name}`)
+  const body = encodeURIComponent(`Project: ${project.name} (${project.id})`)
+  const href = `mailto:info@usepersona.dev?subject=${subject}&body=${body}`
+  return href
 }
 
 // A number in the person's own Meta account, answered through their own app. Its menu holds Remove, which asks first; the number stays theirs at Meta

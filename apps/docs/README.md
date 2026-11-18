@@ -1,6 +1,6 @@
 # Persona docs
 
-The documentation site for Persona. It is a [Fumadocs](https://fumadocs.dev) app on Next.js, in its own repository beside `webapp` and `landing`.
+The documentation site for Persona. It is a [Fumadocs](https://fumadocs.dev) app on Next.js, in `apps/docs` of the Persona repository.
 
 ```bash
 pnpm install
@@ -22,11 +22,12 @@ content/docs/
   personas.mdx      Personas
   channels.mdx      Channels
   api.mdx           API
+  open-source/      Open source: Quickstart, Architecture, Development
 ```
 
-[`content/open-source/`](./content/open-source) holds the pages for running and changing the code: Architecture, Development, and the Quickstart from a clone of the repository. The site does not load them until the repository is public. To show them again, move them into `content/docs/` and add them to `meta.json`; the Quickstart there replaces the one for the hosted app.
+[`content/docs/open-source/`](./content/docs/open-source) holds the pages for running and changing the code: the Quickstart from a clone of the repository, Architecture and Development. Its own `meta.json` sets their order.
 
-The docs describe the code in the `webapp` repository. When a feature changes there, change its page here.
+The docs describe the code in `apps/web/`. When a feature changes there, change its page here.
 
 ## What the site makes
 
