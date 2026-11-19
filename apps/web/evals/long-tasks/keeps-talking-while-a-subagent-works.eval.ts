@@ -4,7 +4,7 @@ import { satisfies } from "eve/evals/expect"
 import type config from "@/evals/evals.config"
 import { waitFor } from "@/evals/shared"
 
-// A job of a few searches goes to a subagent, and the persona keeps talking while it runs. The quick question steers the running turn, as WhatsApp and Telegram messages do, and eve holds the turn open until the subagent is done
+// A job of a few searches goes to a subagent, and the persona keeps talking while it runs. The quick question steers the running turn, as WhatsApp and Telegram messages do, and eve holds the turn open until the subagent is done. The chat opens with a hello because our eve channel serves a session only once its first turn has written its row, so t.session() can't prewarm one
 const JOB = "Search for 3 easy pasta recipes, compare their cooking times, and send me the quickest one."
 const QUESTION = "Quick question meanwhile: what's the capital of Japan?"
 const NOT_WORK = ["chat_say", "chat_react", "chat_file", "agent", "eve__task_wait", "eve__task_cancel"]
@@ -14,7 +14,8 @@ export default defineEval<typeof config>({
   tags: ["chat", "long-tasks"],
   async test(t) {
     const { headers } = await t.context.makePersona()
-    const session = await t.session({ headers })
+    const opened = await t.send("Hi!", { headers })
+    const session = opened.session
     const begun = Date.now()
     const live = await session.start(JOB, { headers })
 

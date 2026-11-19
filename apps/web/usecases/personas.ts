@@ -12,14 +12,15 @@ export const ROUTER_MODEL = "typesafe-ai/jev-1.14.0"
 export const ROUTER_LIMIT = 16_000
 export const ROUTER_MESSAGES = 8
 export const ROUTER_INSTRUCTIONS = "Select the model best suited to the user's task using the option descriptions."
+
+export const CONTEXT_WINDOW = 200_000
+export const CAPABILITIES = ["tool-use"]
+
 export const DEFAULT_MODEL = "openai/gpt-6.1-terra"
 export const DEFAULT_BUNDLE = [
   { model: "openai/gpt-6.1-terra", when: "Every chat with the person, including when an automation's report (\"just ran … this isn't a message from the person\") is passed into the chat. Also every task handed to a subagent: its first message starts with 'You are the subagent'." },
   { model: "openai/gpt-6-luna", when: "Only a run itself: the newest message is the run's own task, like 'Your automation … is due now. Do the task below', with nobody to talk with. Never a chat with the person, even when the chat shows an automation's report. Never a subagent's task ('You are the subagent …')." },
 ]
-
-export const CONTEXT_WINDOW = 200_000
-export const CAPABILITIES = ["tool-use"]
 
 const name = z.string().trim().min(1, "Give the persona a name.").max(80, "Keep the name under 80 characters.")
 const imageUrl = z.url("That picture link is not valid.")
@@ -28,6 +29,8 @@ const modelOption = z.object({ model: z.string().trim().min(1), when: z.string()
 const modelBundle = z.array(modelOption).max(5, "Pick up to 5 models.").refine((list) => new Set(list.map((item) => item.model)).size === list.length, "Pick each model once.").refine((list) => list.length < 2 || list.every((item) => item.when !== ""), "Say when to use each model.")
 const updateInput = z.object({ name: name.optional(), imageUrl: imageUrl.nullable().optional(), models: modelBundle.nullable().optional() })
 const duplicateInput = z.object({ name: name.optional() })
+
+export type PersonaModel = z.output<typeof modelOption>
 
 export async function listPersonas(caller: Caller, projectId: string) {
   const project = await findProject(caller, projectId)

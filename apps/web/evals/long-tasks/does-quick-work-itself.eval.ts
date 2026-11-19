@@ -18,9 +18,8 @@ export default defineEval<typeof config>({
   async test(t) {
     const { headers } = await t.context.makePersona()
     await Promise.all(ASKS.map(async (ask) => {
-      const session = await t.session({ headers })
       const begun = Date.now()
-      const turn = await session.send(ask.text, { headers })
+      const turn = await t.send(ask.text, { headers })
 
       const subagent = turn.events.some((event) => event.type === "task.started" && event.data.kind === "agent")
       const tools = turn.toolCalls.filter((call) => call.sessionId === turn.sessionId).map((call) => call.name)

@@ -1,8 +1,9 @@
 import { defineAgent, defineDynamic } from "eve"
 import { decide } from "eve/ai"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
-import { CONTEXT_WINDOW, DEFAULT_MODEL, getPersona, ROUTER_INSTRUCTIONS, ROUTER_LIMIT, ROUTER_MESSAGES, ROUTER_MODEL } from "@/usecases/personas"
+import { CONTEXT_WINDOW, DEFAULT_MODEL, ROUTER_INSTRUCTIONS, ROUTER_LIMIT, ROUTER_MESSAGES, ROUTER_MODEL } from "@/usecases/personas"
 import { listMessages } from "@/usecases/sessions"
 
 export default defineAgent({
@@ -11,17 +12,15 @@ export default defineAgent({
   compaction: { threshold: 0.7 },
   experimental: { workflow: { retention: 0 } },
   model: defineDynamic(async (ctx) => {
-    const { caller, personaId } = readCaller(ctx)
+    const { caller } = readCaller(ctx)
     const turn = ctx.turn
     if (!turn) return DEFAULT_MODEL
 
-    // Load the persona and pick the turn's model, once per turn
-    const model = await ctx.memo(turn.id, async ({ abortSignal }) => {
-      const persona = await getPersona(caller, personaId)
-      if (!persona.ok) throw new Error(persona.error.message)
+    const { models } = readPersonaState()
 
+    // Pick the turn's model, once per turn
+    const model = await ctx.memo(turn.id, async ({ abortSignal }) => {
       // No models runs on the default, and one model needs no pick
-      const models = persona.value.models
       if (models.length === 0) return DEFAULT_MODEL
       if (models.length === 1) return models[0].model
 

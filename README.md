@@ -47,6 +47,7 @@ https://github.com/user-attachments/assets/94a988ea-ef29-4cf4-98af-d619557b03d7
   - ✅ Web chat.
   - 🔜 Slack.
   - 🔜 iMessage.
+  - 🔜 Vercel Board.
 - **Webhooks:** a link that starts the persona when another system calls it.
 - **MCP servers:** connect any MCP server as a set of tools.
 - **Secure file system,** powered by [Cloudflare R2](https://www.cloudflare.com/developer-platform/products/r2/) or any storage that speaks S3: private files open only through short-lived signed links, and public pages are published on each persona's own address, on a domain apart from the app.
@@ -61,6 +62,8 @@ https://github.com/user-attachments/assets/94a988ea-ef29-4cf4-98af-d619557b03d7
 - **Payments:** AgentCard, Stripe Link and open commerce protocols, so a persona can pay for things.
 - **iMessage and Slack**, next to WhatsApp, Telegram and the web.
 - **Android and iOS apps.**
+- **Activity log for each persona:** a list of events that shows what happened in every chat, automation, trigger and webhook.
+- **[Vercel Board](https://vercel.com/docs/board):** personas that take tasks and answer in threads, next to your team's people and agents.
 
 ## What's in this repo
 

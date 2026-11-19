@@ -67,6 +67,8 @@ const tools = z.object({
   webhook_update: tool,
 })
 
+export type Tools = z.output<typeof tools>
+
 const toolName = tools.keyof()
 const updateInput = z.object({ enabled: z.boolean() })
 
