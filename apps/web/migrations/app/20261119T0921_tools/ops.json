@@ -1,0 +1,199 @@
+[
+  {
+    "id": "table.tools",
+    "label": "Create table \"tools\"",
+    "summary": "Creates table \"tools\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "tools"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"tools\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"tools\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"tools\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"tools\"",
+        "sql": "CREATE TABLE \"public\".\"tools\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"enabled\" bool DEFAULT true NOT NULL,\n  \"id\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"persona_id\" text NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"tools\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"tools\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"tools\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "unique.tools.tools_persona_id_name_key",
+    "label": "Add unique constraint on \"tools\" (persona_id, name)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "tools_persona_id_name_key",
+        "table": "tools"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"tools_persona_id_name_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "tools_persona_id_name_key",
+          "public",
+          "\"public\".\"tools\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"tools_persona_id_name_key\" on \"tools\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"tools_persona_id_name_key\"",
+        "sql": "ALTER TABLE \"public\".\"tools\" ADD CONSTRAINT \"tools_persona_id_name_key\" UNIQUE (\"persona_id\", \"name\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"tools_persona_id_name_key\" exists on (persona_id, name)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "tools_persona_id_name_key",
+          "public",
+          "\"public\".\"tools\"",
+          "u",
+          "[\"persona_id\",\"name\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.tools.tools_persona_id_idx_840c67e2",
+    "label": "Create index \"tools_persona_id_idx_840c67e2\" on \"tools\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "tools_persona_id_idx_840c67e2",
+        "table": "tools"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"tools_persona_id_idx_840c67e2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"tools_persona_id_idx_840c67e2\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"tools_persona_id_idx_840c67e2\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"tools_persona_id_idx_840c67e2\"",
+        "sql": "CREATE INDEX \"tools_persona_id_idx_840c67e2\" ON \"public\".\"tools\" (\"persona_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"tools_persona_id_idx_840c67e2\" exists on \"tools\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"tools_persona_id_idx_840c67e2\"",
+          "i",
+          "I",
+          "\"public\".\"tools\"",
+          "btree",
+          "[\"persona_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.tools.tools_persona_id_fkey",
+    "label": "Add foreign key \"tools_persona_id_fkey\" on \"tools\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "tools_persona_id_fkey",
+        "table": "tools"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"tools_persona_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "tools_persona_id_fkey",
+          "public",
+          "\"public\".\"tools\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"tools_persona_id_fkey\" on \"tools\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"tools_persona_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"tools\"\nADD CONSTRAINT \"tools_persona_id_fkey\"\nFOREIGN KEY (\"persona_id\")\nREFERENCES \"public\".\"personas\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"tools_persona_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "tools_persona_id_fkey",
+          "public",
+          "\"public\".\"tools\"",
+          "f",
+          "[\"persona_id\"]",
+          "\"public\".\"personas\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  }
+]

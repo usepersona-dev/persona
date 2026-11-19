@@ -24,9 +24,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'088bce71e784ecdd7cc3a1b0a2fe8accec4987f33204c47221c7e4ae32b4c66a'>;
+  StorageHashBase<'161f68312fc87aeeaa127a7351c7fbc2901868b72b0d13e556991a76268c1840'>;
 export type ExecutionHash =
-  ExecutionHashBase<'f6548e6ce99f01eaee09afb5b1c563342519fcb421456d477da443a80b0f8fee'>;
+  ExecutionHashBase<'78b43e5b1c8aa2d568d98b412b8a820d10f8152ad556fce2308b42527230b92b'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -690,6 +690,16 @@ export namespace Models {
     project: public_Project;
     readonly [RelationKeys]?: 'project';
   };
+  export type public_Tool = {
+    createdAt: FieldOutputTypes['public']['Tool']['createdAt'];
+    enabled: FieldOutputTypes['public']['Tool']['enabled'];
+    id: FieldOutputTypes['public']['Tool']['id'];
+    name: FieldOutputTypes['public']['Tool']['name'];
+    personaId: FieldOutputTypes['public']['Tool']['personaId'];
+    updatedAt: FieldOutputTypes['public']['Tool']['updatedAt'];
+    persona: public_Persona;
+    readonly [RelationKeys]?: 'persona';
+  };
   export type public_Trigger = {
     accountId: FieldOutputTypes['public']['Trigger']['accountId'];
     createdAt: FieldOutputTypes['public']['Trigger']['createdAt'];
@@ -785,6 +795,7 @@ export declare const models: {
     Session: Models.public_Session;
     Skill: Models.public_Skill;
     TelegramBot: Models.public_TelegramBot;
+    Tool: Models.public_Tool;
     Trigger: Models.public_Trigger;
     TriggerEvent: Models.public_TriggerEvent;
     Usage: Models.public_Usage;
@@ -2642,6 +2653,75 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly tools: {
+              columns: {
+                readonly created_at: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly many: false;
+                };
+                readonly enabled: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', true>;
+                  };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly name: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly persona_id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly updated_at: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [{ readonly columns: readonly ['persona_id', 'name'] }];
+              indexes: readonly [
+                {
+                  readonly name: 'tools_persona_id_idx_840c67e2';
+                  readonly prefix: 'tools_persona_id_idx';
+                  readonly columns: readonly ['persona_id'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'tools';
+                    readonly columns: readonly ['persona_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'personas';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly trigger_events: {
               columns: {
                 readonly created_at: {
@@ -3496,6 +3576,7 @@ type ContractBase = Omit<
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'TelegramBot';
     };
+    readonly tools: { readonly namespace: 'public' & NamespaceId; readonly model: 'Tool' };
     readonly trigger_events: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'TriggerEvent';
@@ -5142,6 +5223,66 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly Tool: {
+            readonly fields: {
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly enabled: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly name: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly personaId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+            };
+            readonly relations: {
+              readonly persona: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Persona';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['personaId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'tools';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly createdAt: { readonly column: 'created_at' };
+                readonly enabled: { readonly column: 'enabled' };
+                readonly id: { readonly column: 'id' };
+                readonly name: { readonly column: 'name' };
+                readonly personaId: { readonly column: 'persona_id' };
+                readonly updatedAt: { readonly column: 'updated_at' };
+              };
+            };
+          };
           readonly Trigger: {
             readonly fields: {
               readonly accountId: {
@@ -5924,6 +6065,23 @@ type ContractBase = Omit<
           readonly ref: {
             readonly entry: 'telegram_bots';
             readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'tools';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestamptzStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestamptzStringNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'tools';
+            readonly field: 'updated_at';
             readonly namespace: 'public';
           };
         },

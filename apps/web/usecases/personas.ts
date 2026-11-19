@@ -93,7 +93,7 @@ export async function removePersona(caller: Caller, personaId: string) {
   return ok(undefined)
 }
 
-// A copy gets the name, picture and models, the instructions, the skills, the vault fields without their values, and the automations, paused. Files, connections, chats, links and app sign-ins stay with the original.
+// A copy gets the name, picture, models and tools, the instructions, the skills, the vault fields without their values, and the automations, paused. Files, connections, chats, links and app sign-ins stay with the original.
 export async function duplicatePersona(caller: Caller, personaId: string, input: z.input<typeof duplicateInput> = {}) {
   const parsed = validate(duplicateInput, input)
   if (!parsed.ok) return parsed
@@ -103,7 +103,13 @@ export async function duplicatePersona(caller: Caller, personaId: string, input:
   if (!source.ok) return source
 
   const setup = await readSetup(personaId)
-  const personaRow = { projectId: source.value.projectId, orgId: caller.orgId, name: name ?? `${source.value.name} (copy)`, imageUrl: source.value.imageUrl, models: source.value.models }
+  const personaRow = {
+    projectId: source.value.projectId,
+    orgId: caller.orgId,
+    name: name ?? `${source.value.name} (copy)`,
+    imageUrl: source.value.imageUrl,
+    models: source.value.models
+  }
 
   const persona = await db.transaction(async (tx) => {
     const created = await tx.orm.public.Persona.create(personaRow)
@@ -111,11 +117,13 @@ export async function duplicatePersona(caller: Caller, personaId: string, input:
     const skillRows = setup.skills.map((skill) => ({ personaId: created.id, name: skill.name, description: skill.description, markdown: skill.markdown, files: skill.files, enabled: skill.enabled, origin: skill.origin }))
     const credentialRows = setup.credentials.map((credential) => ({ personaId: created.id, title: credential.title, description: credential.description, fields: credential.fields }))
     const scheduleRows = setup.schedules.map((schedule) => ({ personaId: created.id, name: schedule.name, prompt: schedule.prompt, cron: schedule.cron, at: schedule.at, timezone: schedule.timezone, enabled: false }))
+    const toolRows = setup.tools.map((tool) => ({ personaId: created.id, name: tool.name, enabled: tool.enabled }))
 
     if (instructionRows.length) await tx.orm.public.Instruction.createAll(instructionRows)
     if (skillRows.length) await tx.orm.public.Skill.createAll(skillRows)
     if (credentialRows.length) await tx.orm.public.Credential.createAll(credentialRows)
     if (scheduleRows.length) await tx.orm.public.Schedule.createAll(scheduleRows)
+    if (toolRows.length) await tx.orm.public.Tool.createAll(toolRows)
     return created
   })
   return ok(persona)
@@ -144,5 +152,6 @@ async function readSetup(personaId: string) {
   const connections = await db.orm.public.Connection.where({ personaId }).orderBy((row) => row.createdAt.asc()).all()
   const credentials = await db.orm.public.Credential.where({ personaId }).orderBy((row) => row.createdAt.asc()).all()
   const schedules = await db.orm.public.Schedule.where({ personaId }).orderBy((row) => row.createdAt.asc()).all()
-  return { instructions, skills, connections, credentials, schedules }
+  const tools = await db.orm.public.Tool.where({ personaId }).orderBy((row) => row.createdAt.asc()).all()
+  return { instructions, skills, connections, credentials, schedules, tools }
 }

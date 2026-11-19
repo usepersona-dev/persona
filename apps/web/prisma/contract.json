@@ -88,6 +88,10 @@
       "model": "TelegramBot",
       "namespace": "public"
     },
+    "tools": {
+      "model": "Tool",
+      "namespace": "public"
+    },
     "trigger_events": {
       "model": "TriggerEvent",
       "namespace": "public"
@@ -2728,6 +2732,94 @@
               },
               "namespaceId": "public",
               "table": "telegram_bots"
+            }
+          },
+          "Tool": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "enabled": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "personaId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "persona": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "personaId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Persona",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "created_at"
+                },
+                "enabled": {
+                  "column": "enabled"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "personaId": {
+                  "column": "persona_id"
+                },
+                "updatedAt": {
+                  "column": "updated_at"
+                }
+              },
+              "namespaceId": "public",
+              "table": "tools"
             }
           },
           "Trigger": {
@@ -5689,6 +5781,93 @@
                 }
               ]
             },
+            "tools": {
+              "columns": {
+                "created_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "enabled": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "persona_id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "updated_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "tools_persona_id_idx_840c67e2"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "persona_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "tools"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "personas"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "persona_id"
+                  ],
+                  "name": "tools_persona_id_idx_840c67e2",
+                  "prefix": "tools_persona_id_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "persona_id",
+                    "name"
+                  ]
+                }
+              ]
+            },
             "trigger_events": {
               "columns": {
                 "created_at": {
@@ -6837,10 +7016,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "088bce71e784ecdd7cc3a1b0a2fe8accec4987f33204c47221c7e4ae32b4c66a"
+    "storageHash": "161f68312fc87aeeaa127a7351c7fbc2901868b72b0d13e556991a76268c1840"
   },
   "execution": {
-    "executionHash": "f6548e6ce99f01eaee09afb5b1c563342519fcb421456d477da443a80b0f8fee",
+    "executionHash": "78b43e5b1c8aa2d568d98b412b8a820d10f8152ad556fce2308b42527230b92b",
     "mutations": {
       "defaults": [
         {
@@ -7170,6 +7349,32 @@
           "ref": {
             "entry": "telegram_bots",
             "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "tools",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestamptzStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestamptzStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "tools",
+            "field": "updated_at",
             "namespace": "public"
           }
         },
