@@ -1,10 +1,12 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { listConnections, updateConnection } from "@/usecases/connections"
 
-export default defineTool({
+export const mcpToggle = (deferred = false) => defineTool({
+  deferred,
   description: "Turn an MCP server off without losing its settings, or back on. One that is off offers you no tools until it is on again.",
   inputSchema: z.object({ name: z.string().min(1), enabled: z.boolean() }),
   label: { start: ({ name, enabled }) => `${enabled ? "Turn on" : "Turn off"} MCP server ${name}` },
@@ -23,4 +25,11 @@ export default defineTool({
     const result = { name: updated.value.name, enabled: updated.value.enabled }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.mcp
+  if (!family.enabled) return null
+  return mcpToggle(family.deferred)
 })

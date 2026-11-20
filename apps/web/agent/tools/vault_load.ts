@@ -1,12 +1,14 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { VAULT_FILE } from "@/agent/sandbox"
 import { readCaller } from "@/usecases/agent"
 import { readVaultVariables } from "@/usecases/vault"
 import { SandboxSession } from "eve/sandbox"
 
-export default defineTool({
+export const vaultLoad = (deferred = false) => defineTool({
+  deferred,
   description: `Load the vault into your sandbox again after the person fills something in. The sandbox loads it by itself when it starts. Each field named like an environment variable, such as OPENAI_API_KEY, is that variable in every command; use it as "$OPENAI_API_KEY". Never print, echo or log a value. It returns the variable names, never a value.`,
   inputSchema: z.object({}),
   label: { start: () => "Load the vault" },
@@ -30,3 +32,10 @@ async function writeVault(sandbox: Pick<SandboxSession, "writeTextFile">, variab
   const lines = variables.map((variable) => `export ${variable.name}='${variable.value.replaceAll("'", "'\\''")}'`)
   await sandbox.writeTextFile({ path: VAULT_FILE, content: lines.join("\n") })
 }
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.vault
+  if (!family.enabled) return null
+  return vaultLoad(family.deferred)
+})

@@ -1,10 +1,12 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { updateWebhook } from "@/usecases/webhooks"
 
-export default defineTool({
+export const webhookUpdate = (deferred = false) => defineTool({
+  deferred,
   description: "Change a webhook: its name, its task, or whether it takes calls at all. To stop one without losing it, set enabled to false.",
   inputSchema: z.object({
     id: z.string().min(1),
@@ -24,4 +26,11 @@ export default defineTool({
     const result = { id: webhook.id, name: webhook.name, url, enabled: webhook.enabled }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.webhook
+  if (!family.enabled) return null
+  return webhookUpdate(family.deferred)
 })

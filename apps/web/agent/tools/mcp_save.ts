@@ -1,10 +1,12 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { addConnection, listConnections, updateConnection } from "@/usecases/connections"
 
-export default defineTool({
+export const mcpSave = (deferred = false) => defineTool({
+  deferred,
   description: "Add an MCP server so its tools become yours from the next turn on, or change one by saving under its name. Apps such as Gmail or Slack are connected through your apps connection instead, not here.",
   inputSchema: z.object({
     name: z.string().regex(/^[a-z][a-z0-9-]*$/, "Use lowercase letters, digits and dashes, starting with a letter, such as acme-internal.").max(64),
@@ -26,4 +28,11 @@ export default defineTool({
     const result = { name: saved.value.name, enabled: saved.value.enabled, headers: saved.value.headers }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.mcp
+  if (!family.enabled) return null
+  return mcpSave(family.deferred)
 })

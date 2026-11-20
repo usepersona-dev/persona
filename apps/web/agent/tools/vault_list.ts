@@ -1,10 +1,12 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { listCredentials } from "@/usecases/vault"
 
-export default defineTool({
+export const vaultList = (deferred = false) => defineTool({
+  deferred,
   description: "What the vault holds: each credential's id, title, when it is the one to use, and its fields with whether each is a secret and whether it has been filled in yet. Never a value.",
   inputSchema: z.object({}),
   label: { start: () => "List the vault" },
@@ -18,4 +20,11 @@ export default defineTool({
     const result = { credentials: credentials.map((credential) => ({ id: credential.id, title: credential.title, description: credential.description, fields: credential.fields.map((field) => ({ name: field.name, secret: field.secret, filled: credential.filled.includes(field.name) })) })) }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.vault
+  if (!family.enabled) return null
+  return vaultList(family.deferred)
 })

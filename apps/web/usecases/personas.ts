@@ -120,7 +120,7 @@ export async function duplicatePersona(caller: Caller, personaId: string, input:
     const skillRows = setup.skills.map((skill) => ({ personaId: created.id, name: skill.name, description: skill.description, markdown: skill.markdown, files: skill.files, enabled: skill.enabled, origin: skill.origin }))
     const credentialRows = setup.credentials.map((credential) => ({ personaId: created.id, title: credential.title, description: credential.description, fields: credential.fields }))
     const scheduleRows = setup.schedules.map((schedule) => ({ personaId: created.id, name: schedule.name, prompt: schedule.prompt, cron: schedule.cron, at: schedule.at, timezone: schedule.timezone, enabled: false }))
-    const toolRows = setup.tools.map((tool) => ({ personaId: created.id, name: tool.name, enabled: tool.enabled }))
+    const toolRows = setup.tools.map((tool) => ({ personaId: created.id, name: tool.name, enabled: tool.enabled, deferred: tool.deferred }))
 
     if (instructionRows.length) await tx.orm.public.Instruction.createAll(instructionRows)
     if (skillRows.length) await tx.orm.public.Skill.createAll(skillRows)

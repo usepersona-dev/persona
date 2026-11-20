@@ -1,10 +1,12 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { updateFile } from "@/usecases/files"
 
-export default defineTool({
+export const fileUpdate = (deferred = false) => defineTool({
+  deferred,
   description: "Rename one of your files. Take the id from file_list.",
   inputSchema: z.object({ fileId: z.string().min(1), name: z.string().min(1).describe("The new name.") }),
   label: { start: () => "Rename a file" },
@@ -17,4 +19,11 @@ export default defineTool({
     const result = { fileId, name: updated.value.name }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.file
+  if (!family.enabled) return null
+  return fileUpdate(family.deferred)
 })

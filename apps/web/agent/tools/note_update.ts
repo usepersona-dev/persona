@@ -1,10 +1,12 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { updateNote } from "@/usecases/notes"
 
-export default defineTool({
+export const noteUpdate = (deferred = false) => defineTool({
+  deferred,
   description: "Change a note's title or text. The text you give replaces the old text, so include what should stay.",
   inputSchema: z.object({
     id: z.string().min(1),
@@ -21,4 +23,11 @@ export default defineTool({
     const result = { id: updated.value.id, title: updated.value.title }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.note
+  if (!family.enabled) return null
+  return noteUpdate(family.deferred)
 })

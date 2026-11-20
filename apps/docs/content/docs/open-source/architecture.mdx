@@ -67,7 +67,7 @@ At the start of every turn, the agent reads the persona's setup again through th
 | What | File | When |
 | --- | --- | --- |
 | Model | `agent/agent.ts` | every turn |
-| Instructions | `agent/instructions/`: the persona and its own instructions (`persona.ts`, `creator.ts`), the rules and the pieces about tools, files, notes, the vault, the browser, chats and runs | every turn |
+| Instructions | `agent/instructions.ts`: one file builds the whole prompt for the turn: the rules, the chat, run or subagent rules, a piece for each tool family that is switched on, the persona's name and its creator's instructions | every turn |
 | Skills | `agent/skills/creator.ts` | every turn |
 | MCP servers | `agent/connections/creator.ts` | every turn. Headers are read on each request to the server. |
 | Apps | `agent/connections/apps.ts` | once per turn; an app connected mid-chat is there on the next one |

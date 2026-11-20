@@ -1,10 +1,12 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { listInstructions, updateInstruction } from "@/usecases/instructions"
 
-export default defineTool({
+export const instructionToggle = (deferred = false) => defineTool({
+  deferred,
   description: "Turn an instruction off without losing it, or back on. One that is off stops holding from the next turn on.",
   inputSchema: z.object({ name: z.string().min(1), enabled: z.boolean() }),
   label: { start: ({ name, enabled }) => `${enabled ? "Turn on" : "Turn off"} instruction ${name}` },
@@ -20,4 +22,11 @@ export default defineTool({
     const result = { name: updated.value.name, enabled: updated.value.enabled }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.instruction
+  if (!family.enabled) return null
+  return instructionToggle(family.deferred)
 })

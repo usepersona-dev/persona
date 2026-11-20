@@ -1,10 +1,12 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { listConnections, removeConnection } from "@/usecases/connections"
 
-export default defineTool({
+export const mcpDelete = (deferred = false) => defineTool({
+  deferred,
   description: "Remove an MCP server for good, with its tools and its saved headers. To set one aside instead, turn it off with mcp_toggle.",
   inputSchema: z.object({ name: z.string().min(1) }),
   label: { start: ({ name }) => `Delete MCP server ${name}` },
@@ -22,4 +24,11 @@ export default defineTool({
     const result = { name, deleted: true }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.mcp
+  if (!family.enabled) return null
+  return mcpDelete(family.deferred)
 })

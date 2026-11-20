@@ -1,9 +1,9 @@
 import assert from "node:assert/strict"
 import { afterAll, beforeAll, test } from "vitest"
 
-import mediaRead from "@/agent/tools/media_read"
-import mediaSpeech from "@/agent/tools/media_speech"
-import mediaTranscribe from "@/agent/tools/media_transcribe"
+import { mediaRead } from "@/agent/tools/media_read"
+import { mediaSpeech } from "@/agent/tools/media_speech"
+import { mediaTranscribe } from "@/agent/tools/media_transcribe"
 import { s3Files } from "@/lib/s3"
 import { db } from "@/prisma/db"
 import { listFiles } from "@/usecases/files"
@@ -27,14 +27,14 @@ afterAll(async () => {
 })
 
 test("speech: record text into the files as an MP3, then transcribe it back", async () => {
-  const recording = await run(mediaSpeech, { text: "The secret word is pineapple." }, context)
+  const recording = await run(mediaSpeech(), { text: "The secret word is pineapple." }, context)
   saved.push(`${persona.personaId}/${recording.fileId}`)
   assert.ok(recording.url.includes("X-Amz-Signature"), "the link is signed")
 
   const served = await fetch(recording.url, { headers: { Range: "bytes=0-0" } })
   assert.equal(served.headers.get("content-type"), "audio/mpeg", "WhatsApp plays an MP3 but refuses a WAV")
 
-  const transcript = await run(mediaTranscribe, { fileId: recording.fileId }, context)
+  const transcript = await run(mediaTranscribe(), { fileId: recording.fileId }, context)
   assert.match(transcript.text, /pineapple/i)
 })
 
@@ -48,7 +48,7 @@ test("images: draw one, edit it, read it back, and both land in the files", asyn
   assert.ok(edited.ok)
   saved.push(`${persona.personaId}/${edited.value.fileId}`)
 
-  const reading = await run(mediaRead, { url: edited.value.url, question: "What fruit is this and what color is it? Answer in a few words." }, context)
+  const reading = await run(mediaRead(), { url: edited.value.url, question: "What fruit is this and what color is it? Answer in a few words." }, context)
   assert.match(reading.text, /lemon|lime/i)
   assert.match(reading.text, /green/i)
 

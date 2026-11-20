@@ -1,10 +1,12 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { getFileLinks, updateFile } from "@/usecases/files"
 
-export default defineTool({
+export const filePublish = (deferred = false) => defineTool({
+  deferred,
   description: "Make files public, so anyone with their links can open them; say so when you send a link. Send people the preview; a web page shows other files by their url, so publish the page and the files it shows together. Take the ids from file_list.",
   inputSchema: z.object({ fileIds: z.array(z.string().min(1)).min(1) }),
   label: { start: ({ fileIds }) => (fileIds.length === 1 ? "Publish a file" : `Publish ${fileIds.length} files`) },
@@ -22,4 +24,11 @@ export default defineTool({
     const result = { files }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.file
+  if (!family.enabled) return null
+  return filePublish(family.deferred)
 })

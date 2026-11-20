@@ -1,11 +1,13 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { saveFile } from "@/usecases/files"
 import { mediaTypeOf } from "@/usecases/media"
 
-export default defineTool({
+export const fileSave = (deferred = false) => defineTool({
+  deferred,
   description: "Save a file you made in your sandbox to your files and get back its id to send. your files stay, and you can open them again later with file_read.",
   inputSchema: z.object({
     path: z.string().min(1).describe("The file's path in the sandbox."),
@@ -26,4 +28,11 @@ export default defineTool({
     const result = { id: file.id, name: file.name, contentType: file.contentType, size: file.size }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.file
+  if (!family.enabled) return null
+  return fileSave(family.deferred)
 })

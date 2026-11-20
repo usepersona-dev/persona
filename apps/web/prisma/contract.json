@@ -2743,6 +2743,13 @@
                   "kind": "scalar"
                 }
               },
+              "deferred": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
               "enabled": {
                 "nullable": false,
                 "type": {
@@ -2801,6 +2808,9 @@
               "fields": {
                 "createdAt": {
                   "column": "created_at"
+                },
+                "deferred": {
+                  "column": "deferred"
                 },
                 "enabled": {
                   "column": "enabled"
@@ -5792,6 +5802,15 @@
                   },
                   "nullable": false
                 },
+                "deferred": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
                 "enabled": {
                   "codecId": "pg/bool@1",
                   "dataType": "pg/bool",
@@ -7016,7 +7035,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "161f68312fc87aeeaa127a7351c7fbc2901868b72b0d13e556991a76268c1840"
+    "storageHash": "586d8ff6a9485cce2ca8b5db9553a9345883d605d72dd2075fafe796fc804b07"
   },
   "execution": {
     "executionHash": "78b43e5b1c8aa2d568d98b412b8a820d10f8152ad556fce2308b42527230b92b",

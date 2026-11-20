@@ -24,7 +24,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'161f68312fc87aeeaa127a7351c7fbc2901868b72b0d13e556991a76268c1840'>;
+  StorageHashBase<'586d8ff6a9485cce2ca8b5db9553a9345883d605d72dd2075fafe796fc804b07'>;
 export type ExecutionHash =
   ExecutionHashBase<'78b43e5b1c8aa2d568d98b412b8a820d10f8152ad556fce2308b42527230b92b'>;
 export type ProfileHash =
@@ -692,6 +692,7 @@ export namespace Models {
   };
   export type public_Tool = {
     createdAt: FieldOutputTypes['public']['Tool']['createdAt'];
+    deferred: FieldOutputTypes['public']['Tool']['deferred'];
     enabled: FieldOutputTypes['public']['Tool']['enabled'];
     id: FieldOutputTypes['public']['Tool']['id'];
     name: FieldOutputTypes['public']['Tool']['name'];
@@ -2660,6 +2661,16 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-string@1';
                   readonly nullable: false;
                   readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly many: false;
+                };
+                readonly deferred: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
                   readonly many: false;
                 };
                 readonly enabled: {
@@ -5232,6 +5243,10 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-string@1';
                 };
               };
+              readonly deferred: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
               readonly enabled: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
@@ -5275,6 +5290,7 @@ type ContractBase = Omit<
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly createdAt: { readonly column: 'created_at' };
+                readonly deferred: { readonly column: 'deferred' };
                 readonly enabled: { readonly column: 'enabled' };
                 readonly id: { readonly column: 'id' };
                 readonly name: { readonly column: 'name' };

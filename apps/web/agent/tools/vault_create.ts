@@ -1,10 +1,12 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { addCredential, createCollectLink } from "@/usecases/vault"
 
-export default defineTool({
+export const vaultCreate = (deferred = false) => defineTool({
+  deferred,
   description: "Set up a credential in the vault when the person wants to hand you a login, a card, an API key or the like: name it, say when it is the one to use, and list its fields, marking which are secret. It holds no values. It returns a link the person opens to fill them in themselves: send it on exactly as it is, with until when it works. Never ask for a value in chat and never put one here.",
   inputSchema: z.object({
     title: z.string().trim().min(1).max(120).describe("Short, as the person would call it: Gym login, Company card."),
@@ -25,4 +27,11 @@ export default defineTool({
     const result = { id: credential.id, title: credential.title, fields: credential.fields.map((field) => ({ name: field.name, secret: field.secret })), link: link.value.url, linkExpiresAt: link.value.expiresAt }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.vault
+  if (!family.enabled) return null
+  return vaultCreate(family.deferred)
 })

@@ -1,6 +1,7 @@
-import { defineWorkflowTool, type WorkflowStepToolContext } from "eve/tools"
+import { defineDynamic, defineWorkflowTool, type WorkflowStepToolContext, type WorkflowToolContext } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { ok } from "@/lib/errors"
 import { readCaller } from "@/usecases/agent"
 import { createBrowserWithTask, getBrowserAndTask, stopBrowserAndTask, updateBrowserAndTask } from "@/usecases/browser-use"
@@ -20,21 +21,24 @@ const inputSchema = z.object({
   })).optional().describe("Vault credentials it may type, such as a login or a card. Send them on every call that needs them. If one is missing, set it up with vault_create."),
 })
 
-export default defineWorkflowTool({
+export const browserTask = (deferred = false) => defineWorkflowTool({
+  deferred,
   description: "Runs a task in a real web browser, in the background. The answer comes later as a task result, so tell the person you're on it. It stops before anything that can't be undone, such as an order or a payment, unless the task approves it with the merchant, the item and the total or a maximum. The answer has a status, a message and the browserId. Status: Done, Needs details, Needs a code, Needs a link, Needs a tap, Needs approval, Needs takeover, Blocked or Stopped. Only Needs takeover comes with a live link to the browser: the one time the person should see it, so send it with what they must do there, and never offer a live view otherwise. Get a code or sign-in link yourself when it went to an inbox you can read; otherwise ask the person. Send their answer or a change of mind with the same browserId.",
   inputSchema,
   label: { start: ({ browserId }) => (browserId ? "Go on in the browser" : "Open the browser") },
-  async task(input, ctx) {
-    "use workflow"
-    const started = await start(ctx, input)
-    if (!started.ok) throw new Error(started.error.message)
-
-    const { id, runId, startedAt, missing } = started.value
-    let answer = await wait(ctx, id, runId, startedAt)
-    while (!answer) answer = await wait(ctx, id, runId, startedAt)
-    return missing.length ? { ...answer, notInVault: missing } : answer
-  },
+  task,
 })
+
+async function task(input: z.infer<typeof inputSchema>, ctx: WorkflowToolContext) {
+  "use workflow"
+  const started = await start(ctx, input)
+  if (!started.ok) throw new Error(started.error.message)
+
+  const { id, runId, startedAt, missing } = started.value
+  let answer = await wait(ctx, id, runId, startedAt)
+  while (!answer) answer = await wait(ctx, id, runId, startedAt)
+  return missing.length ? { ...answer, notInVault: missing } : answer
+}
 
 async function start(ctx: WorkflowStepToolContext, input: z.infer<typeof inputSchema>) {
   "use step"
@@ -70,3 +74,10 @@ async function wait(ctx: WorkflowStepToolContext, browserId: string, runId: stri
   }
   return null
 }
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.browser
+  if (!family.enabled) return null
+  return browserTask(family.deferred)
+})

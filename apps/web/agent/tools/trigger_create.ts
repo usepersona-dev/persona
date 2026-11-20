@@ -1,10 +1,12 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { createTrigger } from "@/usecases/triggers"
 
-export default defineTool({
+export const triggerCreate = (deferred = false) => defineTool({
+  deferred,
   description: "Make yourself a trigger: one of your connected apps tells you when something happens, such as a new email or a meeting about to start. Its events wait five minutes from the first, then the task runs once for all of them, each attached as a file. Find the triggers and their settings with trigger_types, and narrow the settings so only the events worth a run come. Nobody will be there to explain the task when it runs, so write the prompt as the whole task.",
   inputSchema: z.object({
     name: z.string().trim().min(1).max(80).describe("A short title, such as Meeting soon, so it can be told apart from the others."),
@@ -24,4 +26,11 @@ export default defineTool({
     const result = { id: trigger.id, name: trigger.name, slug: trigger.slug, accountId: trigger.accountId }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.trigger
+  if (!family.enabled) return null
+  return triggerCreate(family.deferred)
 })

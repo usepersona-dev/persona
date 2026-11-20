@@ -1,10 +1,12 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { describeMedia } from "@/usecases/media"
 
-export default defineTool({
+export const mediaRead = (deferred = false) => defineTool({
+  deferred,
   description: "Describe a file in words, or answer one question about it. Give it a link to a photo, screenshot, video, recording, PDF or document. This is how you see a file at a link. It only reads, never changes.",
   inputSchema: z.object({
     url: z.url(),
@@ -19,4 +21,11 @@ export default defineTool({
 
     return reading.value
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.media_read
+  if (!family.enabled) return null
+  return mediaRead(family.deferred)
 })

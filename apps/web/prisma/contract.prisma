@@ -251,6 +251,7 @@ model Tool {
   persona   Persona                    @relation(fields: [personaId], references: [id], onDelete: Cascade)
   name      String
   enabled   Boolean                    @default(true)
+  deferred  Boolean                    @default(false)
   createdAt TimestamptzString          @default(now()) @map("created_at")
   updatedAt DateTime(as: string) @onCreate(now()) @onUpdate(now()) @map("updated_at")
 

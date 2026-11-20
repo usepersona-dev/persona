@@ -24,3 +24,17 @@ export function said(turn: EveEvalTurn) {
   const texts = turn.toolCalls.filter((call) => call.name === "chat_say").map((call) => String(call.input.text ?? ""))
   return texts.join("\n")
 }
+
+/** The tools a turn called, by name and in order, in the chat and in any subagent it started. */
+export function called(turn: EveEvalTurn) {
+  const names = turn.toolCalls.map((call) => call.name)
+  return names
+}
+
+/** The tools a turn's tool searches brought back, by name. The search holds the deferred tools and the connections' tools, never a tool that is already in the list. */
+export function found(turn: EveEvalTurn) {
+  const searches = turn.toolCalls.filter((call) => call.name === "eve__search")
+  const results = searches.flatMap((search) => (search.output as { results?: { tool?: string }[] } | undefined)?.results ?? [])
+  const names = results.flatMap((result) => (result.tool ? [result.tool] : []))
+  return names
+}

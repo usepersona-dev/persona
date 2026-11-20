@@ -1,10 +1,12 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { addSkill, listSkills, updateSkill } from "@/usecases/skills"
 
-export default defineTool({
+export const skillSave = (deferred = false) => defineTool({
+  deferred,
   description: "Save a procedure as a skill you can load later, or revise one by saving it under the same name. The description is all you see until you load the skill, so say when to reach for it, and put the whole procedure in the markdown. Longer material goes in files, read from the skill's folder.",
   inputSchema: z.object({
     name: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, digits and dashes, such as plan-a-trip.").max(64),
@@ -26,4 +28,11 @@ export default defineTool({
     const result = { name: saved.value.name, enabled: saved.value.enabled }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.skill
+  if (!family.enabled) return null
+  return skillSave(family.deferred)
 })

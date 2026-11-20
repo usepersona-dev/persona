@@ -1,6 +1,7 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import type { GatewayModel } from "@/lib/ai-gateway"
 import { listModels } from "@/usecases/personas"
 
@@ -13,7 +14,8 @@ const SORTS = {
   newest: (first: GatewayModel, second: GatewayModel) => (second.released ?? 0) - (first.released ?? 0),
 }
 
-export default defineTool({
+export const modelList = (deferred = false) => defineTool({
+  deferred,
   description: "Find models you could run on. Filter by what the work needs, such as vision, a wide context window or a low price. Every model that comes back can use tools, so it can run you. Only the first 20 matches come back, so narrow the filters rather than look for another page. Each model comes with its provider, its price per million tokens in and out, its context window and its tags. model_me shows the models you run on now, and model_set sets them.",
   inputSchema: z.object({
     search: z.string().optional().describe("Part of a model id or name, such as claude or gemini. A provider name such as openai brings back everything that provider serves."),
@@ -34,4 +36,11 @@ export default defineTool({
     const result = { models: listed.map((model) => ({ id: model.id, name: model.name, provider: model.provider, input: model.input, output: model.output, context: model.context, tags: model.tags })), shown: listed.length, total: matched.length }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.model
+  if (!family.enabled) return null
+  return modelList(family.deferred)
 })

@@ -1,12 +1,14 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { listFiles } from "@/usecases/files"
 
 const PAGE_SIZE = 10
 
-export default defineTool({
+export const fileList = (deferred = false) => defineTool({
+  deferred,
   description: `List your files, ${PAGE_SIZE} to a page, newest first: the ones the person shared with you and the ones you made, each with its id, name, type and size. To find a file by its name, give words from the name. When pages is more than page, ask for the next page. file_read copies one into your sandbox to work on it.`,
   inputSchema: z.object({
     page: z.number().int().min(1).optional().describe("The page to read. Defaults to 1."),
@@ -37,4 +39,11 @@ export default defineTool({
     const result = { page: current, pages, total: matching.length, files }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.file
+  if (!family.enabled) return null
+  return fileList(family.deferred)
 })

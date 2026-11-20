@@ -2,8 +2,8 @@ import assert from "node:assert/strict"
 import { afterAll, beforeAll, test } from "vitest"
 import { setTimeout as sleep } from "node:timers/promises"
 
-import browserClose from "@/agent/tools/browser_close"
-import browserList from "@/agent/tools/browser_list"
+import { browserClose } from "@/agent/tools/browser_close"
+import { browserList } from "@/agent/tools/browser_list"
 import { deleteProfile, findProfile, getRun } from "@/lib/browser-use"
 import { db } from "@/prisma/db"
 import { createBrowserWithTask, getBrowserAndTask, removeBrowserAndTask, updateBrowserAndTask } from "@/usecases/browser-use"
@@ -55,7 +55,7 @@ test("browser: signs in with a vault login it never sees, takes a change of mind
   assert.match(sent.task, /password as vault1_2/)
   assert.doesNotMatch(sent.task, new RegExp(password))
 
-  const listed = await run(browserList, {}, context)
+  const listed = await run(browserList(), {}, context)
   assert.deepEqual(listed.browsers.map((browser) => [browser.id, browser.working]), [[id, false]])
   assert.ok(listed.browsers.every((browser) => !("link" in browser)), "the list holds no live link: the person sees the browser only on a takeover")
 
@@ -70,14 +70,14 @@ test("browser: signs in with a vault login it never sees, takes a change of mind
   assert.equal(author.status, "Done", author.message)
   assert.match(author.message, /Einstein/)
 
-  const closed = await run(browserClose, { browserId: id }, context)
+  const closed = await run(browserClose(), { browserId: id }, context)
   assert.deepEqual(closed, { browserId: id, closed: true })
-  const empty = await run(browserList, {}, context)
+  const empty = await run(browserList(), {}, context)
   assert.deepEqual(empty.browsers, [])
 })
 
 test("browser: a browser that isn't the persona's is out of reach", async () => {
-  await assert.rejects(run(browserClose, { browserId: "00000000-0000-0000-0000-000000000000" }, context), /closed/)
+  await assert.rejects(run(browserClose(), { browserId: "00000000-0000-0000-0000-000000000000" }, context), /closed/)
 })
 
 async function waitForAnswer(browserId: string, runId: string) {

@@ -1,10 +1,12 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { removeCredential } from "@/usecases/vault"
 
-export default defineTool({
+export const vaultDelete = (deferred = false) => defineTool({
+  deferred,
   description: "Delete a credential from the vault for good, with every value it holds. Take the id from vault_list.",
   inputSchema: z.object({ id: z.string().min(1) }),
   label: { start: () => "Delete from the vault" },
@@ -17,4 +19,11 @@ export default defineTool({
     const result = { id, deleted: true }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.vault
+  if (!family.enabled) return null
+  return vaultDelete(family.deferred)
 })

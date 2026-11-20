@@ -1,10 +1,12 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { listModels, updatePersona } from "@/usecases/personas"
 
-export default defineTool({
+export const modelSet = (deferred = false) => defineTool({
+  deferred,
   description: "Set the models you run on from the next message on, each with when to use it. One model is fine: it becomes your only model. With two or more, each message runs on the one whose when fits it, so give each a when. A new model reads the whole conversation again at uncached prices, so change them when the person asks for it. Pick ids that model_list shows.",
   inputSchema: z.object({
     models: z.array(z.object({ model: z.string().min(1).describe("A gateway model id exactly as model_list shows it."), when: z.string().trim().min(1, "Say when to use each model.").describe("When to use this model, such as hard tasks with many steps.") })).min(1).max(5),
@@ -25,4 +27,11 @@ export default defineTool({
     const result = { models: updated.value.models }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.model
+  if (!family.enabled) return null
+  return modelSet(family.deferred)
 })

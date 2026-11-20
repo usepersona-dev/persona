@@ -1,10 +1,12 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { updateTrigger } from "@/usecases/triggers"
 
-export default defineTool({
+export const triggerUpdate = (deferred = false) => defineTool({
+  deferred,
   description: "Change a trigger's name or task. To stop a trigger, delete it with trigger_delete.",
   inputSchema: z.object({
     id: z.string().min(1),
@@ -22,4 +24,11 @@ export default defineTool({
     const result = { id: trigger.id, name: trigger.name, slug: trigger.slug }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.trigger
+  if (!family.enabled) return null
+  return triggerUpdate(family.deferred)
 })

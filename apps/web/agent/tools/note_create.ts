@@ -1,10 +1,12 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { addNote } from "@/usecases/notes"
 
-export default defineTool({
+export const noteCreate = (deferred = false) => defineTool({
+  deferred,
   description: "Write a note to keep: anything you want to remember, track or come back to, such as a list, a draft or something the person told you. note_search finds it again.",
   inputSchema: z.object({
     title: z.string().trim().min(1).max(200).describe("A short title that tells it apart from your other notes."),
@@ -20,4 +22,11 @@ export default defineTool({
     const result = { id: added.value.id, title: added.value.title }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.note
+  if (!family.enabled) return null
+  return noteCreate(family.deferred)
 })

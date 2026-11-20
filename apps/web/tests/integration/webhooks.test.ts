@@ -2,10 +2,10 @@ import assert from "node:assert/strict"
 import { afterAll, beforeAll, test } from "vitest"
 
 import webhooks from "@/agent/channels/webhooks"
-import webhookCreate from "@/agent/tools/webhook_create"
-import webhookDelete from "@/agent/tools/webhook_delete"
-import webhookList from "@/agent/tools/webhook_list"
-import webhookUpdate from "@/agent/tools/webhook_update"
+import { webhookCreate } from "@/agent/tools/webhook_create"
+import { webhookDelete } from "@/agent/tools/webhook_delete"
+import { webhookList } from "@/agent/tools/webhook_list"
+import { webhookUpdate } from "@/agent/tools/webhook_update"
 import { db } from "@/prisma/db"
 import { completeRun, failRun, failStuckRuns } from "@/usecases/runs"
 import { createWebhook } from "@/usecases/webhooks"
@@ -55,26 +55,26 @@ async function reportRun(webhookId: string, runId: string) {
 }
 
 test("webhooks: create, list, update, delete", async () => {
-  const created = await run(webhookCreate, { name: "New order", prompt: "Thank the buyer." }, context)
+  const created = await run(webhookCreate(), { name: "New order", prompt: "Thank the buyer." }, context)
   assert.equal(created.enabled, true)
   assert.match(created.url, /\/eve\/v1\/webhooks\/[0-9a-f-]{36}$/)
 
-  const listed = await run(webhookList, {}, context)
+  const listed = await run(webhookList(), {}, context)
   assert.equal(listed.webhooks.length, 1)
   assert.equal(listed.webhooks[0]?.url, created.url)
 
-  const paused = await run(webhookUpdate, { id: created.id, enabled: false }, context)
+  const paused = await run(webhookUpdate(), { id: created.id, enabled: false }, context)
   assert.equal(paused.enabled, false)
   assert.equal(paused.url, created.url)
 
-  await run(webhookDelete, { id: created.id }, context)
-  const emptied = await run(webhookList, {}, context)
+  await run(webhookDelete(), { id: created.id }, context)
+  const emptied = await run(webhookList(), {}, context)
   assert.equal(emptied.webhooks.length, 0)
 })
 
 test("webhooks: an unknown webhook is refused", async () => {
-  await assert.rejects(run(webhookUpdate, { id: "unknown", enabled: false }, context), /does not exist/)
-  await assert.rejects(run(webhookDelete, { id: "unknown" }, context), /does not exist/)
+  await assert.rejects(run(webhookUpdate(), { id: "unknown", enabled: false }, context), /does not exist/)
+  await assert.rejects(run(webhookDelete(), { id: "unknown" }, context), /does not exist/)
 })
 
 test("a webhook run ends once, and its report route tells its chat in the webhook's words", async () => {

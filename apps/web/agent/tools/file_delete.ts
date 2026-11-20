@@ -1,10 +1,12 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { removeFile } from "@/usecases/files"
 
-export default defineTool({
+export const fileDelete = (deferred = false) => defineTool({
+  deferred,
   description: "Delete one of your files for good. Take the id from file_list.",
   inputSchema: z.object({ fileId: z.string().min(1) }),
   label: { start: () => "Delete a file" },
@@ -17,4 +19,11 @@ export default defineTool({
     const result = { fileId, deleted: true }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.file
+  if (!family.enabled) return null
+  return fileDelete(family.deferred)
 })

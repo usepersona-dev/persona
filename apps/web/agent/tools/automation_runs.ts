@@ -1,10 +1,12 @@
-import { defineTool } from "eve/tools"
+import { defineDynamic, defineTool } from "eve/tools"
 import { z } from "zod"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { listRuns } from "@/usecases/automations"
 
-export default defineTool({
+export const automationRuns = (deferred = false) => defineTool({
+  deferred,
   description: "How one automation has been going: its latest runs, newest first, with what each wrote. Take the id from automation_list.",
   inputSchema: z.object({
     id: z.string().min(1),
@@ -21,4 +23,11 @@ export default defineTool({
     const result = { runs: runs.map((run) => ({ scheduledFor: run.scheduledFor, status: run.status, result: run.result, endedAt: run.endedAt })) }
     return result
   },
+})
+
+export default defineDynamic(() => {
+  const { tools } = readPersonaState()
+  const family = tools.automation
+  if (!family.enabled) return null
+  return automationRuns(family.deferred)
 })
