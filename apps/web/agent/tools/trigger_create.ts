@@ -17,9 +17,9 @@ export const triggerCreate = (deferred = false) => defineTool({
   }),
   label: { start: ({ name }) => `Make trigger ${name}` },
   async execute({ name, prompt, slug, settings, accountId }, ctx) {
-    const { caller, personaId, linkId } = readCaller(ctx)
+    const { caller, personaId } = readCaller(ctx)
 
-    const created = await createTrigger(caller, personaId, { name, prompt, linkId, slug, config: settings, accountId })
+    const created = await createTrigger(caller, personaId, { name, prompt, slug, config: settings, accountId })
     if (!created.ok) throw new Error(created.error.message)
     const trigger = created.value
 

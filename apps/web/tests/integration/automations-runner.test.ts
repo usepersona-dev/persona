@@ -294,7 +294,7 @@ test("the report route tells every chat of the persona that gets reports what ca
 
 test("a run going for over an hour is failed by the start tick, and its chat hears nothing", async () => {
   const at = new Date(Date.now() + 2_000)
-  const slow = await automation({ name: "Slow", prompt: "Take forever.", at: at.toISOString(), linkId })
+  const slow = await automation({ name: "Slow", prompt: "Take forever.", at: at.toISOString() })
   await start(new Date(at.getTime() + 60_000))
   const [slowRun] = await runsOf(slow.id)
 

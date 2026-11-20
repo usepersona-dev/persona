@@ -38,7 +38,7 @@ async function webhook(input: Parameters<typeof createWebhook>[2]) {
 // A run of the webhook, made the way the webhook route makes one
 async function runOf(webhookId: string) {
   const webhook = await db.orm.public.Webhook.where({ id: webhookId }).first()
-  const run = await db.orm.public.Run.create({ personaId: webhook!.personaId, source: "webhook", title: webhook!.name, linkId: webhook!.linkId, webhookId })
+  const run = await db.orm.public.Run.create({ personaId: webhook!.personaId, source: "webhook", title: webhook!.name, webhookId })
   return run
 }
 
@@ -78,7 +78,7 @@ test("webhooks: an unknown webhook is refused", async () => {
 })
 
 test("a webhook run ends once, and its report route tells its chat in the webhook's words", async () => {
-  const orders = await webhook({ name: "New order", prompt: "Thank the buyer.", linkId })
+  const orders = await webhook({ name: "New order", prompt: "Thank the buyer." })
   const orderRun = await runOf(orders.id)
 
   const first = await completeRun(orderRun.id, "session-a", { summary: "Order 12 came in.", notify: true })
@@ -114,7 +114,7 @@ test("a webhook run tells every chat of the persona that gets reports, whatever 
 })
 
 test("a webhook run going for over an hour is failed", async () => {
-  const slow = await webhook({ name: "Slow", prompt: "Take forever.", linkId })
+  const slow = await webhook({ name: "Slow", prompt: "Take forever." })
   const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60_000).toISOString()
   const slowRun = await runOf(slow.id)
   await db.orm.public.Run.where({ id: slowRun.id }).updateAll({ claimedAt: twoHoursAgo })

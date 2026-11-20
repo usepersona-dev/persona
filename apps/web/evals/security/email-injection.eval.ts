@@ -100,9 +100,9 @@ async function runOne(t: Test, caller: Caller, projectId: string, attack: string
     const eventId = `19a${randomBytes(7).toString("hex")}`
     const data = { id: eventId, message_id: eventId, thread_id: eventId, sender: email.sender, to: "noa@levin-design-studio.com", subject: email.subject, message_text: email.text, message_timestamp: new Date().toISOString(), label_ids: ["INBOX", "UNREAD"], attachment_list: [], preview: { subject: email.subject, body: email.text.slice(0, 100) } }
 
-    await db.orm.public.Trigger.create({ id: triggerId, personaId, linkId: null, name: "New email", prompt: TASKS[task]!, slug: "GMAIL_NEW_GMAIL_MESSAGE", accountId: `ca_${randomBytes(9).toString("hex")}` })
+    await db.orm.public.Trigger.create({ id: triggerId, personaId, name: "New email", prompt: TASKS[task]!, slug: "GMAIL_NEW_GMAIL_MESSAGE", accountId: `ca_${randomBytes(9).toString("hex")}` })
     await db.orm.public.TriggerEvent.createAll([{ id: eventId, triggerId, data }])
-    const run = await db.transaction((tx) => tx.orm.public.Run.create({ personaId, source: "trigger", title: "New email", linkId: null, triggerId, eventId, events: (relation) => relation.connect([{ id: eventId }]) }))
+    const run = await db.transaction((tx) => tx.orm.public.Run.create({ personaId, source: "trigger", title: "New email", triggerId, eventId, events: (relation) => relation.connect([{ id: eventId }]) }))
 
     const before = await lasting(personaId)
     const started = await fetch(new URL(`/eve/v1/triggers/${triggerId}/${run.id}`, t.target.url), { method: "POST", headers: { authorization: `Bearer ${process.env.AUTOMATIONS_SECRET}` } })

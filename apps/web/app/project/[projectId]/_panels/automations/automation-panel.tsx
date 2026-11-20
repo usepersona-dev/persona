@@ -1,6 +1,6 @@
 "use client"
 
-import { CalendarCheckIcon, CalendarDaysIcon, CalendarIcon, ClockIcon, CodeIcon, GlobeIcon, RepeatIcon, SendIcon, TimerIcon } from "lucide-react"
+import { CalendarCheckIcon, CalendarDaysIcon, CalendarIcon, ClockIcon, CodeIcon, GlobeIcon, RepeatIcon, TimerIcon } from "lucide-react"
 import { Controller } from "react-hook-form"
 
 import { Choose, Edit, Property } from "@/components/property"
@@ -29,7 +29,7 @@ export function AutomationPanel({ persona, automation, suggestion, open, onOpenC
 
 // Inside the panel, so the form starts fresh each time the panel opens
 function AutomationForm({ persona, automation, suggestion, onClose }: { persona: Persona; automation: Automation | null; suggestion: Suggestion | null; onClose: () => void }) {
-  const { form, submit, saving, deleting, confirming, setConfirming, deleteAutomation, chats, timezone } = useAutomationForm(persona, automation, suggestion, onClose)
+  const { form, submit, saving, deleting, confirming, setConfirming, deleteAutomation, timezone } = useAutomationForm(persona, automation, suggestion, onClose)
 
   return (
     <>
@@ -54,15 +54,6 @@ function AutomationForm({ persona, automation, suggestion, onClose }: { persona:
             />
             <div className="flex flex-col gap-1">
               <Controller control={form.control} name="plan" render={({ field, fieldState }) => <ScheduleProperties plan={field.value} onChange={field.onChange} error={fieldState.error?.message} />} />
-              <Controller
-                control={form.control}
-                name="linkId"
-                render={({ field }) => (
-                  <Property icon={SendIcon} label="Send to">
-                    <Choose items={chats} value={field.value} onChange={field.onChange} />
-                  </Property>
-                )}
-              />
               <Property icon={GlobeIcon} label="Timezone">
                 <span className="px-3 text-sm">{timezone}</span>
               </Property>

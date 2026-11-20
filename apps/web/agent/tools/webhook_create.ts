@@ -14,9 +14,9 @@ export const webhookCreate = (deferred = false) => defineTool({
   }),
   label: { start: ({ name }) => `Make webhook ${name}` },
   async execute({ name, prompt }, ctx) {
-    const { caller, personaId, linkId } = readCaller(ctx)
+    const { caller, personaId } = readCaller(ctx)
 
-    const created = await createWebhook(caller, personaId, { name, prompt, linkId })
+    const created = await createWebhook(caller, personaId, { name, prompt })
     if (!created.ok) throw new Error(created.error.message)
     const webhook = created.value
 

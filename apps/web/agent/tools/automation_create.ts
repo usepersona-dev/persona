@@ -17,9 +17,9 @@ export const automationCreate = (deferred = false) => defineTool({
   }),
   label: { start: ({ name }) => `Schedule ${name}` },
   async execute({ name, prompt, at, cron, timezone }, ctx) {
-    const { caller, personaId, linkId } = readCaller(ctx)
+    const { caller, personaId } = readCaller(ctx)
 
-    const created = await createAutomation(caller, personaId, { name, prompt, at, cron, timezone, linkId })
+    const created = await createAutomation(caller, personaId, { name, prompt, at, cron, timezone })
     if (!created.ok) throw new Error(created.error.message)
     const automation = created.value
 

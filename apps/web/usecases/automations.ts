@@ -11,9 +11,8 @@ const prompt = z.string().trim().min(1, "Write what the persona should do.").max
 const cron = z.string().trim().refine(isValidCron, "Use a schedule like \"0 9 * * 1\": minute, hour, day of the month, month, day of the week.")
 const at = z.iso.datetime({ offset: true, error: "Use a full date and time." }).refine((value) => Date.parse(value) > Date.now(), "Pick a time in the future.").transform((value) => new Date(value).toISOString())
 const timezone = z.string().trim().refine(isValidTimezone, "Pick a timezone from the list.")
-const linkId = z.string().min(1)
-const createInput = z.object({ name, prompt, cron: cron.nullable().optional(), at: at.nullable().optional(), timezone: timezone.optional(), linkId: linkId.optional() })
-const updateInput = z.object({ name: name.optional(), prompt: prompt.optional(), cron: cron.nullable().optional(), at: at.nullable().optional(), timezone: timezone.optional(), enabled: z.boolean().optional(), linkId: linkId.nullable().optional() })
+const createInput = z.object({ name, prompt, cron: cron.nullable().optional(), at: at.nullable().optional(), timezone: timezone.optional() })
+const updateInput = z.object({ name: name.optional(), prompt: prompt.optional(), cron: cron.nullable().optional(), at: at.nullable().optional(), timezone: timezone.optional(), enabled: z.boolean().optional() })
 const runsInput = z.object({ limit: z.number().int().min(1).max(100).optional() })
 
 export async function listAutomations(caller: Caller, personaId: string) {
@@ -27,7 +26,7 @@ export async function listAutomations(caller: Caller, personaId: string) {
 export async function createAutomation(caller: Caller, personaId: string, input: z.input<typeof createInput>) {
   const parsed = validate(createInput, input)
   if (!parsed.ok) return parsed
-  const { name, prompt, cron, at, timezone, linkId } = parsed.value
+  const { name, prompt, cron, at, timezone } = parsed.value
 
   const hasAt = Boolean(at)
   const hasCron = Boolean(cron)
@@ -37,7 +36,7 @@ export async function createAutomation(caller: Caller, personaId: string, input:
   if (!persona.ok) return persona
 
   const when = { cron: cron ?? null, at: at ?? null, timezone: timezone ?? "UTC" }
-  const automation = await db.orm.public.Schedule.create({ personaId, linkId: linkId ?? null, name, prompt, ...when, nextRunAt: nextRunAt(when, new Date()) })
+  const automation = await db.orm.public.Schedule.create({ personaId, name, prompt, ...when, nextRunAt: nextRunAt(when, new Date()) })
   return ok(automation)
 }
 

@@ -29,7 +29,7 @@ beforeAll(async () => {
   const link = await db.orm.public.Link.create({ channel: "telegram", line: "111", externalId: `triggers-${Date.now()}`, personaId: persona.personaId })
   linkId = link.id
   triggerId = `ti_test_${Date.now()}`
-  await db.orm.public.Trigger.create({ id: triggerId, personaId: persona.personaId, linkId, name: "New email", prompt: "Sum up the new emails.", slug: SLUG, accountId: "ca_test" })
+  await db.orm.public.Trigger.create({ id: triggerId, personaId: persona.personaId, name: "New email", prompt: "Sum up the new emails.", slug: SLUG, accountId: "ca_test" })
 })
 
 afterAll(async () => {
@@ -92,7 +92,6 @@ test("start claims nothing inside the five minutes, then one run with all the wa
   const [run, ...more] = await runsOfTrigger()
   assert.equal(more.length, 0)
   assert.equal(run?.source, "trigger")
-  assert.equal(run?.linkId, linkId)
   assert.equal(run?.eventId, FIRST_EVENT)
   assert.equal(run?.sessionId, null)
   assert.equal((await waitingEvents()).length, 0)

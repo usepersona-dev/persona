@@ -7,9 +7,8 @@ import { getPersona } from "@/usecases/personas"
 
 const name = z.string().trim().min(1, "Give the webhook a name.").max(80, "Keep the name under 80 characters.")
 const prompt = z.string().trim().min(1, "Write what to do with each call.").max(20_000, "Keep the prompt under 20,000 characters.")
-const linkId = z.string().min(1)
-const createInput = z.object({ name, prompt, linkId: linkId.optional() })
-const updateInput = z.object({ name: name.optional(), prompt: prompt.optional(), enabled: z.boolean().optional(), linkId: linkId.nullable().optional() })
+const createInput = z.object({ name, prompt })
+const updateInput = z.object({ name: name.optional(), prompt: prompt.optional(), enabled: z.boolean().optional() })
 
 export async function listWebhooks(caller: Caller, personaId: string) {
   const persona = await getPersona(caller, personaId)
@@ -23,12 +22,12 @@ export async function listWebhooks(caller: Caller, personaId: string) {
 export async function createWebhook(caller: Caller, personaId: string, input: z.input<typeof createInput>) {
   const parsed = validate(createInput, input)
   if (!parsed.ok) return parsed
-  const { name, prompt, linkId } = parsed.value
+  const { name, prompt } = parsed.value
 
   const persona = await getPersona(caller, personaId)
   if (!persona.ok) return persona
 
-  const webhook = await db.orm.public.Webhook.create({ personaId, linkId: linkId ?? null, name, prompt })
+  const webhook = await db.orm.public.Webhook.create({ personaId, name, prompt })
   const result = withUrl(webhook)
   return ok(result)
 }

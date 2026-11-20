@@ -32,7 +32,6 @@ export async function claimDueRuns(now: Date, limit: number) {
     personaId: automation.personaId,
     source: "automation" as const,
     title: automation.name,
-    linkId: automation.linkId,
     scheduleId: automation.id,
     scheduledFor: automation.nextRunAt!,
     claimedAt: startsAt(automation)
@@ -81,7 +80,6 @@ export async function claimTriggerRuns(now: Date, limit: number) {
         personaId: trigger.personaId,
         source: "trigger",
         title: trigger.name,
-        linkId: trigger.linkId,
         triggerId: trigger.id,
         eventId: events[0]!.id,
         events: (relation) => relation.connect(events)
@@ -121,34 +119,31 @@ export async function reclaimLostRuns(now: Date, limit: number) {
   return runs
 }
 
-/** Ends a run with what its session came back with, with its chat; an answer that doesn't match the schema ends it as failed, kept here for us, and its chat hears nothing. A run ends once: the same ending arriving again changes nothing and gives back no run. */
+/** Ends a run with what its session came back with; an answer that doesn't match the schema ends it as failed, kept here for us, and no chat hears of it. A run ends once: the same ending arriving again changes nothing and gives back no run. */
 export async function completeRun(runId: string, sessionId: string, answer: unknown) {
   const parsed = runResult.safeParse(answer)
   const status = parsed.success ? "completed" : "failed"
   const result = parsed.success ? parsed.data : { summary: "It ended without a result.", notify: false }
 
   const ended = await db.orm.public.Run
-    .include("link")
     .where({ id: runId, status: "running" })
     .updateAll({ status, result, sessionId, endedAt: new Date().toISOString() })
   return ended
 }
 
-/** Ends a run that failed, with its chat; the failure is kept here for us, and its chat hears nothing. A run ends once: the same ending arriving again changes nothing and gives back no run. */
+/** Ends a run that failed; the failure is kept here for us, and no chat hears of it. A run ends once: the same ending arriving again changes nothing and gives back no run. */
 export async function failRun(runId: string, sessionId: string, message: string) {
   const ended = await db.orm.public.Run
-    .include("link")
     .where({ id: runId, status: "running" })
     .updateAll({ status: "failed", result: { summary: message, notify: false }, sessionId, endedAt: new Date().toISOString() })
   return ended
 }
 
-/** Fails the runs that have been going for over an hour since they were last claimed, including a webhook call whose session never started, so they stop blocking their automations; the failure is kept here for us, and their chats hear nothing. */
+/** Fails the runs that have been going for over an hour since they were last claimed, including a webhook call whose session never started, so they stop blocking their automations; the failure is kept here for us, and no chat hears of it. */
 export async function failStuckRuns(now: Date) {
   const stuckBefore = new Date(now.getTime() - STUCK_MS).toISOString()
 
   const failed = await db.orm.public.Run
-    .include("link")
     .where({ status: "running" })
     .where((run) => run.claimedAt.lt(stuckBefore))
     .updateAll({ status: "failed", result: { summary: "It ran for over an hour without finishing.", notify: false }, endedAt: now.toISOString() })

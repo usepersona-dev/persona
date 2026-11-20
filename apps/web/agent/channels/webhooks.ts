@@ -27,7 +27,7 @@ const channel = defineChannel<undefined, void, Run>({
       const mediaType = contentType ? contentType.split(";")[0].trim() : "text/plain"
       const filename = mediaType === "application/json" ? "webhook-body.json" : "webhook-body.txt"
 
-      const run = await db.orm.public.Run.create({ personaId: webhook.personaId, source: "webhook", title: webhook.name, linkId: webhook.linkId, webhookId: webhook.id })
+      const run = await db.orm.public.Run.create({ personaId: webhook.personaId, source: "webhook", title: webhook.name, webhookId: webhook.id })
 
       const auth = toPrincipal({
         orgId: webhook.persona.orgId,

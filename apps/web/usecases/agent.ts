@@ -57,6 +57,6 @@ export function readCaller(ctx: WithAuth) {
   if (!parsed.success) throw new Error("This session is not tied to a persona.")
 
   const caller: Caller = { orgId: parsed.data.orgId, userId: parsed.data.userId, personaId: parsed.data.personaId }
-  const agentCaller = { caller, personaId: parsed.data.personaId, linkId: parsed.data.linkId, channel: parsed.data.channel }
+  const agentCaller = { caller, personaId: parsed.data.personaId, channel: parsed.data.channel }
   return agentCaller
 }

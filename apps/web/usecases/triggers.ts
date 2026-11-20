@@ -8,9 +8,8 @@ import { getPersona } from "@/usecases/personas"
 
 const name = z.string().trim().min(1, "Give the trigger a name.").max(80, "Keep the name under 80 characters.")
 const prompt = z.string().trim().min(1, "Write what to do with the events.").max(20_000, "Keep the prompt under 20,000 characters.")
-const linkId = z.string().min(1)
-const createInput = z.object({ name, prompt, linkId: linkId.optional(), slug: z.string().trim().min(1, "Name the trigger type."), config: z.record(z.string(), z.unknown()).optional(), accountId: z.string().min(1).optional() })
-const updateInput = z.object({ name: name.optional(), prompt: prompt.optional(), linkId: linkId.nullable().optional() })
+const createInput = z.object({ name, prompt, slug: z.string().trim().min(1, "Name the trigger type."), config: z.record(z.string(), z.unknown()).optional(), accountId: z.string().min(1).optional() })
+const updateInput = z.object({ name: name.optional(), prompt: prompt.optional() })
 
 // The trigger types a connected app offers, with their settings
 export async function listAppTriggers(caller: Caller, personaId: string, app: string) {
@@ -36,7 +35,7 @@ export async function listTriggers(caller: Caller, personaId: string) {
 export async function createTrigger(caller: Caller, personaId: string, input: z.input<typeof createInput>) {
   const parsed = validate(createInput, input)
   if (!parsed.ok) return parsed
-  const { name, prompt, linkId, slug, config, accountId } = parsed.value
+  const { name, prompt, slug, config, accountId } = parsed.value
 
   const persona = await getPersona(caller, personaId)
   if (!persona.ok) return persona
@@ -56,7 +55,7 @@ export async function createTrigger(caller: Caller, personaId: string, input: z.
   const held = await db.orm.public.Trigger.where({ id }).first()
   if (held) return err("conflict", `Trigger "${held.name}" (${held.id}) already watches exactly this. Add the new task to its prompt with trigger_update.`)
 
-  const trigger = await db.orm.public.Trigger.create({ id, personaId, linkId: linkId ?? null, name, prompt, slug: type.slug, accountId: account.id })
+  const trigger = await db.orm.public.Trigger.create({ id, personaId, name, prompt, slug: type.slug, accountId: account.id })
   return ok(trigger)
 }
 

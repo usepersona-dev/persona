@@ -1,9 +1,9 @@
 "use client"
 
-import { CopyIcon, LinkIcon, SendIcon } from "lucide-react"
+import { CopyIcon, LinkIcon } from "lucide-react"
 import { Controller } from "react-hook-form"
 
-import { Choose, Property } from "@/components/property"
+import { Property } from "@/components/property"
 import { Section } from "@/components/section"
 import { SidePanel, SidePanelActions, SidePanelBody, SidePanelClose, SidePanelHeader, SidePanelTitle } from "@/components/side-panel"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
@@ -27,7 +27,7 @@ export function WebhookPanel({ persona, webhook, open, onOpenChange, onCreated }
 
 // Inside the panel, so the form starts fresh each time the panel opens, and again when Create turns it into the new webhook
 function WebhookForm({ persona, webhook, onCreated, onClose }: { persona: Persona; webhook: Webhook | null; onCreated: (webhookId: string) => void; onClose: () => void }) {
-  const { form, submit, saving, deleting, confirming, setConfirming, deleteWebhook, chats } = useWebhookForm(persona, webhook, onCreated, onClose)
+  const { form, submit, saving, deleting, confirming, setConfirming, deleteWebhook } = useWebhookForm(persona, webhook, onCreated, onClose)
 
   return (
     <>
@@ -54,15 +54,6 @@ function WebhookForm({ persona, webhook, onCreated, onClose }: { persona: Person
               <Property icon={LinkIcon} label="Address">
                 {webhook ? <Address url={webhook.url} /> : <span className="px-3 text-sm text-muted-foreground">Shows after Create</span>}
               </Property>
-              <Controller
-                control={form.control}
-                name="linkId"
-                render={({ field }) => (
-                  <Property icon={SendIcon} label="Send to">
-                    <Choose items={chats} value={field.value} onChange={field.onChange} />
-                  </Property>
-                )}
-              />
             </div>
             <Controller
               control={form.control}

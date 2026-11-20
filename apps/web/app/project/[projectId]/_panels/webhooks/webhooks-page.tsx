@@ -8,21 +8,17 @@ import { Button } from "@/components/ui/button"
 import { EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { ItemActions, ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item"
 import { Switch } from "@/components/ui/switch"
-import { useLinks } from "@/hooks/links"
 import type { Persona } from "@/hooks/personas"
 import { useUpdateWebhook, useWebhooks, type Webhook } from "@/hooks/webhooks"
 import { cn } from "@/lib/utils"
 
 import { usePanels } from "../../_hooks/use-panels"
-import { chatsOf } from "./use-webhook-form"
 import { WebhookPanel } from "./webhook-panel"
 
 // The persona's webhooks. A row opens its panel (&webhook=<id>, or new), which holds while it slides out. After Create the panel moves on to the new webhook, so its address can be copied.
 export function WebhooksPage({ persona }: { persona: Persona }) {
   const panels = usePanels()
   const { webhooks, error, isLoading } = useWebhooks(persona.id)
-  const { links } = useLinks(persona.id)
-  const chats = chatsOf(links)
   const edited = webhooks?.find((webhook) => webhook.id === panels.webhook.data)
 
   return (
@@ -69,7 +65,7 @@ export function WebhooksPage({ persona }: { persona: Persona }) {
       {!!webhooks?.length && (
         <ScreenRows>
           {webhooks.map((webhook) => (
-            <WebhookRow key={webhook.id} webhook={webhook} chats={chats} onOpen={() => panels.openWebhook(webhook.id)} />
+            <WebhookRow key={webhook.id} webhook={webhook} onOpen={() => panels.openWebhook(webhook.id)} />
           ))}
         </ScreenRows>
       )}
@@ -79,10 +75,8 @@ export function WebhooksPage({ persona }: { persona: Persona }) {
 }
 
 // The whole row opens the webhook, and its switch pauses or resumes it in place. A paused webhook turns its calls away.
-function WebhookRow({ webhook, chats, onOpen }: { webhook: Webhook; chats: { value: string; label: string }[]; onOpen: () => void }) {
+function WebhookRow({ webhook, onOpen }: { webhook: Webhook; onOpen: () => void }) {
   const update = useUpdateWebhook(webhook)
-  const chat = chats.find((item) => item.value === webhook.linkId)
-  const sendTo = chat ? `Sends to ${chat.label}` : "Sends to no one"
 
   function toggle(enabled: boolean) {
     void update.trigger({ enabled }, { optimisticData: (list: Webhook[] = []) => list.map((item) => (item.id === webhook.id ? { ...item, enabled } : item)) })
@@ -96,7 +90,7 @@ function WebhookRow({ webhook, chats, onOpen }: { webhook: Webhook; chats: { val
             {webhook.name}
           </button>
         </ItemTitle>
-        <ItemDescription>{webhook.enabled ? sendTo : `Paused · ${sendTo}`}</ItemDescription>
+        <ItemDescription>{webhook.enabled ? webhook.prompt : `Paused · ${webhook.prompt}`}</ItemDescription>
       </ItemContent>
       <ItemActions className="relative">
         <Switch checked={webhook.enabled} onCheckedChange={toggle} aria-label={webhook.enabled ? `Pause ${webhook.name}` : `Resume ${webhook.name}`} />
