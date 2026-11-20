@@ -14,6 +14,7 @@ type Channel = "whatsapp" | "whatsapp_meta" | "telegram"
 
 const channel = z.enum(["whatsapp", "whatsapp_meta", "telegram"])
 const address = z.object({ channel, line: z.string().min(1), externalId: z.string().min(1) })
+const updateInput = z.object({ reports: z.boolean() })
 const redeemInput = address.extend({ code: z.string().trim().toLowerCase(), label: z.string().trim().max(120).optional(), phone: z.string().trim().max(32).nullish() })
 
 export async function createLinkCode(caller: Caller, personaId: string) {
@@ -87,6 +88,26 @@ export async function listLinks(caller: Caller, personaId: string) {
 
   const links = await db.orm.public.Link.where({ personaId }).orderBy((link) => link.createdAt.desc()).all()
   return ok(links)
+}
+
+export async function updateLink(caller: Caller, ref: z.input<typeof address>, input: z.input<typeof updateInput>) {
+  const parsed = validate(address, ref)
+  if (!parsed.ok) return parsed
+  const { channel, line, externalId } = parsed.value
+
+  const changes = validate(updateInput, input)
+  if (!changes.ok) return changes
+
+  const link = await db.orm.public.Link.where({ channel, line, externalId }).first()
+  if (!link) return err("not_found", "This person is not linked.")
+
+  const persona = await getPersona(caller, link.personaId)
+  if (!persona.ok) return err("not_found", "This person is not linked.")
+
+  const updated = await db.orm.public.Link.where({ id: link.id }).update(changes.value)
+  if (!updated) return err("not_found", "This person is not linked.")
+
+  return ok(updated)
 }
 
 export async function unlink(caller: Caller, input: z.input<typeof address>) {
