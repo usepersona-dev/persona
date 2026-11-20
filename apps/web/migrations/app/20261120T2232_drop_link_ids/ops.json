@@ -1,0 +1,590 @@
+[
+  {
+    "id": "dropConstraint.runs.runs_link_id_fkey",
+    "label": "Drop constraint \"runs_link_id_fkey\" on \"runs\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "runs_link_id_fkey",
+        "table": "runs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"runs_link_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "runs_link_id_fkey",
+          "public",
+          "\"public\".\"runs\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"runs_link_id_fkey\" on \"runs\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop constraint \"runs_link_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"runs\" DROP CONSTRAINT \"runs_link_id_fkey\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"runs_link_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "runs_link_id_fkey",
+          "public",
+          "\"public\".\"runs\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"runs_link_id_fkey\" on \"runs\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropConstraint.schedules.schedules_link_id_fkey",
+    "label": "Drop constraint \"schedules_link_id_fkey\" on \"schedules\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "schedules_link_id_fkey",
+        "table": "schedules"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"schedules_link_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "schedules_link_id_fkey",
+          "public",
+          "\"public\".\"schedules\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"schedules_link_id_fkey\" on \"schedules\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop constraint \"schedules_link_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"schedules\" DROP CONSTRAINT \"schedules_link_id_fkey\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"schedules_link_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "schedules_link_id_fkey",
+          "public",
+          "\"public\".\"schedules\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"schedules_link_id_fkey\" on \"schedules\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropConstraint.triggers.triggers_link_id_fkey",
+    "label": "Drop constraint \"triggers_link_id_fkey\" on \"triggers\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "triggers_link_id_fkey",
+        "table": "triggers"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"triggers_link_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "triggers_link_id_fkey",
+          "public",
+          "\"public\".\"triggers\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"triggers_link_id_fkey\" on \"triggers\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop constraint \"triggers_link_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"triggers\" DROP CONSTRAINT \"triggers_link_id_fkey\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"triggers_link_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "triggers_link_id_fkey",
+          "public",
+          "\"public\".\"triggers\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"triggers_link_id_fkey\" on \"triggers\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropConstraint.webhooks.webhooks_link_id_fkey",
+    "label": "Drop constraint \"webhooks_link_id_fkey\" on \"webhooks\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "webhooks_link_id_fkey",
+        "table": "webhooks"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"webhooks_link_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "webhooks_link_id_fkey",
+          "public",
+          "\"public\".\"webhooks\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "constraint \"webhooks_link_id_fkey\" on \"webhooks\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop constraint \"webhooks_link_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"webhooks\" DROP CONSTRAINT \"webhooks_link_id_fkey\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"webhooks_link_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "webhooks_link_id_fkey",
+          "public",
+          "\"public\".\"webhooks\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"webhooks_link_id_fkey\" on \"webhooks\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropIndex.runs.runs_link_id_idx_fdb33a76",
+    "label": "Drop index \"runs_link_id_idx_fdb33a76\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "runs_link_id_idx_fdb33a76",
+        "table": "runs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"runs_link_id_idx_fdb33a76\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"runs_link_id_idx_fdb33a76\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"runs_link_id_idx_fdb33a76\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"runs_link_id_idx_fdb33a76\"",
+        "sql": "DROP INDEX \"public\".\"runs_link_id_idx_fdb33a76\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"runs_link_id_idx_fdb33a76\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"runs_link_id_idx_fdb33a76\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"runs_link_id_idx_fdb33a76\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropColumn.runs.link_id",
+    "label": "Drop column \"link_id\" from \"runs\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "link_id",
+        "table": "runs"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"link_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "runs",
+          "link_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"link_id\" on \"runs\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"link_id\"",
+        "sql": "ALTER TABLE \"public\".\"runs\" DROP COLUMN \"link_id\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"link_id\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "runs",
+          "link_id"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"link_id\" on \"runs\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropIndex.schedules.schedules_link_id_idx_fdb33a76",
+    "label": "Drop index \"schedules_link_id_idx_fdb33a76\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "schedules_link_id_idx_fdb33a76",
+        "table": "schedules"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"schedules_link_id_idx_fdb33a76\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"schedules_link_id_idx_fdb33a76\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"schedules_link_id_idx_fdb33a76\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"schedules_link_id_idx_fdb33a76\"",
+        "sql": "DROP INDEX \"public\".\"schedules_link_id_idx_fdb33a76\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"schedules_link_id_idx_fdb33a76\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"schedules_link_id_idx_fdb33a76\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"schedules_link_id_idx_fdb33a76\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropColumn.schedules.link_id",
+    "label": "Drop column \"link_id\" from \"schedules\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "link_id",
+        "table": "schedules"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"link_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "schedules",
+          "link_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"link_id\" on \"schedules\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"link_id\"",
+        "sql": "ALTER TABLE \"public\".\"schedules\" DROP COLUMN \"link_id\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"link_id\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "schedules",
+          "link_id"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"link_id\" on \"schedules\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropIndex.triggers.triggers_link_id_idx_fdb33a76",
+    "label": "Drop index \"triggers_link_id_idx_fdb33a76\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "triggers_link_id_idx_fdb33a76",
+        "table": "triggers"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"triggers_link_id_idx_fdb33a76\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"triggers_link_id_idx_fdb33a76\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"triggers_link_id_idx_fdb33a76\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"triggers_link_id_idx_fdb33a76\"",
+        "sql": "DROP INDEX \"public\".\"triggers_link_id_idx_fdb33a76\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"triggers_link_id_idx_fdb33a76\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"triggers_link_id_idx_fdb33a76\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"triggers_link_id_idx_fdb33a76\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropColumn.triggers.link_id",
+    "label": "Drop column \"link_id\" from \"triggers\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "link_id",
+        "table": "triggers"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"link_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "triggers",
+          "link_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"link_id\" on \"triggers\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"link_id\"",
+        "sql": "ALTER TABLE \"public\".\"triggers\" DROP COLUMN \"link_id\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"link_id\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "triggers",
+          "link_id"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"link_id\" on \"triggers\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropIndex.webhooks.webhooks_link_id_idx_fdb33a76",
+    "label": "Drop index \"webhooks_link_id_idx_fdb33a76\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "webhooks_link_id_idx_fdb33a76",
+        "table": "webhooks"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"webhooks_link_id_idx_fdb33a76\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"webhooks_link_id_idx_fdb33a76\""
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"webhooks_link_id_idx_fdb33a76\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"webhooks_link_id_idx_fdb33a76\"",
+        "sql": "DROP INDEX \"public\".\"webhooks_link_id_idx_fdb33a76\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"webhooks_link_id_idx_fdb33a76\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"webhooks_link_id_idx_fdb33a76\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"webhooks_link_id_idx_fdb33a76\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropColumn.webhooks.link_id",
+    "label": "Drop column \"link_id\" from \"webhooks\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "link_id",
+        "table": "webhooks"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"link_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "webhooks",
+          "link_id"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"link_id\" on \"webhooks\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"link_id\"",
+        "sql": "ALTER TABLE \"public\".\"webhooks\" DROP COLUMN \"link_id\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"link_id\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "webhooks",
+          "link_id"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"link_id\" on \"webhooks\""
+        }
+      }
+    ]
+  }
+]

@@ -24,7 +24,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'21ba17de1b008d4716a1b1dffdffdbd9dd91f137804374cd64b54760778a964f'>;
+  StorageHashBase<'9c2e3b8c5810721bd1f562f5985036ff478b2c1943ec83c7114ce64a56526edc'>;
 export type ExecutionHash =
   ExecutionHashBase<'78b43e5b1c8aa2d568d98b412b8a820d10f8152ad556fce2308b42527230b92b'>;
 export type ProfileHash =
@@ -611,7 +611,6 @@ export namespace Models {
     endedAt: FieldOutputTypes['public']['Run']['endedAt'];
     eventId: FieldOutputTypes['public']['Run']['eventId'];
     id: FieldOutputTypes['public']['Run']['id'];
-    linkId: FieldOutputTypes['public']['Run']['linkId'];
     personaId: FieldOutputTypes['public']['Run']['personaId'];
     result: FieldOutputTypes['public']['Run']['result'];
     scheduleId: FieldOutputTypes['public']['Run']['scheduleId'];
@@ -623,12 +622,11 @@ export namespace Models {
     triggerId: FieldOutputTypes['public']['Run']['triggerId'];
     webhookId: FieldOutputTypes['public']['Run']['webhookId'];
     events: public_TriggerEvent[];
-    link: public_Link | null;
     persona: public_Persona;
     schedule: public_Schedule | null;
     trigger: public_Trigger | null;
     webhook: public_Webhook | null;
-    readonly [RelationKeys]?: 'events' | 'link' | 'persona' | 'schedule' | 'trigger' | 'webhook';
+    readonly [RelationKeys]?: 'events' | 'persona' | 'schedule' | 'trigger' | 'webhook';
   };
   export type public_Schedule = {
     at: FieldOutputTypes['public']['Schedule']['at'];
@@ -636,17 +634,15 @@ export namespace Models {
     cron: FieldOutputTypes['public']['Schedule']['cron'];
     enabled: FieldOutputTypes['public']['Schedule']['enabled'];
     id: FieldOutputTypes['public']['Schedule']['id'];
-    linkId: FieldOutputTypes['public']['Schedule']['linkId'];
     name: FieldOutputTypes['public']['Schedule']['name'];
     nextRunAt: FieldOutputTypes['public']['Schedule']['nextRunAt'];
     personaId: FieldOutputTypes['public']['Schedule']['personaId'];
     prompt: FieldOutputTypes['public']['Schedule']['prompt'];
     timezone: FieldOutputTypes['public']['Schedule']['timezone'];
     updatedAt: FieldOutputTypes['public']['Schedule']['updatedAt'];
-    link: public_Link | null;
     persona: public_Persona;
     runs: public_Run[];
-    readonly [RelationKeys]?: 'link' | 'persona' | 'runs';
+    readonly [RelationKeys]?: 'persona' | 'runs';
   };
   export type public_Secret = {
     ownerId: FieldOutputTypes['public']['Secret']['ownerId'];
@@ -707,17 +703,15 @@ export namespace Models {
     createdAt: FieldOutputTypes['public']['Trigger']['createdAt'];
     enabled: FieldOutputTypes['public']['Trigger']['enabled'];
     id: FieldOutputTypes['public']['Trigger']['id'];
-    linkId: FieldOutputTypes['public']['Trigger']['linkId'];
     name: FieldOutputTypes['public']['Trigger']['name'];
     personaId: FieldOutputTypes['public']['Trigger']['personaId'];
     prompt: FieldOutputTypes['public']['Trigger']['prompt'];
     slug: FieldOutputTypes['public']['Trigger']['slug'];
     updatedAt: FieldOutputTypes['public']['Trigger']['updatedAt'];
     events: public_TriggerEvent[];
-    link: public_Link | null;
     persona: public_Persona;
     runs: public_Run[];
-    readonly [RelationKeys]?: 'events' | 'link' | 'persona' | 'runs';
+    readonly [RelationKeys]?: 'events' | 'persona' | 'runs';
   };
   export type public_TriggerEvent = {
     createdAt: FieldOutputTypes['public']['TriggerEvent']['createdAt'];
@@ -761,16 +755,14 @@ export namespace Models {
     createdAt: FieldOutputTypes['public']['Webhook']['createdAt'];
     enabled: FieldOutputTypes['public']['Webhook']['enabled'];
     id: FieldOutputTypes['public']['Webhook']['id'];
-    linkId: FieldOutputTypes['public']['Webhook']['linkId'];
     name: FieldOutputTypes['public']['Webhook']['name'];
     personaId: FieldOutputTypes['public']['Webhook']['personaId'];
     prompt: FieldOutputTypes['public']['Webhook']['prompt'];
     secret: FieldOutputTypes['public']['Webhook']['secret'];
     updatedAt: FieldOutputTypes['public']['Webhook']['updatedAt'];
-    link: public_Link | null;
     persona: public_Persona;
     runs: public_Run[];
-    readonly [RelationKeys]?: 'link' | 'persona' | 'runs';
+    readonly [RelationKeys]?: 'persona' | 'runs';
   };
 }
 
@@ -2076,12 +2068,6 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly many: false;
                 };
-                readonly link_id: {
-                  readonly dataType: 'pg/text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                  readonly many: false;
-                };
                 readonly persona_id: {
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
@@ -2154,12 +2140,6 @@ type ContractBase = Omit<
               ];
               indexes: readonly [
                 {
-                  readonly name: 'runs_link_id_idx_fdb33a76';
-                  readonly prefix: 'runs_link_id_idx';
-                  readonly columns: readonly ['link_id'];
-                  readonly unique: false;
-                },
-                {
                   readonly name: 'runs_persona_id_idx_840c67e2';
                   readonly prefix: 'runs_persona_id_idx';
                   readonly columns: readonly ['persona_id'];
@@ -2200,18 +2180,6 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'personas';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'runs';
-                    readonly columns: readonly ['link_id'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'links';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -2290,12 +2258,6 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly many: false;
                 };
-                readonly link_id: {
-                  readonly dataType: 'pg/text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                  readonly many: false;
-                };
                 readonly name: {
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
@@ -2347,12 +2309,6 @@ type ContractBase = Omit<
                   readonly unique: false;
                 },
                 {
-                  readonly name: 'schedules_link_id_idx_fdb33a76';
-                  readonly prefix: 'schedules_link_id_idx';
-                  readonly columns: readonly ['link_id'];
-                  readonly unique: false;
-                },
-                {
                   readonly name: 'schedules_persona_id_idx_840c67e2';
                   readonly prefix: 'schedules_persona_id_idx';
                   readonly columns: readonly ['persona_id'];
@@ -2369,18 +2325,6 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'personas';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'schedules';
-                    readonly columns: readonly ['link_id'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'links';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -2852,12 +2796,6 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly many: false;
                 };
-                readonly link_id: {
-                  readonly dataType: 'pg/text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                  readonly many: false;
-                };
                 readonly name: {
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
@@ -2893,12 +2831,6 @@ type ContractBase = Omit<
               uniques: readonly [];
               indexes: readonly [
                 {
-                  readonly name: 'triggers_link_id_idx_fdb33a76';
-                  readonly prefix: 'triggers_link_id_idx';
-                  readonly columns: readonly ['link_id'];
-                  readonly unique: false;
-                },
-                {
                   readonly name: 'triggers_persona_id_idx_840c67e2';
                   readonly prefix: 'triggers_persona_id_idx';
                   readonly columns: readonly ['persona_id'];
@@ -2915,18 +2847,6 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'personas';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'triggers';
-                    readonly columns: readonly ['link_id'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'links';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -3120,12 +3040,6 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly many: false;
                 };
-                readonly link_id: {
-                  readonly dataType: 'pg/text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                  readonly many: false;
-                };
                 readonly name: {
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
@@ -3165,12 +3079,6 @@ type ContractBase = Omit<
               uniques: readonly [{ readonly columns: readonly ['secret'] }];
               indexes: readonly [
                 {
-                  readonly name: 'webhooks_link_id_idx_fdb33a76';
-                  readonly prefix: 'webhooks_link_id_idx';
-                  readonly columns: readonly ['link_id'];
-                  readonly unique: false;
-                },
-                {
                   readonly name: 'webhooks_persona_id_idx_840c67e2';
                   readonly prefix: 'webhooks_persona_id_idx';
                   readonly columns: readonly ['persona_id'];
@@ -3187,18 +3095,6 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'personas';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'webhooks';
-                    readonly columns: readonly ['link_id'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'links';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -4723,10 +4619,6 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
-              readonly linkId: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
               readonly personaId: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -4789,15 +4681,6 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['runId'];
                 };
               };
-              readonly link: {
-                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Link' };
-                readonly cardinality: 'N:1';
-                readonly nullable: true;
-                readonly on: {
-                  readonly localFields: readonly ['linkId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
               readonly persona: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -4856,7 +4739,6 @@ type ContractBase = Omit<
                 readonly endedAt: { readonly column: 'ended_at' };
                 readonly eventId: { readonly column: 'event_id' };
                 readonly id: { readonly column: 'id' };
-                readonly linkId: { readonly column: 'link_id' };
                 readonly personaId: { readonly column: 'persona_id' };
                 readonly result: { readonly column: 'result' };
                 readonly scheduleId: { readonly column: 'schedule_id' };
@@ -4898,10 +4780,6 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
-              readonly linkId: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
               readonly name: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -4934,15 +4812,6 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
-              readonly link: {
-                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Link' };
-                readonly cardinality: 'N:1';
-                readonly nullable: true;
-                readonly on: {
-                  readonly localFields: readonly ['linkId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
               readonly persona: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -4973,7 +4842,6 @@ type ContractBase = Omit<
                 readonly cron: { readonly column: 'cron' };
                 readonly enabled: { readonly column: 'enabled' };
                 readonly id: { readonly column: 'id' };
-                readonly linkId: { readonly column: 'link_id' };
                 readonly name: { readonly column: 'name' };
                 readonly nextRunAt: { readonly column: 'next_run_at' };
                 readonly personaId: { readonly column: 'persona_id' };
@@ -5336,10 +5204,6 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
-              readonly linkId: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
               readonly name: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -5376,15 +5240,6 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['triggerId'];
                 };
               };
-              readonly link: {
-                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Link' };
-                readonly cardinality: 'N:1';
-                readonly nullable: true;
-                readonly on: {
-                  readonly localFields: readonly ['linkId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
               readonly persona: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -5414,7 +5269,6 @@ type ContractBase = Omit<
                 readonly createdAt: { readonly column: 'created_at' };
                 readonly enabled: { readonly column: 'enabled' };
                 readonly id: { readonly column: 'id' };
-                readonly linkId: { readonly column: 'link_id' };
                 readonly name: { readonly column: 'name' };
                 readonly personaId: { readonly column: 'persona_id' };
                 readonly prompt: { readonly column: 'prompt' };
@@ -5685,10 +5539,6 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
-              readonly linkId: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
               readonly name: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -5714,15 +5564,6 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
-              readonly link: {
-                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Link' };
-                readonly cardinality: 'N:1';
-                readonly nullable: true;
-                readonly on: {
-                  readonly localFields: readonly ['linkId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
               readonly persona: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -5751,7 +5592,6 @@ type ContractBase = Omit<
                 readonly createdAt: { readonly column: 'created_at' };
                 readonly enabled: { readonly column: 'enabled' };
                 readonly id: { readonly column: 'id' };
-                readonly linkId: { readonly column: 'link_id' };
                 readonly name: { readonly column: 'name' };
                 readonly personaId: { readonly column: 'persona_id' };
                 readonly prompt: { readonly column: 'prompt' };

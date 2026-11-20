@@ -1919,13 +1919,6 @@
                   "kind": "scalar"
                 }
               },
-              "linkId": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
               "personaId": {
                 "nullable": false,
                 "type": {
@@ -2028,22 +2021,6 @@
                   "namespace": "public"
                 }
               },
-              "link": {
-                "cardinality": "N:1",
-                "nullable": true,
-                "on": {
-                  "localFields": [
-                    "linkId"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "Link",
-                  "namespace": "public"
-                }
-              },
               "persona": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -2126,9 +2103,6 @@
                 "id": {
                   "column": "id"
                 },
-                "linkId": {
-                  "column": "link_id"
-                },
                 "personaId": {
                   "column": "persona_id"
                 },
@@ -2201,13 +2175,6 @@
                   "kind": "scalar"
                 }
               },
-              "linkId": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
               "name": {
                 "nullable": false,
                 "type": {
@@ -2252,22 +2219,6 @@
               }
             },
             "relations": {
-              "link": {
-                "cardinality": "N:1",
-                "nullable": true,
-                "on": {
-                  "localFields": [
-                    "linkId"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "Link",
-                  "namespace": "public"
-                }
-              },
               "persona": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -2316,9 +2267,6 @@
                 },
                 "id": {
                   "column": "id"
-                },
-                "linkId": {
-                  "column": "link_id"
                 },
                 "name": {
                   "column": "name"
@@ -2872,13 +2820,6 @@
                   "kind": "scalar"
                 }
               },
-              "linkId": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
               "name": {
                 "nullable": false,
                 "type": {
@@ -2931,22 +2872,6 @@
                   "namespace": "public"
                 }
               },
-              "link": {
-                "cardinality": "N:1",
-                "nullable": true,
-                "on": {
-                  "localFields": [
-                    "linkId"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "Link",
-                  "namespace": "public"
-                }
-              },
               "persona": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -2992,9 +2917,6 @@
                 },
                 "id": {
                   "column": "id"
-                },
-                "linkId": {
-                  "column": "link_id"
                 },
                 "name": {
                   "column": "name"
@@ -3399,13 +3321,6 @@
                   "kind": "scalar"
                 }
               },
-              "linkId": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
               "name": {
                 "nullable": false,
                 "type": {
@@ -3443,22 +3358,6 @@
               }
             },
             "relations": {
-              "link": {
-                "cardinality": "N:1",
-                "nullable": true,
-                "on": {
-                  "localFields": [
-                    "linkId"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "Link",
-                  "namespace": "public"
-                }
-              },
               "persona": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -3501,9 +3400,6 @@
                 },
                 "id": {
                   "column": "id"
-                },
-                "linkId": {
-                  "column": "link_id"
                 },
                 "name": {
                   "column": "name"
@@ -5061,11 +4957,6 @@
                   "dataType": "pg/text",
                   "nullable": false
                 },
-                "link_id": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": true
-                },
                 "persona_id": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
@@ -5156,26 +5047,6 @@
                 },
                 {
                   "index": {
-                    "name": "runs_link_id_idx_fdb33a76"
-                  },
-                  "onDelete": "setNull",
-                  "source": {
-                    "columns": [
-                      "link_id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "runs"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "links"
-                  }
-                },
-                {
-                  "index": {
                     "name": "runs_schedule_id_idx_83757f9e"
                   },
                   "onDelete": "setNull",
@@ -5236,14 +5107,6 @@
                 }
               ],
               "indexes": [
-                {
-                  "columns": [
-                    "link_id"
-                  ],
-                  "name": "runs_link_id_idx_fdb33a76",
-                  "prefix": "runs_link_id_idx",
-                  "unique": false
-                },
                 {
                   "columns": [
                     "persona_id"
@@ -5340,11 +5203,6 @@
                   "dataType": "pg/text",
                   "nullable": false
                 },
-                "link_id": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": true
-                },
                 "name": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
@@ -5400,26 +5258,6 @@
                     "namespaceId": "public",
                     "tableName": "personas"
                   }
-                },
-                {
-                  "index": {
-                    "name": "schedules_link_id_idx_fdb33a76"
-                  },
-                  "onDelete": "setNull",
-                  "source": {
-                    "columns": [
-                      "link_id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "schedules"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "links"
-                  }
                 }
               ],
               "indexes": [
@@ -5430,14 +5268,6 @@
                   ],
                   "name": "schedules_enabled_next_run_at_idx_efb1f288",
                   "prefix": "schedules_enabled_next_run_at_idx",
-                  "unique": false
-                },
-                {
-                  "columns": [
-                    "link_id"
-                  ],
-                  "name": "schedules_link_id_idx_fdb33a76",
-                  "prefix": "schedules_link_id_idx",
                   "unique": false
                 },
                 {
@@ -6035,11 +5865,6 @@
                   "dataType": "pg/text",
                   "nullable": false
                 },
-                "link_id": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": true
-                },
                 "name": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
@@ -6086,37 +5911,9 @@
                     "namespaceId": "public",
                     "tableName": "personas"
                   }
-                },
-                {
-                  "index": {
-                    "name": "triggers_link_id_idx_fdb33a76"
-                  },
-                  "onDelete": "setNull",
-                  "source": {
-                    "columns": [
-                      "link_id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "triggers"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "links"
-                  }
                 }
               ],
               "indexes": [
-                {
-                  "columns": [
-                    "link_id"
-                  ],
-                  "name": "triggers_link_id_idx_fdb33a76",
-                  "prefix": "triggers_link_id_idx",
-                  "unique": false
-                },
                 {
                   "columns": [
                     "persona_id"
@@ -6373,11 +6170,6 @@
                   "dataType": "pg/text",
                   "nullable": false
                 },
-                "link_id": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": true
-                },
                 "name": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
@@ -6428,37 +6220,9 @@
                     "namespaceId": "public",
                     "tableName": "personas"
                   }
-                },
-                {
-                  "index": {
-                    "name": "webhooks_link_id_idx_fdb33a76"
-                  },
-                  "onDelete": "setNull",
-                  "source": {
-                    "columns": [
-                      "link_id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "webhooks"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "links"
-                  }
                 }
               ],
               "indexes": [
-                {
-                  "columns": [
-                    "link_id"
-                  ],
-                  "name": "webhooks_link_id_idx_fdb33a76",
-                  "prefix": "webhooks_link_id_idx",
-                  "unique": false
-                },
                 {
                   "columns": [
                     "persona_id"
@@ -7054,7 +6818,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "21ba17de1b008d4716a1b1dffdffdbd9dd91f137804374cd64b54760778a964f"
+    "storageHash": "9c2e3b8c5810721bd1f562f5985036ff478b2c1943ec83c7114ce64a56526edc"
   },
   "execution": {
     "executionHash": "78b43e5b1c8aa2d568d98b412b8a820d10f8152ad556fce2308b42527230b92b",

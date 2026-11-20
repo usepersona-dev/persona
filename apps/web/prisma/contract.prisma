@@ -405,8 +405,6 @@ model Schedule {
   id        String                     @id @onCreate(cuid(2))
   personaId String                     @map("persona_id")
   persona   Persona                    @relation(fields: [personaId], references: [id], onDelete: Cascade)
-  linkId    String?                    @map("link_id")
-  link      Link?                      @relation(fields: [linkId], references: [id], onDelete: SetNull)
   name      String
   prompt    String
   cron      String?
@@ -426,8 +424,6 @@ model Webhook {
   id        String                     @id @onCreate(cuid(2))
   personaId String                     @map("persona_id")
   persona   Persona                    @relation(fields: [personaId], references: [id], onDelete: Cascade)
-  linkId    String?                    @map("link_id")
-  link      Link?                      @relation(fields: [linkId], references: [id], onDelete: SetNull)
   name      String
   prompt    String
   secret    String                     @unique @default(sql`(gen_random_uuid())::text`)
@@ -445,8 +441,6 @@ model Trigger {
   id        String                     @id
   personaId String                     @map("persona_id")
   persona   Persona                    @relation(fields: [personaId], references: [id], onDelete: Cascade)
-  linkId    String?                    @map("link_id")
-  link      Link?                      @relation(fields: [linkId], references: [id], onDelete: SetNull)
   name      String
   prompt    String
   slug      String
@@ -474,15 +468,13 @@ model TriggerEvent {
 }
 
 // One run of a persona on its own, whatever started it: an automation coming due, a webhook being called or a trigger firing.
-// The run keeps its title and the chat it reports to from when it started, so ending and reporting need nothing from what started it.
+// The run keeps its title from when it started, so ending and reporting need nothing from what started it.
 model Run {
   id           String             @id @onCreate(cuid(2))
   personaId    String             @map("persona_id")
   persona      Persona            @relation(fields: [personaId], references: [id], onDelete: Cascade)
   source       RunSource
   title        String
-  linkId       String?            @map("link_id")
-  link         Link?              @relation(fields: [linkId], references: [id], onDelete: SetNull)
 
   // if source is automation
   scheduleId   String?            @map("schedule_id")
