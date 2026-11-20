@@ -93,9 +93,9 @@ test("a stranger is asked to link, /start with a code links the chat, and then a
 
   await receive(BOT_A, 1002, { text: "hello" })
   assert.equal(sends.length, 1)
-  assert.equal(sends[0]?.address, `telegram:${BOT_A}:${FAN}:${persona.personaId}`)
-  assert.match(String(sends[0]?.message), /^\[#\d+\] hello$/)
   const link = await db.orm.public.Link.where({ channel: "telegram", line: BOT_A, externalId: String(FAN) }).first()
+  assert.equal(sends[0]?.address, `telegram:${BOT_A}:${FAN}:${persona.personaId}:${link?.id}`)
+  assert.match(String(sends[0]?.message), /^\[#\d+\] hello$/)
   assert.deepEqual(sends[0]?.options.auth.attributes, { orgId: persona.caller.orgId, userId: `telegram:${BOT_A}:${FAN}`, personaId: persona.personaId, linkId: link?.id, channel: "telegram" })
 })
 
@@ -135,8 +135,9 @@ test("a reply keeps its markdown as written and a file goes out as real media", 
 })
 
 // A thread as eve hands it to the channel's events: it keeps what was posted and how often typing started
-function chatThread() {
-  const thread = { id: telegram.encodeThreadId(BOT_A, String(FAN), persona.personaId), posted: [] as unknown[], typing: 0, post: async (message: unknown) => void thread.posted.push(message), startTyping: async () => void (thread.typing += 1) }
+async function chatThread() {
+  const link = await db.orm.public.Link.where({ channel: "telegram", line: BOT_A, externalId: String(FAN) }).first()
+  const thread = { id: telegram.encodeThreadId(BOT_A, String(FAN), persona.personaId, link?.id ?? ""), posted: [] as unknown[], typing: 0, post: async (message: unknown) => void thread.posted.push(message), startTyping: async () => void (thread.typing += 1) }
   return thread
 }
 
@@ -156,7 +157,7 @@ test("each chat tool call goes out once it has run: a message, a quoted reply, a
   await receive(BOT_A, 2002, { text: "second" })
   calls.length = 0
 
-  const thread = chatThread()
+  const thread = await chatThread()
   const requested = telegram.events["call.requested"]
   const handle = telegram.events["call.settled"]
   assert.ok(requested && handle)
@@ -177,7 +178,7 @@ test("each chat tool call goes out once it has run: a message, a quoted reply, a
 })
 
 test("a file goes out once chat_file has run, by the public link it returned; a failed chat_file or another tool's result sends nothing", async () => {
-  const thread = chatThread()
+  const thread = await chatThread()
   const fileId = crypto.randomUUID()
   await db.orm.public.File.create({ id: fileId, personaId: persona.personaId, size: 10, name: "brief.pdf", contentType: "application/pdf" })
   const brief = `https://example.test/${persona.personaId}/${fileId}`
@@ -199,7 +200,7 @@ test("typing shows when a turn starts and when each step starts", async () => {
   await receive(BOT_A, 2101, { text: "hi" })
   calls.length = 0
 
-  const thread = chatThread()
+  const thread = await chatThread()
   const started = telegram.events["turn.started"]
   const requested = telegram.events["call.requested"]
   assert.ok(started && requested)
@@ -214,7 +215,7 @@ test("typing shows when a turn starts and when each step starts", async () => {
 })
 
 test("the persona's own text reaches no one, and a failed turn tells the person", async () => {
-  const thread = chatThread()
+  const thread = await chatThread()
   const completed = telegram.events["content.completed"]
   assert.ok(completed, "the channel answers content.completed itself, or eve's default posts the text")
   await completed({ type: "content.completed", data: { partId: "part_test", runId: "run_test", kind: "text", phase: "reply", value: "Sent two facts." } } as never, { channel: { thread } } as never)

@@ -15,8 +15,8 @@ test("a chat tool call in a fresh function, before any webhook, still reads the 
   const reaction = { kind: "tool-call", callId: "call_fresh", toolName: "chat_react", input: { emoji: "👍" } }
 
   const channels = [
-    { events: whatsapp.events, threadId: whatsapp.encodeThreadId("000000", "15550000000", "nobody") },
-    { events: telegram.events, threadId: telegram.encodeThreadId("1", "1", "nobody") },
+    { events: whatsapp.events, threadId: whatsapp.encodeThreadId("000000", "15550000000", "nobody", "nothing") },
+    { events: telegram.events, threadId: telegram.encodeThreadId("1", "1", "nobody", "nothing") },
   ]
   for (const { events, threadId } of channels) {
     const thread = { id: threadId, post: async () => undefined, startTyping: async () => undefined }

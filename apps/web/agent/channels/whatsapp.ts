@@ -90,8 +90,9 @@ export const { bot, channel, send } = chatSdkChannel({
   events,
 })
 
-export function encodeThreadId(phoneNumberId: string, waId: string, personaId: string) {
-  const id = kapso.encodeThreadId({ phoneNumberId, waId, conversationId: personaId })
+// A chat is one link: its address holds the persona and the link's id, so a chat linked again, on a new link, is a new chat
+export function encodeThreadId(phoneNumberId: string, waId: string, personaId: string, linkId: string) {
+  const id = kapso.encodeThreadId({ phoneNumberId, waId, conversationId: `${personaId}:${linkId}` })
   return id
 }
 
@@ -135,7 +136,7 @@ async function receive(thread: Thread, message: Message): Promise<string | null>
   const { persona } = linked.value
 
   const { caller, auth } = encodePrincipal(persona.orgId, linked.value)
-  const threadId = encodeThreadId(phoneNumberId, waId, persona.id)
+  const threadId = encodeThreadId(phoneNumberId, waId, persona.id, linked.value.id)
   const chat = `whatsapp:${threadId}`
 
   if (text.toLowerCase() === "/clear") {

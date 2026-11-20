@@ -89,10 +89,31 @@ test("a stranger is asked for a link code, the code links the chat, and then a m
 
   await receive({ type: "text", text: { body: "hello" } })
   assert.equal(sends.length, 1)
-  assert.equal(sends[0]?.address, kapsoThread(LINE, FAN, persona.personaId))
-  assert.match(String(sends[0]?.message), /^\[#[0-9a-f]{6}\] hello$/)
   const link = await db.orm.public.Link.where({ channel: "whatsapp", line: LINE, externalId: FAN }).first()
+  assert.equal(sends[0]?.address, kapsoThread(LINE, FAN, `${persona.personaId}:${link?.id}`))
+  assert.match(String(sends[0]?.message), /^\[#[0-9a-f]{6}\] hello$/)
   assert.deepEqual(sends[0]?.options.auth.attributes, { orgId: persona.caller.orgId, userId: `whatsapp:${LINE}:${FAN}`, personaId: persona.personaId, linkId: link?.id, channel: "whatsapp" })
+})
+
+test("a chat linked again on a new link is a new chat, with the new link's id", async () => {
+  await receive({ type: "text", text: { body: "first" } })
+  const before = await db.orm.public.Link.where({ channel: "whatsapp", line: LINE, externalId: FAN }).first()
+  assert.ok(before)
+
+  // The link row goes, as when the persona it sat on is deleted, and the person links again
+  await db.orm.public.Link.where({ id: before.id }).delete()
+  const linkCode = await createLinkCode(persona.caller, persona.personaId)
+  assert.ok(linkCode.ok)
+  await receive({ type: "text", text: { body: `link ${linkCode.value.code}` } })
+  await receive({ type: "text", text: { body: "second" } })
+  const after = await db.orm.public.Link.where({ channel: "whatsapp", line: LINE, externalId: FAN }).first()
+  assert.ok(after)
+  assert.notEqual(after.id, before.id)
+
+  assert.equal(sends.length, 2)
+  assert.equal(sends[0]?.address, kapsoThread(LINE, FAN, `${persona.personaId}:${before.id}`))
+  assert.equal(sends[1]?.address, kapsoThread(LINE, FAN, `${persona.personaId}:${after.id}`))
+  assert.equal(sends[1]?.options.auth.attributes.linkId, after.id)
 })
 
 test("a voice note keeps its file and uses Kapso's transcript", async () => {
@@ -139,8 +160,9 @@ test("a file goes out as real media with its own name and type", async () => {
 })
 
 // A thread as eve hands it to the channel's events: it keeps what was posted. Typing goes to Kapso, not through the thread
-function chatThread() {
-  const thread = { id: kapsoThread(LINE, FAN, persona.personaId), posted: [] as unknown[], post: async (message: unknown) => void thread.posted.push(message) }
+async function chatThread() {
+  const link = await db.orm.public.Link.where({ channel: "whatsapp", line: LINE, externalId: FAN }).first()
+  const thread = { id: kapsoThread(LINE, FAN, `${persona.personaId}:${link?.id}`), posted: [] as unknown[], post: async (message: unknown) => void thread.posted.push(message) }
   return thread
 }
 
@@ -158,7 +180,7 @@ test("each chat tool call goes out once it has run: a message, a quoted reply, a
   const tag = /^\[#([0-9a-f]{6})\]/.exec(String(sends[0]?.message))?.[1] ?? ""
   calls.length = 0
 
-  const thread = chatThread()
+  const thread = await chatThread()
   const requested = whatsapp.events["call.requested"]
   const handle = whatsapp.events["call.settled"]
   assert.ok(requested && handle)
@@ -179,7 +201,7 @@ test("each chat tool call goes out once it has run: a message, a quoted reply, a
 })
 
 test("a file goes out once chat_file has run, by the public link it returned; a failed chat_file or another tool's result sends nothing", async () => {
-  const thread = chatThread()
+  const thread = await chatThread()
   const fileId = crypto.randomUUID()
   await db.orm.public.File.create({ id: fileId, personaId: persona.personaId, size: 10, name: "brief.pdf", contentType: "application/pdf" })
   const brief = `https://example.test/${persona.personaId}/${fileId}`
@@ -201,7 +223,7 @@ test("typing shows on the person's latest message when a turn starts and when ea
   await receive({ id: latest, type: "text", text: { body: "hi" } })
   calls.length = 0
 
-  const thread = chatThread()
+  const thread = await chatThread()
   const started = whatsapp.events["turn.started"]
   const requested = whatsapp.events["call.requested"]
   const resulted = whatsapp.events["call.settled"]
@@ -224,7 +246,7 @@ test("typing shows on the person's latest message when a turn starts and when ea
 })
 
 test("the persona's own text reaches no one, and a failed turn tells the person", async () => {
-  const thread = chatThread()
+  const thread = await chatThread()
   const completed = whatsapp.events["content.completed"]
   assert.ok(completed, "the channel answers content.completed itself, or eve's default posts the text")
   await completed({ type: "content.completed", data: { partId: "part_test", runId: "run_test", kind: "text", phase: "reply", value: "Sent two facts." } } as never, { channel: { thread } } as never)

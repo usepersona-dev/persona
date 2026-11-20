@@ -27,7 +27,7 @@ test("a real turn reaches the Telegram chat only through the chat tools: one mes
   assert.ok(botToken.ok, "the bot's token is stored")
   const agentToken = await createAgentToken({ orgId: link.persona.orgId, userId: "live-test" }, link.personaId)
   assert.ok(agentToken.ok)
-  const address = `telegram:telegram:${BOT_ID}:${CHAT_ID}:${link.personaId}`
+  const address = `telegram:telegram:${BOT_ID}:${CHAT_ID}:${link.personaId}:${link.id}`
 
   async function telegram(method: string, body: object) {
     const response = await fetch(`https://api.telegram.org/bot${botToken.ok ? botToken.value : ""}/${method}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) })

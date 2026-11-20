@@ -19,7 +19,7 @@ import { readTelegramToken } from "@/usecases/telegram"
 
 // Telegram: one router adapter opens the right bot from the webhook path, with that bot's own token. /start and /link link a chat, /clear and /reset start it over, and any other message goes to the persona with a tag it can point at. The persona answers only through the chat tools, which this channel carries out
 
-type BotThread = TelegramThreadId & { botId: string; personaId?: string }
+type BotThread = TelegramThreadId & { botId: string; personaId?: string; linkId?: string }
 type Address = { channel: "telegram"; line: string; externalId: string }
 
 const REPLIES = {
@@ -70,7 +70,7 @@ class TelegramBots extends TelegramAdapter {
   }
 
   encodeThreadId(thread: TelegramThreadId & Partial<BotThread>) {
-    const id = ["telegram", thread.botId, thread.chatId, thread.personaId].filter(Boolean).join(":")
+    const id = ["telegram", thread.botId, thread.chatId, thread.personaId, thread.linkId].filter(Boolean).join(":")
     return id
   }
 
@@ -146,8 +146,9 @@ export const { bot, channel, send } = chatSdkChannel({
   events,
 })
 
-export function encodeThreadId(botId: string, chatId: string, personaId: string) {
-  const id = telegram.encodeThreadId({ botId, chatId, personaId })
+// A chat is one link: its address holds the persona and the link's id, so a chat linked again, on a new link, is a new chat
+export function encodeThreadId(botId: string, chatId: string, personaId: string, linkId: string) {
+  const id = telegram.encodeThreadId({ botId, chatId, personaId, linkId })
   return id
 }
 
@@ -203,7 +204,7 @@ async function onChatCommand(event: SlashCommandEvent) {
     const { persona } = linked.value
 
     const { caller } = encodePrincipal(persona.orgId, linked.value)
-    const chat = `telegram:${encodeThreadId(address.line, address.externalId, persona.id)}`
+    const chat = `telegram:${encodeThreadId(address.line, address.externalId, persona.id, linked.value.id)}`
 
     if (event.command === "/clear") {
       const cleared = await clearChat(caller, chat)
@@ -234,7 +235,7 @@ async function receive(thread: Thread, message: Message): Promise<string | null>
   const { persona } = linked.value
 
   const { caller, auth } = encodePrincipal(persona.orgId, linked.value)
-  const threadId = encodeThreadId(address.line, address.externalId, persona.id)
+  const threadId = encodeThreadId(address.line, address.externalId, persona.id, linked.value.id)
   // The adapter's message id is "<chat>:<message number>", and the tag the persona sees is the number
   const tag = message.id.split(":").at(-1) ?? message.id
   const content = await contentOf(caller, persona.id, message, tag)

@@ -21,7 +21,7 @@ import { readMetaLine } from "@/usecases/whatsapp-meta"
 // WhatsApp straight through Meta's Cloud API, on Persona's shared number and on numbers in the customers' own Meta accounts. Each number answers at /eve/v1/meta/<its phone number id> with its own keys (the shared number's sit in env), and a chat is one conversation with one persona. A message from the person links the chat, starts it over, or goes to the persona with a tag it can point at. The persona answers only through the chat tools, which this channel carries out
 
 type Address = { channel: "whatsapp_meta"; line: string; externalId: string }
-type LineThread = WhatsAppThreadId & { personaId?: string }
+type LineThread = WhatsAppThreadId & { personaId?: string; linkId?: string }
 type WebhookBody = { entry?: { changes?: { value?: { metadata?: { phone_number_id?: string } } }[] }[] }
 
 const REPLIES = {
@@ -94,7 +94,7 @@ class MetaLines extends WhatsAppAdapter {
   }
 
   encodeThreadId(thread: LineThread) {
-    const id = ["whatsapp", thread.phoneNumberId, thread.userWaId, thread.personaId].filter(Boolean).join(":")
+    const id = ["whatsapp", thread.phoneNumberId, thread.userWaId, thread.personaId, thread.linkId].filter(Boolean).join(":")
     return id
   }
 
@@ -213,8 +213,9 @@ export const { bot, channel, send } = chatSdkChannel({
   events,
 })
 
-export function encodeThreadId(phoneNumberId: string, userWaId: string, personaId: string) {
-  const id = meta.encodeThreadId({ phoneNumberId, userWaId, personaId })
+// A chat is one link: its address holds the persona and the link's id, so a chat linked again, on a new link, is a new chat
+export function encodeThreadId(phoneNumberId: string, userWaId: string, personaId: string, linkId: string) {
+  const id = meta.encodeThreadId({ phoneNumberId, userWaId, personaId, linkId })
   return id
 }
 
@@ -258,7 +259,7 @@ async function receive(thread: Thread, message: Message): Promise<string | null>
   const { persona } = linked.value
 
   const { caller, auth } = encodePrincipal(persona.orgId, linked.value)
-  const threadId = encodeThreadId(phoneNumberId, userWaId, persona.id)
+  const threadId = encodeThreadId(phoneNumberId, userWaId, persona.id, linked.value.id)
   const chat = `meta:${threadId}`
 
   if (text.toLowerCase() === "/clear") {

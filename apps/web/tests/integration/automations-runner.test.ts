@@ -13,6 +13,7 @@ type Route = { method: string; path: string; handler: (request: Request, args: n
 
 let persona: Awaited<ReturnType<typeof createTestPersona>>
 let linkId: string
+let chat: string
 
 // Stands in for the queue and the run route: the queue notes each run with its delay and hands it over at once, and the run route gives the run a session unless it has one. A report only has its route noted
 const calls: (AutomationRun & { delaySeconds: number })[] = []
@@ -36,6 +37,7 @@ beforeAll(async () => {
   persona = await createTestPersona("runner")
   const link = await db.orm.public.Link.create({ channel: "telegram", line: "111", externalId: `runner-${Date.now()}`, personaId: persona.personaId })
   linkId = link.id
+  chat = `telegram:${link.line}:${link.externalId}:${persona.personaId}:${link.id}`
 })
 
 afterAll(async () => {
@@ -58,8 +60,8 @@ async function runsOf(automationId: string) {
 async function reportRun(automationId: string, runId: string) {
   process.env.AUTOMATIONS_SECRET ??= "test-automations-secret"
   const route = (automations.routes as unknown as Route[]).find((candidate) => candidate.path === "/eve/v1/automations/:automationId/:runId/report")!
-  const sent: { message: unknown; idempotencyKey?: string }[] = []
-  const to = () => ({ send: async (message: unknown, options: { idempotencyKey?: string }) => { sent.push({ message, idempotencyKey: options.idempotencyKey }); return { sessionId: "session-chat" } } })
+  const sent: { threadId: string; message: unknown; idempotencyKey?: string }[] = []
+  const to = (_channel: unknown, target: { threadId: string }) => ({ send: async (message: unknown, options: { idempotencyKey?: string }) => { sent.push({ threadId: target.threadId, message, idempotencyKey: options.idempotencyKey }); return { sessionId: "session-chat" } } })
 
   const request = new Request(`https://persona.test/eve/v1/automations/${automationId}/${runId}/report`, { method: "POST", headers: { authorization: `Bearer ${process.env.AUTOMATIONS_SECRET}` } })
   const response = await route.handler(request, { params: { automationId, runId }, to } as never)
@@ -276,6 +278,7 @@ test("the report route tells the run's chat what came of it in the automation's 
   assert.match(String(told.sent[0]?.message), /Your automation "Fact to tell" just ran on its own/)
   assert.match(String(told.sent[0]?.message), /Honey never spoils\./)
   assert.equal(told.sent[0]?.idempotencyKey, `report:${factRun!.id}`)
+  assert.equal(told.sent[0]?.threadId, chat)
 
   const gone = await reportRun(fact.id, "no-such-run")
   assert.equal(gone.status, 404)

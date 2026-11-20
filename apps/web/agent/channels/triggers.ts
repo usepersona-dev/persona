@@ -85,15 +85,15 @@ const channel = defineChannel<undefined, void, Run>({
       const idempotencyKey = `report:${run.id}`
       if (link.channel === "telegram") {
         const { auth } = telegramPrincipal(run.persona.orgId, link)
-        await to(telegramChannel, { threadId: telegramThreadId(link.line, link.externalId, run.personaId) }).send(message, { auth, turnPolicy: "queue", idempotencyKey })
+        await to(telegramChannel, { threadId: telegramThreadId(link.line, link.externalId, run.personaId, link.id) }).send(message, { auth, turnPolicy: "queue", idempotencyKey })
       }
       if (link.channel === "whatsapp") {
         const { auth } = whatsappPrincipal(run.persona.orgId, link)
-        await to(whatsappChannel, { threadId: whatsappThreadId(link.line, link.externalId, run.personaId) }).send(message, { auth, turnPolicy: "queue", idempotencyKey })
+        await to(whatsappChannel, { threadId: whatsappThreadId(link.line, link.externalId, run.personaId, link.id) }).send(message, { auth, turnPolicy: "queue", idempotencyKey })
       }
       if (link.channel === "whatsapp_meta") {
         const { auth } = metaPrincipal(run.persona.orgId, link)
-        await to(metaChannel, { threadId: metaThreadId(link.line, link.externalId, run.personaId) }).send(message, { auth, turnPolicy: "queue", idempotencyKey })
+        await to(metaChannel, { threadId: metaThreadId(link.line, link.externalId, run.personaId, link.id) }).send(message, { auth, turnPolicy: "queue", idempotencyKey })
       }
 
       return Response.json({ ok: true, runId: run.id }, { status: 202 })
