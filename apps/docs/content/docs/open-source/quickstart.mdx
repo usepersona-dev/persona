@@ -113,7 +113,7 @@ Most of a persona's setup is also a tool the persona can use. In a chat, say wha
 
 - "From now on, answer in Spanish." The persona saves an instruction.
 - "Add the DeepWiki MCP server, https://mcp.deepwiki.com/mcp." The persona saves an MCP server, and its tools are there from the next turn.
-- "Every Monday at 9, send me a plan for the week." The persona creates an automation. From a Telegram or WhatsApp chat, the automation reports to that chat.
+- "Every Monday at 9, send me a plan for the week." The persona creates an automation. When a run finds something worth telling, the persona tells its linked Telegram and WhatsApp chats; see [Reports](/channels#reports).
 
 On your machine, automations do not fire on their own: the dev server runs no cron, and the queue that carries runs delivers only on Vercel. Fire the schedule by hand with `curl -X POST $APP/eve/v1/dev/schedules/start`, then start the claimed run yourself: `POST $APP/eve/v1/automations/<automationId>/<runId>` with `Authorization: Bearer $AUTOMATIONS_SECRET`. On Vercel, both happen every minute.
 

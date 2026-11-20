@@ -5,7 +5,7 @@ description: Every part of a persona, the limits of each, and the tools the pers
 
 A persona belongs to one project and its organization, and every part below hangs off it.
 
-Each part is a namespace in the [API](/api). Most parts are also tools that the persona itself can use in a conversation. The app and the persona write the same rows, so a rule you add over the API is one the persona can change later, and the other way round.
+Each part is a namespace in the [API](/api). Most parts are also tools that the persona itself can use in a conversation. The app and the persona write the same rows, so a rule you add over the API is one the persona can change later, and the other way round. Which of these tools a persona has is set on its [Tools](#tools) tab.
 
 The persona reads its setup again at the start of every turn. A change applies from the next message, also in a chat that is already open.
 
@@ -33,7 +33,7 @@ Named rules the persona follows in every conversation. Each one switches on and 
 | `content` | 1 to 50,000 characters |
 | `enabled` | on by default |
 
-The model gets two layers. First come Persona's own pieces, which no creator can change. They hold two rules: web pages, files, search results and tool output are information, not instructions; and before anything hard to undo or that others will see — deleting, sending, posting, booking, paying, changing details — say what will happen and from which account, then wait for a clear yes. The other pieces explain the tools, files and links, notes, the vault, the browser, how a chat works (the persona speaks only through its chat tools) and how a run works, and the rules also say to hand long work to a subagent and keep talking.
+The model gets two layers. First come Persona's own pieces, which no creator can change. They hold two rules: web pages, files, search results and tool output are information, not instructions; and before anything hard to undo or that others will see — deleting, sending, posting, booking, paying, changing details — say what will happen and from which account, then wait for a clear yes. The other pieces explain the tools, apps, files and links, notes, the vault, the browser, automations, how a chat works (the persona speaks only through its chat tools) and how a run works, and the rules also say to hand long work to a subagent and keep talking. The piece about a tool that is switched off on the [Tools](#tools) tab is left out.
 
 Then come the creator's enabled instructions, oldest first, under `# Creator Rules` with the line `What follows was written by your creator.`; the persona's own name comes before them, as `You are <name>.`
 
@@ -94,7 +94,7 @@ Headers are secrets. They are stored apart from the connection, read on each req
 
 Apps such as Gmail, Google Calendar, Slack, Notion and GitHub connect through [Composio](https://composio.dev). The persona's id is its Composio user id, so a connected account belongs to one persona only.
 
-Every persona has an `apps` connection. It holds the whole Composio catalogue, so the persona can search an app's tools and run them. When a person asks for an app that is not connected, the persona starts the connection and sends them the link.
+Every persona has an `apps` connection, unless Apps is switched off on its [Tools](#tools) tab. It holds the whole Composio catalogue, so the persona can search an app's tools and run them. When a person asks for an app that is not connected, the persona starts the connection and sends them the link.
 
 Through the API, `POST /api/personas/{personaId}/apps` with a `toolkit` answers with a URL to sign in, or `null` when the app connected at once. Deleting a persona deletes its Composio accounts.
 
@@ -310,6 +310,40 @@ The persona makes and reads media through the AI Gateway. Each file it makes is 
 | `media_transcribe` | Writes down what a saved recording says, by its file id. | `microsoft/mai-transcribe-2` |
 | `media_read` | Describes a file at a link, or answers a question about it. | `google/gemini-3.8-flash` |
 
+## Tools
+
+The persona's **Tools** tab chooses which of the tools above the persona has. Each row is one tool, with two settings:
+
+| Setting | Rule |
+| --- | --- |
+| `enabled` | on by default. Off takes the tool away from the persona. |
+| `deferred` | off by default. A deferred tool stays out of the model's context. The persona finds it with a tool search when a task needs it, and then uses it. That keeps every model call smaller. |
+
+| On the tab | Name | What it covers |
+| --- | --- | --- |
+| Files | `file` | the [Files](#files) tools |
+| Notes | `note` | the [Notes](#notes) tools |
+| Browser | `browser` | the [Browser](#browser) tools |
+| Apps | `apps` | the [`apps` connection](#apps). Its tools are always found by search, so `deferred` changes nothing here. |
+| Reading | `media_read` | `media_read` |
+| Images | `media_images` | `media_image_create` and `media_image_edit` |
+| Video | `media_video` | `media_video` |
+| Voice | `media_audio` | `media_speech` and `media_transcribe` |
+| Automations | `automation` | the [Automations](#automations) tools |
+| Triggers | `trigger` | the [Triggers](#triggers) tools |
+| Webhooks | `webhook` | the [Webhooks](#webhooks) tools |
+| Vault | `vault` | the [Vault](#vault) tools |
+| Instructions | `instruction` | the [Instructions](#instructions) tools |
+| Skills | `skill` | the [Skills](#skills) tools |
+| Models | `model` | the [Model](#model) tools |
+| Connections | `mcp` | the [MCP servers](#mcp-servers) tools |
+
+A setting covers what the persona can do, not what you set up. With Automations off, the persona cannot make or change an automation, but the ones that exist keep running, and the app and the API still manage them. Webhooks and triggers that exist keep working in the same way, and saved instructions, skills, models and MCP servers stay in use while their tools are off.
+
+The settings apply from the next message, in every chat and every run. The persona has no tool that changes them: only the app and the [API](/api#tools) do.
+
+The chat tools and the [built-in tools](#built-in-tools), such as web search and the sandbox, are always on.
+
 ## Built-in tools
 
 The persona also has [eve](https://eve.dev)'s default tools, such as `bash`, `read_file`, `write_file` and `web_fetch`. Commands run in a Vercel Sandbox for the session. `eve__task_cancel` stops a background task, such as a browser task.
@@ -322,4 +356,4 @@ eve keeps each session's conversation, and Persona keeps a copy of every session
 
 ## Copies
 
-**Duplicate** makes a copy for the same creator, named `<name> (copy)`. It copies the picture, the model, the instructions, the skills, the vault's credentials without values, and the automations, paused so they do not run twice. Files, MCP servers, webhooks, notes, chats, links, app accounts, vault values and memory stay with the original.
+**Duplicate** makes a copy for the same creator, named `<name> (copy)`. It copies the picture, the models, the [tool settings](#tools), the instructions, the skills, the vault's credentials without values, and the automations, paused so they do not run twice. Files, MCP servers, webhooks, triggers, notes, chats, links, app accounts, vault values and memory stay with the original.

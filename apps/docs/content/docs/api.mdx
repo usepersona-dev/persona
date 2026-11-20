@@ -202,6 +202,21 @@ Another app calls the webhook at its `url`, `https://app.usepersona.dev/eve/v1/w
 
 The body reaches the persona as a file. [Personas](/personas#webhooks) tells how a run goes.
 
+## Tools
+
+| Method and path | Body | Answer |
+| --- | --- | --- |
+| `GET /api/personas/{personaId}/tools` | | the persona's tools: an object with one `{ enabled, deferred }` per name, such as `{ "browser": { "enabled": true, "deferred": false }, ... }` |
+| `PATCH /api/personas/{personaId}/tools/{name}` | `{ enabled?, deferred? }` | all the tools, after the change |
+
+`name` is one of `apps`, `automation`, `browser`, `file`, `instruction`, `mcp`, `media_audio`, `media_images`, `media_read`, `media_video`, `model`, `note`, `skill`, `trigger`, `vault` and `webhook`. Any other name answers `400`. A tool that was never changed is on and not deferred. [Personas](/personas#tools) tells what each name covers and what the two settings do.
+
+```bash
+curl -X PATCH -H "Authorization: Bearer $PERSONA_KEY" -H "Content-Type: application/json" \
+  -d '{ "deferred": true }' \
+  https://app.usepersona.dev/api/personas/$PERSONA/tools/browser
+```
+
 ## Channels
 
 | Method and path | Body | Answer |

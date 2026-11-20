@@ -70,11 +70,13 @@ At the start of every turn, the agent reads the persona's setup again through th
 | Instructions | `agent/instructions.ts`: one file builds the whole prompt for the turn: the rules, the chat, run or subagent rules, a piece for each tool family that is switched on, the persona's name and its creator's instructions | every turn |
 | Skills | `agent/skills/creator.ts` | every turn |
 | MCP servers | `agent/connections/creator.ts` | every turn. Headers are read on each request to the server. |
-| Apps | `agent/connections/apps.ts` | once per turn; an app connected mid-chat is there on the next one |
+| Apps | `agent/connections/apps.ts` | once per turn; an app connected mid-chat is there on the next one. Left out while Apps is switched off. |
+| Tools | `agent/tools/*.ts`: each of the persona's tools is dynamic. It is left out while its tool is switched off on the Tools tab, and deferred while it is set so. The chat tools are always there. | every turn |
 | Memory | `agent/memory.ts`, scoped to the persona | every turn |
 
-Three hooks run around a turn:
+Four hooks run around a turn:
 
+- `agent/hooks/state.ts` reads the persona's name, models, tool settings, enabled instructions and enabled MCP servers once, as the turn starts, and keeps them in the session's state (`agent/lib/states/persona.ts`). The model, the instructions, the MCP servers, the apps and every tool read them from there.
 - `agent/hooks/credits.ts` checks the organization's credits before the first model call; with none left, the turn fails before it starts. It also charges each model run, see [Usage](#usage).
 - `agent/hooks/sessions.ts` keeps the `sessions` and `messages` tables: each session with its persona, channel and status, and every message of the conversation. The chat commands read it for a chat's session, and the model router reads a chat's latest messages from it.
 - `agent/hooks/sandboxes.ts` stops the session's sandbox at the end of the turn and counts what ran, see [The sandbox](#the-sandbox).
@@ -95,7 +97,7 @@ WhatsApp and Telegram run through eve's bridge to the Vercel Chat SDK (`chat` on
 - **WhatsApp on Kapso (legacy):** one Kapso adapter serves the first shared number. The number comes from the webhook path.
 - **Telegram:** one router adapter opens the right bot from the webhook path and reads that bot's token: the shared bot's from the environment, an own bot's from the secrets table.
 
-The Chat SDK keeps its state in Redis, under keys that start with `chat:<channel>:`. Each thread id carries the persona's id, so linking a chat to another persona starts another session.
+The Chat SDK keeps its state in Redis, under keys that start with `chat:<channel>:`. Each thread id carries the persona's id and the link's id, so linking a chat to another persona starts another session, and so does linking a chat again after it was unlinked.
 
 Webhooks and triggers are channels of their own, without the Chat SDK: `POST /eve/v1/webhooks/{secret}` starts a run of that webhook in a session of its own, keyed by the run, with the call's body as a file; `/eve/v1/triggers` takes Composio's trigger events, and the schedule starts a run for a trigger once its first event has waited five minutes, with every event that arrived since.
 
@@ -103,7 +105,7 @@ Webhooks and triggers are channels of their own, without the Chat SDK: `POST /ev
 
 One eve schedule, `agent/schedules/start.ts`, runs every minute; on Vercel it is a Cron Job. It fails the runs still going after an hour, then claims the runs to start: one for each automation due within the next ten minutes (a repeating one may start up to ten minutes early, so the many due at the same minute do not all start at once), one for each trigger whose first waiting event is five minutes old, and the runs that never got a session, claimed again five minutes after their start. An automation's next time is stored and indexed, so a tick reads only the due rows; a run is unique per automation and due time, so two ticks at once make no second run. Each of the three claims takes up to 7,000 runs per tick; the next tick takes the rest.
 
-Each claimed run goes on a [Vercel Queue](https://vercel.com/docs/queues) (`lib/queue.ts`): an automation run waits in its topic until its start, a trigger run goes at once. `vercel.json` hands each topic to a route under `app/api/queues/`, which calls the agent's own run route with `AUTOMATIONS_SECRET`. The run's turn ends in the channel's `turn.settled`: a completed turn ends the run with the result it gave, a failed one fails it. A result worth telling, from a run whose chat belongs to the same persona, goes on the reports queue, and the report route sends it to that chat.
+Each claimed run goes on a [Vercel Queue](https://vercel.com/docs/queues) (`lib/queue.ts`): an automation run waits in its topic until its start, a trigger run goes at once. `vercel.json` hands each topic to a route under `app/api/queues/`, which calls the agent's own run route with `AUTOMATIONS_SECRET`. The run's turn ends in the channel's `turn.settled`: a completed turn ends the run with the result it gave, a failed one fails it. A result worth telling goes on the reports queue, and the report route sends it to each of the persona's linked chats that gets reports (`links.reports`). The run and the chat are the delivery key, so a report the queue hands over again reaches no chat twice.
 
 ## Usage
 
