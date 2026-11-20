@@ -7,7 +7,7 @@ import { searchNotes } from "@/usecases/notes"
 import { updateTool } from "@/usecases/tools"
 
 const DRAWING = ["media_image_create", "media_image_edit"]
-const SEARCH = "Run your tool search three times, with the queries \"note\", \"media\" and \"file\", and tell me the tool names each one brings back. Run all three now, don't answer from memory."
+const SEARCH = "Run your tool search three times, with the queries \"note\", \"media\" and \"file\", and tell me the tool names each one brings back. Run all three now yourself, without handing it to anyone else, and don't answer from memory."
 
 // A deferred family stays out of the persona's tool list: the persona finds its tools with its tool search and still uses them. What the search brings back is the check here: the tools of the deferred families, and never those of a switched-off family or of a family that is in the list. Deferral loads when a turn starts, so a change applies from the next message
 export default defineEval<typeof config>({

@@ -11,6 +11,7 @@ const config = z.object({
 }).prefault({})
 
 const tools = z.object({
+  apps: config,
   automation: config,
   browser: config,
   file: config,

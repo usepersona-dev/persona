@@ -1,5 +1,6 @@
 import { defineDynamic, defineMcpClientConnection } from "eve/connections"
 
+import { readPersonaState } from "@/agent/lib/states/persona"
 import { readCaller } from "@/usecases/agent"
 import { openAppsSession } from "@/usecases/integrations"
 
@@ -7,6 +8,9 @@ export default defineDynamic(async (ctx) => {
   const { caller, personaId } = readCaller(ctx)
   const turnId = ctx.turn?.id
   if (!turnId) return null
+
+  const { tools } = readPersonaState()
+  if (!tools.apps.enabled) return null
 
   // eve runs this before every model call and fails the whole turn when it throws. Opening is a call to Composio, so it runs once per turn, and an app connected mid-chat shows up on the next one. When Composio is down the persona goes on without apps, and the next model call tries again
   try {

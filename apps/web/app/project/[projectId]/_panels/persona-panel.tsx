@@ -1,6 +1,6 @@
 "use client"
 
-import { BlocksIcon, CalendarClockIcon, CpuIcon, GraduationCapIcon, KeyRoundIcon, LockIcon, MessageCircleIcon, MessageSquareIcon, ScrollTextIcon, SettingsIcon, WebhookIcon } from "lucide-react"
+import { BlocksIcon, CalendarClockIcon, CpuIcon, GraduationCapIcon, KeyRoundIcon, LockIcon, MessageCircleIcon, MessageSquareIcon, ScrollTextIcon, SettingsIcon, WebhookIcon, WrenchIcon } from "lucide-react"
 
 import { PersonaAvatar } from "@/components/persona-avatar"
 import { SidePanel, SidePanelActions, SidePanelClose, SidePanelHeader, SidePanelTitle, usePanelState } from "@/components/side-panel"
@@ -20,6 +20,7 @@ import { ConnectionsPage } from "./connections/connections-page"
 import { VaultPage } from "./vault/vault-page"
 import { SkillsPage } from "./skills/skills-page"
 import { SettingsPage } from "./settings/settings-page"
+import { ToolsPage } from "./tools/tools-page"
 import { usePanels } from "../_hooks/use-panels"
 
 const PAGES: { value: string; label: string; icon: React.ComponentType; divider?: boolean; more?: boolean; Page: React.ComponentType<{ persona: Persona }>; fill?: boolean; keepMounted?: boolean }[] = [
@@ -33,6 +34,7 @@ const PAGES: { value: string; label: string; icon: React.ComponentType; divider?
   { value: "models", label: "Models", icon: CpuIcon, divider: true, more: true, Page: ModelsPage },
   { value: "connections", label: "Connections", icon: KeyRoundIcon, more: true, Page: ConnectionsPage },
   { value: "webhooks", label: "Webhooks", icon: WebhookIcon, more: true, Page: WebhooksPage },
+  { value: "tools", label: "Tools", icon: WrenchIcon, more: true, Page: ToolsPage },
   { value: "settings", label: "Settings", icon: SettingsIcon, divider: true, more: true, Page: SettingsPage },
 ]
 

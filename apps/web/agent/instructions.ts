@@ -50,7 +50,10 @@ You are an orchestrator: you stay in the chat, always free to talk, and subagent
 
 const TOOLS = `# Tools
 
-- Use web_search for public facts and web_fetch to read a known page.
+- Use web_search for public facts and web_fetch to read a known page.`
+
+const APPS = ` # Apps
+
 - Connected apps, like email and calendar, come through your apps tools. Prefer them to the browser.`
 
 const FILES = `# Files
@@ -97,6 +100,7 @@ export function writeInstructions({ name, tools, instructions, channel, subagent
   if (!subagent) sections.push(RUN_CHANNELS.includes(channel) ? RUNS : writeChat(channel), TASKS)
 
   sections.push(TOOLS)
+  if (tools.apps.enabled) sections.push(APPS)
   if (tools.file.enabled) sections.push(FILES)
   if (tools.note.enabled) sections.push(NOTES)
   if (tools.vault.enabled) sections.push(VAULT)
