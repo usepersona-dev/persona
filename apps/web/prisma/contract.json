@@ -993,6 +993,13 @@
                   "codecId": "pg/text@1",
                   "kind": "scalar"
                 }
+              },
+              "reports": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
               }
             },
             "relations": {
@@ -1041,6 +1048,9 @@
                 },
                 "phone": {
                   "column": "phone"
+                },
+                "reports": {
+                  "column": "reports"
                 }
               },
               "namespaceId": "public",
@@ -4299,6 +4309,15 @@
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
                   "nullable": true
+                },
+                "reports": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "nullable": false
                 }
               },
               "foreignKeys": [
@@ -7035,7 +7054,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "586d8ff6a9485cce2ca8b5db9553a9345883d605d72dd2075fafe796fc804b07"
+    "storageHash": "21ba17de1b008d4716a1b1dffdffdbd9dd91f137804374cd64b54760778a964f"
   },
   "execution": {
     "executionHash": "78b43e5b1c8aa2d568d98b412b8a820d10f8152ad556fce2308b42527230b92b",

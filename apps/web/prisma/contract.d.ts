@@ -24,7 +24,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'586d8ff6a9485cce2ca8b5db9553a9345883d605d72dd2075fafe796fc804b07'>;
+  StorageHashBase<'21ba17de1b008d4716a1b1dffdffdbd9dd91f137804374cd64b54760778a964f'>;
 export type ExecutionHash =
   ExecutionHashBase<'78b43e5b1c8aa2d568d98b412b8a820d10f8152ad556fce2308b42527230b92b'>;
 export type ProfileHash =
@@ -513,6 +513,7 @@ export namespace Models {
     line: FieldOutputTypes['public']['Link']['line'];
     personaId: FieldOutputTypes['public']['Link']['personaId'];
     phone: FieldOutputTypes['public']['Link']['phone'];
+    reports: FieldOutputTypes['public']['Link']['reports'];
     persona: public_Persona;
     readonly [RelationKeys]?: 'persona';
   };
@@ -1464,6 +1465,16 @@ type ContractBase = Omit<
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly reports: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', true>;
+                  };
                   readonly many: false;
                 };
               };
@@ -4114,6 +4125,10 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly reports: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
             };
             readonly relations: {
               readonly persona: {
@@ -4142,6 +4157,7 @@ type ContractBase = Omit<
                 readonly line: { readonly column: 'line' };
                 readonly personaId: { readonly column: 'persona_id' };
                 readonly phone: { readonly column: 'phone' };
+                readonly reports: { readonly column: 'reports' };
               };
             };
           };

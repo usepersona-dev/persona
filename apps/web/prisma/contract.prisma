@@ -551,6 +551,7 @@ model Link {
   persona       Persona            @relation(fields: [personaId], references: [id], onDelete: Cascade)
   label         String?
   phone         String?
+  reports       Boolean            @default(true)
   lastMessageAt TimestamptzString? @map("last_message_at")
   createdAt     TimestamptzString  @default(now()) @map("created_at")
 
