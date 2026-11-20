@@ -46,32 +46,36 @@ const channel = defineChannel<undefined, void, Run>({
       return Response.json({ ok: true, runId: run.id }, { status: 202 })
     }),
 
-    // Tells the run's chat what came of it: the queue's consumer (app/api/queues/reports) calls it as soon as a run worth telling ends, with AUTOMATIONS_SECRET. The run id is the delivery key, so a run the queue hands over again reaches the chat once
+    // Tells the persona's chats what came of the run: the queue's consumer (app/api/queues/reports) calls it as soon as a run worth telling ends, with AUTOMATIONS_SECRET. The run and the chat are the delivery key, so a run the queue hands over again reaches each chat once
     POST("/eve/v1/automations/:automationId/:runId/report", async (request, { params, to }) => {
       const secret = process.env.AUTOMATIONS_SECRET
       if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) return Response.json({ error: "Not allowed." }, { status: 401 })
 
-      // Get the ended run with its persona and its chat, by its id alone: its automation may have been deleted while it ran
-      const run = await db.orm.public.Run.include("persona").include("link").where({ id: params.runId, source: "automation" }).first()
-      if (!run || !run.result || !run.link) return Response.json({ error: "This run does not exist." }, { status: 404 })
-      const link = run.link
+      // Get the ended run with its persona, by its id alone: its automation may have been deleted while it ran
+      const run = await db.orm.public.Run.include("persona").where({ id: params.runId, source: "automation" }).first()
+      if (!run || !run.result) return Response.json({ error: "This run does not exist." }, { status: 404 })
+
+      // Get the persona's chats that get reports
+      const links = await db.orm.public.Link.where({ personaId: run.personaId, reports: true }).all()
 
       // Tell what came of it in the automation's words
       const message = `Your automation "${run.title}" just ran on its own; this isn't a message from the person. Open the conversation. Tell them what came of it, in your own words:\n\n${run.result.summary}`
 
-      // Send it as the chat's person, with their link: when the chat has no session, this send opens one, and it must be theirs
-      const idempotencyKey = `report:${run.id}`
-      if (link.channel === "telegram") {
-        const { auth } = telegramPrincipal(run.persona.orgId, link)
-        await to(telegramChannel, { threadId: telegramThreadId(link.line, link.externalId, run.personaId, link.id) }).send(message, { auth, turnPolicy: "queue", idempotencyKey })
-      }
-      if (link.channel === "whatsapp") {
-        const { auth } = whatsappPrincipal(run.persona.orgId, link)
-        await to(whatsappChannel, { threadId: whatsappThreadId(link.line, link.externalId, run.personaId, link.id) }).send(message, { auth, turnPolicy: "queue", idempotencyKey })
-      }
-      if (link.channel === "whatsapp_meta") {
-        const { auth } = metaPrincipal(run.persona.orgId, link)
-        await to(metaChannel, { threadId: metaThreadId(link.line, link.externalId, run.personaId, link.id) }).send(message, { auth, turnPolicy: "queue", idempotencyKey })
+      // Send it to each chat as its person, with their link: when the chat has no session, this send opens one, and it must be theirs
+      for (const link of links) {
+        const idempotencyKey = `report:${run.id}:${link.id}`
+        if (link.channel === "telegram") {
+          const { auth } = telegramPrincipal(run.persona.orgId, link)
+          await to(telegramChannel, { threadId: telegramThreadId(link.line, link.externalId, run.personaId, link.id) }).send(message, { auth, turnPolicy: "queue", idempotencyKey })
+        }
+        if (link.channel === "whatsapp") {
+          const { auth } = whatsappPrincipal(run.persona.orgId, link)
+          await to(whatsappChannel, { threadId: whatsappThreadId(link.line, link.externalId, run.personaId, link.id) }).send(message, { auth, turnPolicy: "queue", idempotencyKey })
+        }
+        if (link.channel === "whatsapp_meta") {
+          const { auth } = metaPrincipal(run.persona.orgId, link)
+          await to(metaChannel, { threadId: metaThreadId(link.line, link.externalId, run.personaId, link.id) }).send(message, { auth, turnPolicy: "queue", idempotencyKey })
+        }
       }
 
       return Response.json({ ok: true, runId: run.id }, { status: 202 })
@@ -84,7 +88,7 @@ const channel = defineChannel<undefined, void, Run>({
     return delivery
   },
 
-  // The run ends with its turn: a completed turn ends it with the result it gave, and a result worth telling, with a chat of its own persona, goes in the queue for the report route; a turn that fails fails the run, which its chat doesn't hear about. The session's channel address is the run's id
+  // The run ends with its turn: a completed turn ends it with the result it gave, and a result worth telling goes in the queue for the report route, which tells every chat of its persona that gets reports; a turn that fails fails the run, which its chat doesn't hear about. The session's channel address is the run's id
   events: {
     async "turn.settled"(event, ctx) {
       const runId = ctx.channel.continuation?.token
@@ -96,12 +100,12 @@ const channel = defineChannel<undefined, void, Run>({
       }
 
       if (event.data.outcome === "completed") {
-        // The run's result is the structured result its turn ended with; a result worth telling reports to its own persona's chat
+        // The run's result is the structured result its turn ended with; a result worth telling reports to every chat of its persona that gets reports
         const result = parts(ctx.view, { turnId: event.data.turnId, kind: "result" }).at(-1)?.value
 
         try {
           const [run] = await completeRun(runId, ctx.session.id, result)
-          if (run?.result?.notify && run.link?.personaId === run.personaId) await queue.send(REPORTS, { path: `/eve/v1/automations/${run.scheduleId}/${run.id}/report` })
+          if (run?.result?.notify) await queue.send(REPORTS, { path: `/eve/v1/automations/${run.scheduleId}/${run.id}/report` })
         } catch (error) {
           console.error("Could not end a run or queue its report.", error)
         }

@@ -148,6 +148,19 @@ test("a trigger run's report route tells its chat in the trigger's words", async
   assert.match(String(told[0]), /an invoice and a lunch invite\./)
 })
 
+test("a chat with reports off hears nothing of a trigger run", async () => {
+  const [run] = await runsOfTrigger()
+  const told: unknown[] = []
+  const to = () => ({ send: async (message: unknown) => { told.push(message); return { sessionId: "session_chat" } } })
+  const request = new Request(`https://persona.test/eve/v1/triggers/${triggerId}/${run!.id}/report`, { method: "POST", headers: { authorization: `Bearer ${RUN_SECRET}` } })
+
+  await db.orm.public.Link.where({ id: linkId }).update({ reports: false })
+  const response = await routeOf("/eve/v1/triggers/:triggerId/:runId/report").handler(request, { params: { triggerId, runId: run!.id }, to } as never)
+  await db.orm.public.Link.where({ id: linkId }).update({ reports: true })
+  assert.equal(response.status, 202)
+  assert.equal(told.length, 0)
+})
+
 test("an event signed with another secret is refused", async () => {
   const response = await post({}, { subject: "x" }, "wrong-secret")
   assert.equal(response.status, 401)

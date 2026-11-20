@@ -96,6 +96,23 @@ test("a webhook run ends once, and its report route tells its chat in the webhoo
   assert.match(String(told.sent[0]), /Order 12 came in\./)
 })
 
+test("a webhook run tells every chat of the persona that gets reports, whatever chat the webhook holds, and a chat with reports off hears nothing", async () => {
+  const stock = await webhook({ name: "Stock", prompt: "Say what ran out." })
+  const stockRun = await runOf(stock.id)
+  await completeRun(stockRun.id, "session-b", { summary: "Tea ran out.", notify: true })
+
+  const told = await reportRun(stock.id, stockRun.id)
+  assert.equal(told.status, 202)
+  assert.equal(told.sent.length, 1)
+  assert.match(String(told.sent[0]), /Tea ran out\./)
+
+  await db.orm.public.Link.where({ id: linkId }).update({ reports: false })
+  const off = await reportRun(stock.id, stockRun.id)
+  await db.orm.public.Link.where({ id: linkId }).update({ reports: true })
+  assert.equal(off.status, 202)
+  assert.equal(off.sent.length, 0)
+})
+
 test("a webhook run going for over an hour is failed", async () => {
   const slow = await webhook({ name: "Slow", prompt: "Take forever.", linkId })
   const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60_000).toISOString()

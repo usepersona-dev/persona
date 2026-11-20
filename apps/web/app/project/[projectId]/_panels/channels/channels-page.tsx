@@ -10,12 +10,12 @@ import { Section, SectionDescription, SectionHeader, SectionTitle } from "@/comp
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@/components/ui/item"
 import { Spinner } from "@/components/ui/spinner"
 import { toast } from "@/components/ui/toast"
-import { useUnlink } from "@/hooks/links"
+import { useUnlink, useUpdateLink, type Link } from "@/hooks/links"
 import type { Persona } from "@/hooks/personas"
 
 import { usePanels } from "../../_hooks/use-panels"
@@ -153,9 +153,10 @@ function SoonRow({ name, Icon }: (typeof SOON)[number]) {
   )
 }
 
-// One connected chat: who, their phone on WhatsApp, the number or bot they write to, when they last wrote. Its menu holds Unlink, which asks first.
+// One connected chat: who, their phone on WhatsApp, the number or bot they write to, when they last wrote, and a badge while it gets reports. Its menu turns reports on or off in place, and holds Unlink, which asks first.
 function ChatRow({ personaId, chat }: { personaId: string; chat: Chat }) {
   const unlink = useUnlink(personaId)
+  const update = useUpdateLink(personaId, chat)
   const [confirming, setConfirming] = useState(false)
   const brand = BRAND[chat.channel]
   const phone = phoneOf(chat)
@@ -174,13 +175,20 @@ function ChatRow({ personaId, chat }: { personaId: string; chat: Chat }) {
     })
   }
 
+  function setReports(reports: boolean) {
+    void update.trigger({ reports }, { optimisticData: (list: Link[] = []) => list.map((item) => (item.id === chat.id ? { ...item, reports } : item)) })
+  }
+
   return (
     <ScreenRow>
       <ItemMedia variant="image">
         <brand.Icon className="size-full" />
       </ItemMedia>
       <ItemContent className="min-w-0">
-        <ItemTitle>{chat.name}</ItemTitle>
+        <ItemTitle>
+          {chat.name}
+          {chat.reports && <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">Reports</Badge>}
+        </ItemTitle>
         <ItemDescription>{detail}</ItemDescription>
       </ItemContent>
       <ItemActions>
@@ -188,7 +196,12 @@ function ChatRow({ personaId, chat }: { personaId: string; chat: Chat }) {
           <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label={`More for ${chat.name}`} className="opacity-0 group-hover/item:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100" />}>
             <EllipsisIcon />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="w-64">
+            <DropdownMenuCheckboxItem checked={chat.reports} onCheckedChange={setReports}>
+              Reports
+            </DropdownMenuCheckboxItem>
+            <p className="px-3 py-2 text-[11px] text-muted-foreground/70">The persona tells this chat what its automations, triggers and webhooks find.</p>
+            <DropdownMenuSeparator />
             <DropdownMenuItem variant="destructive" onClick={() => setConfirming(true)}>
               Unlink
             </DropdownMenuItem>

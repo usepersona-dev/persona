@@ -168,12 +168,12 @@ To upload: ask for an `uploadUrl`, `PUT` the bytes to it with the same `Content-
 | Method and path | Body | Answer |
 | --- | --- | --- |
 | `GET /api/personas/{personaId}/automations` | | the automations, oldest first |
-| `POST /api/personas/{personaId}/automations` | `{ name, prompt, cron or at, timezone?, linkId? }` | the automation |
-| `PATCH /api/automations/{automationId}` | `{ name?, prompt?, cron?, at?, timezone?, enabled?, linkId? }` | the automation |
+| `POST /api/personas/{personaId}/automations` | `{ name, prompt, cron or at, timezone? }` | the automation |
+| `PATCH /api/automations/{automationId}` | `{ name?, prompt?, cron?, at?, timezone?, enabled? }` | the automation |
 | `DELETE /api/automations/{automationId}` | | `204`. Its runs stay; one running right now finishes. |
 | `GET /api/automations/{automationId}/runs?limit={limit}` | | the runs, newest first. `limit` is 1 to 100, 50 by default. |
 
-Give `cron`, `at`, or both; a `PATCH` keeps what it does not name, and `null` clears one, as long as one stays. `linkId` is the id of one of the persona's links, the chat that hears about results. `null` removes it.
+Give `cron`, `at`, or both; a `PATCH` keeps what it does not name, and `null` clears one, as long as one stays.
 
 A run has `scheduledFor`, `status` (`running`, `completed` or `failed`), `result` (`{ summary, notify }`), `sessionId` and `endedAt`.
 
@@ -188,11 +188,11 @@ curl -X POST -H "Authorization: Bearer $PERSONA_KEY" -H "Content-Type: applicati
 | Method and path | Body | Answer |
 | --- | --- | --- |
 | `GET /api/personas/{personaId}/webhooks` | | the webhooks, oldest first, each with its `url` |
-| `POST /api/personas/{personaId}/webhooks` | `{ name, prompt, linkId? }` | the webhook, with its `url` |
-| `PATCH /api/webhooks/{webhookId}` | `{ name?, prompt?, enabled?, linkId? }` | the webhook |
+| `POST /api/personas/{personaId}/webhooks` | `{ name, prompt }` | the webhook, with its `url` |
+| `PATCH /api/webhooks/{webhookId}` | `{ name?, prompt?, enabled? }` | the webhook |
 | `DELETE /api/webhooks/{webhookId}` | | `204`. Its address stops working; its runs stay. |
 
-`name` is 1 to 80 characters and `prompt` 1 to 20,000. `linkId` is the id of one of the persona's links, the chat that hears about results. `null` removes it.
+`name` is 1 to 80 characters and `prompt` 1 to 20,000.
 
 Another app calls the webhook at its `url`, `https://app.usepersona.dev/eve/v1/webhooks/{secret}`, with no other credential:
 
@@ -220,10 +220,11 @@ The body reaches the persona as a file. [Personas](/personas#webhooks) tells how
 | `GET /api/personas/{personaId}/link-codes` | | the codes that still work |
 | `POST /api/personas/{personaId}/link-codes` | | `{ code, personaId, expiresAt, createdAt }` |
 | `DELETE /api/link-codes/{code}` | | `204` |
-| `GET /api/personas/{personaId}/links` | | the linked chats: `[{ id, channel, line, externalId, label, phone, lastMessageAt }]` |
+| `GET /api/personas/{personaId}/links` | | the linked chats: `[{ id, channel, line, externalId, label, phone, reports, lastMessageAt }]` |
+| `PATCH /api/links/{channel}/{line}/{externalId}` | `{ reports }` | the chat |
 | `DELETE /api/links/{channel}/{line}/{externalId}` | | `204` |
 
-`channel` is `whatsapp_meta` (a WhatsApp number on Meta) or `telegram`. Chats from before can also be on the legacy number: `whatsapp` (Kapso's number). `line` is the number's id (the phone number id on Meta and on Kapso) or the Telegram bot's id. `externalId` is the person's WhatsApp id on Meta and on Kapso, or the Telegram chat id. `label` is the person's name on the platform when the chat linked, and `phone` is the person's phone on Meta (`null` elsewhere, and for a person WhatsApp knows only by a user id).
+`channel` is `whatsapp_meta` (a WhatsApp number on Meta) or `telegram`. Chats from before can also be on the legacy number: `whatsapp` (Kapso's number). `line` is the number's id (the phone number id on Meta and on Kapso) or the Telegram bot's id. `externalId` is the person's WhatsApp id on Meta and on Kapso, or the Telegram chat id. `label` is the person's name on the platform when the chat linked, and `phone` is the person's phone on Meta (`null` elsewhere, and for a person WhatsApp knows only by a user id). `reports` says whether the chat [gets reports](/channels#reports); it is on from the start.
 
 ## API keys
 

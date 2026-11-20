@@ -38,6 +38,12 @@ A code works on the shared numbers and bot, and on the own numbers and bots of t
 
 A message from a chat with no link gets a short reply that explains how to link.
 
+## Reports
+
+When an automation, a trigger or a webhook of the persona finds something worth telling, the persona tells every linked chat that gets reports. A chat gets reports from the moment it is linked. To turn them off for one chat, open its menu on the persona's **Channels** tab and clear **Reports**, or send `PATCH /api/links/{channel}/{line}/{externalId}` with `{ "reports": false }`. A chat that gets reports shows a Reports badge.
+
+With no chat that gets reports, the result stays on the run.
+
 ## What comes in
 
 | A person sends | The persona gets |

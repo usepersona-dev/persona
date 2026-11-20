@@ -266,19 +266,26 @@ test("a run ends once with what its session came back with, and an answer off th
   assert.equal(failed?.result?.notify, false)
 })
 
-test("the report route tells the run's chat what came of it in the automation's words, keyed by the run, and answers 404 for a run that's gone", async () => {
+test("the report route tells every chat of the persona that gets reports what came of the run, in the automation's words, keyed by the run and the chat, and answers 404 for a run that's gone", async () => {
   const at = new Date(Date.now() + 2_000)
-  const fact = await automation({ name: "Fact to tell", prompt: "Share a fact.", at: at.toISOString(), linkId })
+  const fact = await automation({ name: "Fact to tell", prompt: "Share a fact.", at: at.toISOString() })
   await start(new Date(at.getTime() + 60_000))
   const [factRun] = await runsOf(fact.id)
   await completeRun(factRun!.id, "session-e", { summary: "Honey never spoils.", notify: true })
 
   const told = await reportRun(fact.id, factRun!.id)
   assert.equal(told.status, 202)
+  assert.equal(told.sent.length, 1)
   assert.match(String(told.sent[0]?.message), /Your automation "Fact to tell" just ran on its own/)
   assert.match(String(told.sent[0]?.message), /Honey never spoils\./)
-  assert.equal(told.sent[0]?.idempotencyKey, `report:${factRun!.id}`)
+  assert.equal(told.sent[0]?.idempotencyKey, `report:${factRun!.id}:${linkId}`)
   assert.equal(told.sent[0]?.threadId, chat)
+
+  await db.orm.public.Link.where({ id: linkId }).update({ reports: false })
+  const off = await reportRun(fact.id, factRun!.id)
+  await db.orm.public.Link.where({ id: linkId }).update({ reports: true })
+  assert.equal(off.status, 202)
+  assert.equal(off.sent.length, 0)
 
   const gone = await reportRun(fact.id, "no-such-run")
   assert.equal(gone.status, 404)

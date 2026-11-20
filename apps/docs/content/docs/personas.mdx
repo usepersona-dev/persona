@@ -188,16 +188,15 @@ A task the persona does on its own: once at a date and time, or again and again 
 | `at` | a date and time with its offset, in the future |
 | `timezone` | an IANA timezone for the cron, such as `Asia/Jerusalem`. `UTC` by default. |
 | `enabled` | on by default. Off pauses the automation. |
-| `linkId` | the chat that hears about its results |
 
-Give `cron`, `at`, or both: a one-time date, a repeating schedule, or a schedule that starts with a first date. An automation the persona creates in a Telegram or WhatsApp chat gets that chat's link.
+Give `cron`, `at`, or both: a one-time date, a repeating schedule, or a schedule that starts with a first date.
 
 How a run goes:
 
 1. Every minute, a tick makes one run for each enabled automation due within the next ten minutes, and puts it on a queue that holds it until its time. A repeating automation may start up to ten minutes early, so the many due at the same minute do not all start at once. A run is unique per automation and due time, so nothing runs twice.
 2. The run starts in a session of its own. The persona does the task with nobody there to answer questions, and ends with a summary and whether the result is worth telling the person.
 3. A run ends when its turn ends with that result, when its turn fails, or after one hour.
-4. When the result is worth telling and the automation has a chat of the same persona, the report goes on a queue as the run ends, and the persona writes to that chat in its own words. Otherwise the result stays on the run. A failed run tells no chat.
+4. When the result is worth telling, the report goes on a queue as the run ends, and the persona writes to each of its linked chats that [gets reports](/channels#reports), in its own words. With no such chat, the result stays on the run. A failed run tells no chat.
 
 An automation has one run at a time. `GET /api/automations/{automationId}/runs` lists its runs, newest first, with each run's status (`running`, `completed` or `failed`) and result.
 
@@ -205,7 +204,7 @@ In the app, **Discover** on the Automations tab opens ready-made automations to 
 
 | Tool | What it does |
 | --- | --- |
-| `automation_create` | Schedules a task, tied to the current chat. |
+| `automation_create` | Schedules a task. |
 | `automation_list` | Lists the automations. |
 | `automation_runs` | Reads one automation's latest runs and results. |
 | `automation_update` | Changes the name, task, timing or state. |
@@ -219,21 +218,20 @@ A webhook is a secret address that another app or service calls, such as a form,
 | --- | --- |
 | `name` | 1 to 80 characters |
 | `prompt` | 1 to 20,000 characters: what to do with each call |
-| `linkId` | the chat that hears about the results |
 | `enabled` | on by default. Off stops the calls. |
 
-The address is `https://app.usepersona.dev/eve/v1/webhooks/{secret}`, and the API gives it as `url`. The secret is a random id, and the address needs no other credential, so give it only to the app that calls it. A webhook the persona makes in a Telegram or WhatsApp chat gets that chat's link. In the app, the persona's **Webhooks** tab lists them, and each one shows its address with a Copy button.
+The address is `https://app.usepersona.dev/eve/v1/webhooks/{secret}`, and the API gives it as `url`. The secret is a random id, and the address needs no other credential, so give it only to the app that calls it. In the app, the persona's **Webhooks** tab lists them, and each one shows its address with a Copy button.
 
 How a call goes:
 
 1. A `POST` to the address starts a run in a session of its own, and answers `202` with `{ ok, runId }`. A paused or deleted webhook answers `404`.
 2. The call's body goes to the persona as a file: `webhook-body.json` for JSON, `webhook-body.txt` for anything else. A call with no body sends no file.
 3. The persona does the task with nobody there to answer questions, and ends with a summary and whether the result is worth telling the person.
-4. When the result is worth telling and the webhook has a chat of the same persona, the persona writes to that chat in its own words. A run that is still going after an hour fails; the chat hears nothing of a failure.
+4. When the result is worth telling, the persona writes to each of its linked chats that [gets reports](/channels#reports), in its own words. A run that is still going after an hour fails; no chat hears of a failure.
 
 | Tool | What it does |
 | --- | --- |
-| `webhook_create` | Makes a webhook, tied to the current chat, and returns its address. |
+| `webhook_create` | Makes a webhook and returns its address. |
 | `webhook_list` | Lists the webhooks, oldest first, with each one's address and whether it is on. |
 | `webhook_update` | Changes the name or the task, or switches the calls off or on. |
 | `webhook_delete` | Deletes a webhook. Its address stops working; its runs stay. |
@@ -251,21 +249,20 @@ A trigger lets one of the persona's connected [apps](#apps) tell it when somethi
 | `name` | 1 to 80 characters |
 | `prompt` | 1 to 20,000 characters: what to do with the events |
 | `slug` | the trigger, such as `GOOGLECALENDAR_EVENT_STARTING_SOON_TRIGGER`, from `trigger_types` |
-| `linkId` | the chat that hears about the results |
 
-A trigger watches one connected account, with the trigger's own settings; two triggers cannot watch exactly the same thing. A trigger the persona makes in a Telegram or WhatsApp chat gets that chat's link.
+A trigger watches one connected account, with the trigger's own settings; two triggers cannot watch exactly the same thing.
 
 How an event goes:
 
 1. The app sends each event to `/eve/v1/triggers` through Composio, signed. An event Composio sends again is kept once.
 2. Five minutes after the first event that waits, the tick makes one run with every event that waited, and starts it at once.
 3. The events go to the persona as files, `trigger-event-1.json` and on. The persona does the task once for all of them, with nobody there to answer questions, and ends with a summary and whether the result is worth telling the person.
-4. When the result is worth telling and the trigger has a chat of the same persona, the persona writes to that chat in its own words. A run that is still going after an hour fails; the chat hears nothing of a failure.
+4. When the result is worth telling, the persona writes to each of its linked chats that [gets reports](/channels#reports), in its own words. A run that is still going after an hour fails; no chat hears of a failure.
 
 | Tool | What it does |
 | --- | --- |
 | `trigger_types` | Lists the triggers a connected app offers, with each one's settings. |
-| `trigger_create` | Makes a trigger, tied to the current chat. |
+| `trigger_create` | Makes a trigger. |
 | `trigger_list` | Lists the triggers, oldest first, with each one's task, trigger and the account it watches. |
 | `trigger_update` | Changes the name or the task. |
 | `trigger_delete` | Deletes a trigger; the app stops sending its events. Its runs stay. |
