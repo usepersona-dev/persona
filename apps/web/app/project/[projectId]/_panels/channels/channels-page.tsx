@@ -153,7 +153,7 @@ function SoonRow({ name, Icon }: (typeof SOON)[number]) {
   )
 }
 
-// One connected chat: who, their phone on WhatsApp, the number or bot they write to, when they last wrote. Its menu holds Unlink, which asks first.
+// One connected chat: who, their phone on WhatsApp, the number or bot they write to, when they last wrote. Its menu holds Disconnect, which asks first.
 function ChatRow({ personaId, chat }: { personaId: string; chat: Chat }) {
   const unlink = useUnlink(personaId)
   const [confirming, setConfirming] = useState(false)
@@ -169,7 +169,7 @@ function ChatRow({ personaId, chat }: { personaId: string; chat: Chat }) {
     }, {
       onSuccess: () => {
         setConfirming(false)
-        toast.add({ title: `Unlinked ${chat.name}`, type: "success" })
+        toast.add({ title: `Disconnected ${chat.name}`, type: "success" })
       },
     })
   }
@@ -190,7 +190,7 @@ function ChatRow({ personaId, chat }: { personaId: string; chat: Chat }) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem variant="destructive" onClick={() => setConfirming(true)}>
-              Unlink
+              Disconnect
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -198,14 +198,14 @@ function ChatRow({ personaId, chat }: { personaId: string; chat: Chat }) {
       <AlertDialog open={confirming} onOpenChange={setConfirming}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Unlink “{chat.name}”?</AlertDialogTitle>
+            <AlertDialogTitle>Disconnect “{chat.name}”?</AlertDialogTitle>
             <AlertDialogDescription>Their messages stop reaching this persona. They can link again with a new code.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={unlink.isMutating}>Cancel</AlertDialogCancel>
             <AlertDialogAction variant="destructive" disabled={unlink.isMutating} onClick={unlinkChat}>
               {unlink.isMutating && <Spinner data-icon="inline-start" />}
-              {unlink.isMutating ? "Unlinking…" : "Unlink"}
+              {unlink.isMutating ? "Disconnecting…" : "Disconnect"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
