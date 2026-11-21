@@ -7,7 +7,6 @@ import type * as links from "@/usecases/links"
 
 export type LinkCode = LinkCodeList[number]
 export type Link = LinkList[number]
-export type UpdateLinkInput = Parameters<typeof links.updateLink>[2]
 type LinkCodeList = Output<typeof links.listLinkCodes>
 type LinkList = Output<typeof links.listLinks>
 type LinkRef = { channel: string; line: string; externalId: string }
@@ -32,12 +31,6 @@ export function useRemoveLinkCode(personaId: string) {
   const key = `/api/personas/${personaId}/link-codes`
   const remove = useAction(key, (code: string) => request<void>("DELETE", `/api/link-codes/${encodeURIComponent(code)}`))
   return remove
-}
-
-export function useUpdateLink(personaId: string, link: LinkRef) {
-  const key = `/api/personas/${personaId}/links`
-  const update = useAction(key, (input: UpdateLinkInput) => request<Link>("PATCH", `/api/links/${link.channel}/${encodeURIComponent(link.line)}/${encodeURIComponent(link.externalId)}`, input))
-  return update
 }
 
 export function useUnlink(personaId: string) {

@@ -1,12 +1,9 @@
 "use client"
 
-import { CloudOffIcon, EllipsisIcon } from "lucide-react"
+import { CloudOffIcon } from "lucide-react"
 
 import { ScreenEmpty, ScreenRow, ScreenRows, ScreenRowSkeleton } from "@/components/screen"
 import { Section, SectionDescription, SectionHeader, SectionTitle } from "@/components/section"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { ItemActions, ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item"
 import { Switch } from "@/components/ui/switch"
@@ -35,7 +32,7 @@ const TOOLS: Record<ToolName, { label: string; line: string }> = {
 
 const ORDER: ToolName[] = ["file", "note", "browser", "apps", "media_read", "media_images", "media_video", "media_audio", "automation", "trigger", "webhook", "vault", "instruction", "skill", "model", "mcp"]
 
-// The persona's tools, each a row of its own. A switch turns a tool off, and its menu defers it.
+// The persona's tools, each a row of its own. A switch turns a tool off. Deferring a tool is for the API only.
 export function ToolsPage({ persona }: { persona: Persona }) {
   const { tools, error, isLoading } = useTools(persona.id)
 
@@ -77,13 +74,12 @@ export function ToolsPage({ persona }: { persona: Persona }) {
   )
 }
 
-// One tool: its name and line, a badge while it is deferred, its menu, and its switch. Both save at once. Apps has no menu: its tools are always found by search.
+// One tool: its name and line, and its switch, which saves at once.
 function ToolRow({ persona, name, tools }: { persona: Persona; name: ToolName; tools: Tools }) {
   const update = useUpdateTool(persona.id, name)
   const tool = tools[name]
   const label = TOOLS[name].label
   const line = TOOLS[name].line
-  const hasMenu = name !== "apps"
 
   function save(input: UpdateToolInput) {
     void update.trigger(input, { optimisticData: (current: Tools = tools) => ({ ...current, [name]: { ...current[name], ...input } }) })
@@ -92,27 +88,10 @@ function ToolRow({ persona, name, tools }: { persona: Persona; name: ToolName; t
   return (
     <ScreenRow className={cn(!tool.enabled && "opacity-60")}>
       <ItemContent className="min-w-0">
-        <ItemTitle>
-          {label}
-          {tool.deferred && <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">Deferred</Badge>}
-        </ItemTitle>
+        <ItemTitle>{label}</ItemTitle>
         <ItemDescription>{line}</ItemDescription>
       </ItemContent>
       <ItemActions>
-        {hasMenu && (
-          <DropdownMenu>
-            <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" className="text-muted-foreground" aria-label={`More for ${label}`} />}>
-              <EllipsisIcon />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64">
-              <DropdownMenuCheckboxItem checked={tool.deferred} onCheckedChange={(deferred) => save({ deferred })}>
-                Deferred
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuSeparator />
-              <p className="px-3 py-2 text-[11px] text-muted-foreground/70">Deferred tools stay out of the context. The model finds them with tool search.</p>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
         <Switch checked={tool.enabled} onCheckedChange={(enabled) => save({ enabled })} aria-label={tool.enabled ? `Turn off ${label}` : `Turn on ${label}`} />
       </ItemActions>
     </ScreenRow>
