@@ -2,8 +2,8 @@ import { atmn, feature, plan } from "atmn"
 
 export const credits = feature({ featureId: "credits", name: "Credits", type: "metered", consumable: true })
 
-// Credits to buy on top of a paid plan, by hand or with auto-reload, in steps of 50 at the plans' $0.20 a credit. Autumn's auto-reload charges at the price on the customer's plan, so every paid plan holds it and Free cannot buy. They never reset or expire, and usage takes them after the month's credits
-const topUp = { featureId: credits.featureId, price: { amount: 10, billingUnits: 50, billingMethod: "prepaid", interval: "one_off" } } as const
+// Credits to buy on top of a paid plan, by hand or with auto-reload, in steps of 50 at the plans' $0.20 a credit. Autumn's auto-reload charges at the price on the customer's plan, so every paid plan holds it and Free cannot buy. They never reset, and they end 12 months after their purchase. Usage takes them after the month's credits, the ones that end soonest first
+const topUp = { featureId: credits.featureId, price: { amount: 10, billingUnits: 50, billingMethod: "prepaid", interval: "one_off" }, expiry: { duration: "month", length: 12 } } as const
 
 // The free credits every organization gets each month. It is in a group of its own, so a paid plan comes on top of it instead of replacing it
 export const free = plan({ planId: "free", versionSlug: "v1", active: true, name: "Free", group: "free", autoEnable: true, items: [{ featureId: credits.featureId, included: 25, reset: { interval: "month" } }] })
@@ -19,4 +19,7 @@ export const proYearly = plan({ planId: "pro_yearly", versionSlug: "v1", active:
 // A plan we give by hand: no one can buy it or change to it, and its organization has no credit limit
 export const unlimited = plan({ planId: "unlimited", versionSlug: "v1", active: true, name: "Unlimited", group: "paid", items: [{ featureId: credits.featureId, unlimited: true }] })
 
-export default atmn({ features: [credits], plans: [free, hobbyMonthly, builderMonthly, proMonthly, hobbyYearly, builderYearly, proYearly, unlimited] })
+// Credits we give by hand: each gift attaches this plan with its own amount in place of the 0. As an add-on it comes on top of the organization's plan. A gift never resets or ends, so usage takes it last
+export const gift = plan({ planId: "gift", versionSlug: "v1", active: true, name: "Gift", addOn: true, items: [{ featureId: credits.featureId, included: 0, reset: { interval: "one_off" } }] })
+
+export default atmn({ features: [credits], plans: [free, hobbyMonthly, builderMonthly, proMonthly, hobbyYearly, builderYearly, proYearly, unlimited, gift] })

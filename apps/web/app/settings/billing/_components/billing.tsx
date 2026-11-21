@@ -170,6 +170,7 @@ function Credits({ billing }: { billing: Account }) {
   const free = credits.pools.filter((pool) => pool.name === "free")
   const plan = credits.pools.filter((pool) => pool.name === "plan" && pool.max > 0)
   const bought = credits.pools.filter((pool) => pool.name === "bought" && (billing.plan.usd > 0 || pool.max > 0))
+  const gift = credits.pools.filter((pool) => pool.name === "gift" && pool.max > 0)
 
   let left = `${formatCredits(credits.left)} left`
   if (stopped) left = "Out of credits"
@@ -187,6 +188,7 @@ function Credits({ billing }: { billing: Account }) {
         {free.filter((pool) => pool.left > 0).map((pool) => <span key={pool.name} className="h-full bg-tone-olive-foreground" style={{ width: `${(pool.left / credits.max) * 100}%` }} />)}
         {plan.filter((pool) => pool.left > 0).map((pool) => <span key={pool.name} className="h-full bg-tone-plum-foreground" style={{ width: `${(pool.left / credits.max) * 100}%` }} />)}
         {bought.filter((pool) => pool.left > 0).map((pool) => <span key={pool.name} className="h-full bg-tone-clay-foreground" style={{ width: `${(pool.left / credits.max) * 100}%` }} />)}
+        {gift.filter((pool) => pool.left > 0).map((pool) => <span key={pool.name} className="h-full bg-tone-ochre-foreground" style={{ width: `${(pool.left / credits.max) * 100}%` }} />)}
       </div>
       <ul className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-muted-foreground tabular-nums">
         {free.map((pool) => (
@@ -205,6 +207,12 @@ function Credits({ billing }: { billing: Account }) {
           <li key={pool.name} className="flex items-center gap-1.5">
             <span className="size-2 rounded-full bg-tone-clay-foreground" />
             Bought {formatCredits(pool.left)}
+          </li>
+        ))}
+        {gift.map((pool) => (
+          <li key={pool.name} className="flex items-center gap-1.5">
+            <span className="size-2 rounded-full bg-tone-ochre-foreground" />
+            Gift {formatCredits(pool.left)}
           </li>
         ))}
         <li className="ms-auto">Resets on {day}</li>

@@ -61,7 +61,7 @@ function AutoReloadForm({ autoReload, topUp, onDone }: Props & { onDone: () => v
     <form className="flex flex-col gap-6" onSubmit={form.handleSubmit(save)}>
       <DialogHeader>
         <DialogTitle>Auto-reload</DialogTitle>
-        <DialogDescription>When your credits run low, buy more.</DialogDescription>
+        <DialogDescription>When your credits run low, buy more. Credits you buy are good for 12 months.</DialogDescription>
       </DialogHeader>
       <FieldGroup className="gap-5">
         <Controller

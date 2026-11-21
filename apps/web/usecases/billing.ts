@@ -104,7 +104,7 @@ export async function createPortalLink(caller: Caller) {
   return ok({ url: url.value })
 }
 
-// Buys a pack of credits on the caller's paid plan, on the saved card. Answers with a page to send the person to when a payment needs them. They never expire, and usage takes them after the month's credits
+// Buys a pack of credits on the caller's paid plan, on the saved card. Answers with a page to send the person to when a payment needs them. They end 12 months after the purchase, and usage takes them after the month's credits
 export async function buyCredits(caller: Caller, input: z.input<typeof buyCreditsInput>) {
   const parsed = validate(buyCreditsInput, input)
   if (!parsed.ok) return parsed

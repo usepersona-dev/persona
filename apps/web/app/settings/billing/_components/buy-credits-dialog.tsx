@@ -3,7 +3,7 @@
 import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Field, FieldLabel } from "@/components/ui/field"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Spinner } from "@/components/ui/spinner"
@@ -46,6 +46,7 @@ function BuyCreditsForm({ topUp, onDone }: Props & { onDone: () => void }) {
     <div className="flex flex-col gap-6">
       <DialogHeader>
         <DialogTitle>Buy credits</DialogTitle>
+        <DialogDescription>Credits you buy are good for 12 months.</DialogDescription>
       </DialogHeader>
       <Field>
         <FieldLabel htmlFor="buy-credits-pack">Pack</FieldLabel>

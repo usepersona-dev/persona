@@ -5,7 +5,6 @@ import { err, ok } from "@/lib/errors"
 const CREDITS = "credits"
 // Autumn's check asks for one whole credit by default, and a turn may start with any credits left
 const ANY_CREDITS = 0.01
-const POOLS = ["free", "plan", "bought"]
 
 // Autumn for an organization's billing: the organization is one Autumn customer under its own id, autumn.config.ts holds the plans, and Autumn keeps the balances and runs Stripe. If Autumn cannot be reached, its SDK lets check and track through
 function autumnClient() {
@@ -49,11 +48,11 @@ export async function trackCredits(orgId: string, personaId: string, credits: nu
   }
 }
 
-// Every plan, with what attaching it would do for this customer, and whether it sells credits to top up: autumn.config.ts gives that price to the paid plans only.
+// Every plan to choose from, with what attaching it would do for this customer, and whether it sells credits to top up: autumn.config.ts gives that price to the paid plans only. An add-on, such as a gift, comes on top of a plan, so it is left out
 export async function listPlans(orgId: string) {
   try {
     const plans = await autumnClient().plans.list({ customerId: orgId })
-    const list = plans.list.map((plan) => {
+    const list = plans.list.filter((plan) => !plan.addOn).map((plan) => {
       const monthly = plan.items.find((one) => one.featureId === CREDITS && !one.price)
       const pack = plan.items.find((one) => one.featureId === CREDITS && one.price?.interval === "one_off")
       const sellsTopUps = pack !== undefined
@@ -127,7 +126,7 @@ export async function createPortalLink(orgId: string, returnUrl: string) {
   }
 }
 
-// The customer's credits, each source a pool: Autumn keeps a row per purchase, so a pool adds up its rows. Unlimited has no limit. A customer with no balance means autumn.config.ts was not pushed, which is a fault
+// The customer's credits, each source a pool. Autumn keeps a balance per grant: Free and the paid plan give theirs every month, and a top-up or a gift comes once. Unlimited has no limit. A customer with no balance means autumn.config.ts was not pushed, which is a fault
 function creditsOf(customer: Customer) {
   const balance = customer.balances[CREDITS]
   if (!balance) throw new Error("Autumn has no credits for this customer. Push autumn.config.ts.")
@@ -135,23 +134,30 @@ function creditsOf(customer: Customer) {
   const resetsAt = new Date(balance.nextResetAt ?? Date.now()).toISOString()
   if (balance.unlimited) return { max: Infinity, left: Infinity, pools: [], resetsAt }
 
-  const rows = (balance.breakdown ?? []).map((one) => ({ name: poolName(one), max: one.includedGrant + one.prepaidGrant, left: one.remaining }))
-  const pools = POOLS.map((name) => {
-    const ofPool = rows.filter((row) => row.name === name)
-    const max = ofPool.reduce((sum, row) => sum + row.max, 0)
-    const left = ofPool.reduce((sum, row) => sum + row.left, 0)
-    return { name, max, left }
-  })
+  const breakdown = balance.breakdown ?? []
+  const monthly = breakdown.filter((one) => one.reset?.interval === "month")
+  const oneOff = breakdown.filter((one) => one.reset?.interval === "one_off")
+
+  const free = monthly.filter((one) => one.planId === "free")
+  const plan = monthly.filter((one) => one.planId !== "free")
+  const gifts = oneOff.filter((one) => one.planId === "gift")
+  const topUps = oneOff.filter((one) => one.planId !== "gift")
+
+  const pools = [
+    poolOf("free", free),
+    poolOf("plan", plan),
+    poolOf("bought", topUps),
+    poolOf("gift", gifts),
+  ]
 
   return { max: balance.granted, left: balance.remaining, pools, resetsAt }
 }
 
-// Autumn's prepaid grant is what was bought. Credits bought outlive a plan change, and their row then has no plan
-function poolName(row: { planId: string | null; prepaidGrant: number }) {
-  if (row.planId === "free") return "free"
-  if (row.planId === null) return "bought"
-  if (row.prepaidGrant > 0) return "bought"
-  return "plan"
+// A pool adds up its balances
+function poolOf(name: string, balances: { includedGrant: number; prepaidGrant: number; remaining: number }[]) {
+  const max = balances.reduce((sum, one) => sum + one.includedGrant + one.prepaidGrant, 0)
+  const left = balances.reduce((sum, one) => sum + one.remaining, 0)
+  return { name, max, left }
 }
 
 function autoReloadOf(customer: Customer) {
@@ -161,9 +167,9 @@ function autoReloadOf(customer: Customer) {
 }
 
 
-// The customer's plan: its active paid plan, or Free when it has none. A plan that waits for the period's end shows as downgradeTo, and a canceled plan waits for Free. Free has no period of its own, so it ends when its credits reset
+// The customer's plan: its active paid plan, or Free when it has none. An add-on, such as a gift, is a subscription too and is not the plan. A plan that waits for the period's end shows as downgradeTo, and a canceled plan waits for Free. Free has no period of its own, so it ends when its credits reset
 function planOf(customer: Customer, resetsAt: string) {
-  const paid = customer.subscriptions.find((one) => one.status === "active" && one.planId !== "free")
+  const paid = customer.subscriptions.find((one) => one.status === "active" && one.planId !== "free" && !one.addOn)
   const scheduled = customer.subscriptions.find((one) => one.status === "scheduled")
 
   let downgradeTo = scheduled?.planId ?? null
