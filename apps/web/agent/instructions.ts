@@ -97,7 +97,9 @@ type Input = {
 export function writeInstructions({ name, tools, instructions, channel, subagent }: Input) {
   const sections = [IDENTITY, RULES]
 
-  if (!subagent) sections.push(RUN_CHANNELS.includes(channel) ? RUNS : writeChat(channel), TASKS)
+  const run = RUN_CHANNELS.includes(channel)
+  if (!subagent && run) sections.push(RUNS)
+  if (!subagent && !run) sections.push(writeChat(channel), TASKS)
 
   sections.push(TOOLS)
   if (tools.apps.enabled) sections.push(APPS)
