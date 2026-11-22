@@ -14,6 +14,7 @@ if (!key.startsWith("am_sk_test_")) throw new Error("The billing tests run only 
 
 const autumn = new Autumn({ secretKey: key })
 const organizations: { orgId: string; userId: string }[] = []
+const DAY_MS = 24 * 60 * 60_000
 
 afterAll(async () => {
   for (const { orgId, userId } of organizations) {
@@ -178,6 +179,45 @@ test("Top-ups: only a paid plan buys credits, in our amounts; they add up, usage
   }
 })
 
+test("Gifts: a gift has its own pool on any plan and never ends, credits bought end after 12 months, and usage takes the gifts last", async () => {
+  const org = await startOrganization("gift")
+  await autumn.customers.getOrCreate({ customerId: org.orgId, email: "billing-test@example.com" })
+
+  await giveCredits(org, 30)
+  const given = await waitForCredits(org, 55)
+  assert.deepEqual(given.pools, [{ name: "free", max: 25, left: 25 }, { name: "plan", max: 0, left: 0 }, { name: "bought", max: 0, left: 0 }, { name: "gift", max: 30, left: 30 }])
+  const onFree = await readBilling(org)
+  assert.equal(onFree.plan.key, "free")
+  assert.equal(onFree.plans.some((one) => one.key === "gift"), false)
+
+  await autumn.billing.attach({ customerId: org.orgId, planId: "hobby_monthly", invoiceMode: { enabled: true, enablePlanImmediately: true } })
+  assert.ok((await buyCredits(org.caller, { credits: 50 })).ok)
+  await giveCredits(org, 20)
+  const stacked = await waitForCredits(org, 225)
+  assert.deepEqual(stacked.pools, [{ name: "free", max: 25, left: 25 }, { name: "plan", max: 100, left: 100 }, { name: "bought", max: 50, left: 50 }, { name: "gift", max: 50, left: 50 }])
+  assert.equal((await readBilling(org)).plan.key, "hobby_monthly")
+
+  const customer = await autumn.customers.get({ customerId: org.orgId })
+  const breakdown = customer.balances.credits?.breakdown ?? []
+  const oneOff = breakdown.filter((one) => one.reset?.interval === "one_off")
+  const gifts = oneOff.filter((one) => one.planId === "gift")
+  const purchases = oneOff.filter((one) => one.planId === null)
+  const yearFromNow = new Date()
+  yearFromNow.setUTCFullYear(yearFromNow.getUTCFullYear() + 1)
+  assert.deepEqual(gifts.map((one) => one.expiresAt), [null, null])
+  assert.equal(purchases.length, 1)
+  assert.ok(Math.abs(purchases[0]!.expiresAt! - yearFromNow.getTime()) < DAY_MS)
+
+  await charge(org, crypto.randomUUID(), 160)
+  const used = await waitForCredits(org, 65)
+  assert.deepEqual(used.pools, [{ name: "free", max: 25, left: 0 }, { name: "plan", max: 100, left: 0 }, { name: "bought", max: 50, left: 15 }, { name: "gift", max: 50, left: 50 }])
+
+  // Autumn drops a purchase once it is used up, so the bought pool reads 0 of 0
+  await charge(org, crypto.randomUUID(), 25)
+  const last = await waitForCredits(org, 40)
+  assert.deepEqual(last.pools, [{ name: "free", max: 25, left: 0 }, { name: "plan", max: 100, left: 0 }, { name: "bought", max: 0, left: 0 }, { name: "gift", max: 50, left: 40 }])
+})
+
 test("Unlimited: no credit limit, and no one can change to it", async () => {
   const org = await startOrganization("unlimited")
   await readBilling(org)
@@ -220,6 +260,11 @@ async function charge(org: Organization, id: string, credits: number) {
   const tokens = { model: "billing-test", provider: null, inputTokens: 0, cachedInputTokens: 0, cacheWriteTokens: 0, outputTokens: 0, reasoningTokens: 0, marketCost: null, gatewayCost: null }
   const charged = await chargeUsage({ id, personaId: org.personaId, credits, usage: { tokens } })
   return charged
+}
+
+// A gift as we give one by hand: the Gift plan attached with the amount in place of its 0
+async function giveCredits(org: Organization, credits: number) {
+  await autumn.billing.attach({ customerId: org.orgId, planId: "gift", customize: { items: [{ featureId: "credits", included: credits, reset: { interval: "one_off" } }] }, redirectMode: "never" })
 }
 
 // Autumn applies usage a moment after it comes, so this reads until the credits arrive

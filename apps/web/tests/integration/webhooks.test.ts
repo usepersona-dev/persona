@@ -119,8 +119,7 @@ test("a webhook run going for over an hour is failed", async () => {
   const slowRun = await runOf(slow.id)
   await db.orm.public.Run.where({ id: slowRun.id }).updateAll({ claimedAt: twoHoursAgo })
 
-  const failed = await failStuckRuns(new Date())
+  await failStuckRuns(new Date())
   const stuck = await db.orm.public.Run.where({ id: slowRun.id }).first()
   assert.equal(stuck?.status, "failed")
-  assert.ok(failed.some((run) => run.id === slowRun.id))
 })

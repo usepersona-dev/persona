@@ -267,7 +267,9 @@ curl -X PATCH -H "Authorization: Bearer $PERSONA_KEY" -H "Content-Type: applicat
 | `POST /api/billing/buy-credits` | `{ credits }` | `{ url }`: a page to pay on, or `null` when the saved card paid |
 | `POST /api/billing/portal-link` | | `{ url }`: the billing portal, for cards and invoices |
 
-`credits` is 50, 100, 250 or 500, and buying them needs a paid plan. `below` is 1 to 1,000: when the credits fall under it, the saved card buys `credits` more.
+`credits` is 50, 100, 250 or 500, and buying them needs a paid plan. Credits you buy are good for 12 months. `below` is 1 to 1,000: when the credits fall under it, the saved card buys `credits` more.
+
+In the answer of `GET /api/billing`, `credits` has `max`, `left`, `resetsAt` and `pools`: the credits by where they came from, each with `name`, `max` and `left`. `free` and `plan` are new each month, `bought` are the credits you bought, and `gift` are credits Persona gave you, which never end. Usage takes them in that order.
 
 ## The agent
 
