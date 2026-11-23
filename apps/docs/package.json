@@ -12,9 +12,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@ai-sdk/react": "^4.0.184",
+    "@ai-sdk/react": "^4.0.186",
     "@radix-ui/react-presence": "^1.1.11",
-    "ai": "^7.0.179",
+    "ai": "^7.0.181",
     "class-variance-authority": "^0.7.1",
     "flexsearch": "^0.8.212",
     "fumadocs-core": "^16.19.7",
@@ -24,7 +24,7 @@
     "hast-util-to-jsx-runtime": "^2.3.7",
     "lucide-react": "^1.78.0",
     "next": "16.4.6",
-    "posthog-js": "^1.454.0",
+    "posthog-js": "^1.454.2",
     "posthog-node": "^6.0.6",
     "react": "19.3.1",
     "react-dom": "19.3.1",
