@@ -29,7 +29,7 @@ export type ProjectStyle = keyof typeof PROJECT_STYLES
 export const PROJECT_STYLE_IDS = Object.keys(PROJECT_STYLES) as ProjectStyle[]
 
 export function projectAvatarUri(style: ProjectStyle, name: string) {
-  const uri = new DiceAvatar(PROJECT_STYLES[style], { seed: name }).toDataUri()
+  const uri = new DiceAvatar<unknown>(PROJECT_STYLES[style], { seed: name }).toDataUri()
   return uri
 }
 

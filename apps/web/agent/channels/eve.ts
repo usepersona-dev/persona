@@ -1,4 +1,4 @@
-import { extractBearerToken, localDev, verifyJwtHmac, type AuthFn } from "eve/channels/auth"
+import { extractBearerToken, HttpError, localDev, verifyJwtHmac, type AuthFn } from "eve/channels/auth"
 import { eveChannel } from "eve/channels/eve"
 import type { SessionAuthContext } from "eve/context"
 
@@ -37,7 +37,7 @@ async function requireOwnSession(principal: SessionAuthContext, request: Request
 
   const sessionId = decodeURIComponent(path.slice(SESSION_ROUTES.length).split("/")[0])
   const session = await getSession(principal, sessionId)
-  if (!session) throw { response: Response.json({ code: "session_not_ready" }, { status: 409 }) }
+  if (!session) throw new HttpError(409, { code: "session_not_ready", message: "The session is not ready to accept commands. Retry shortly." })
 }
 
 export default eveChannel({ auth: [agentToken, localDev()] })

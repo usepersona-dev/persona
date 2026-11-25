@@ -52,7 +52,7 @@ export type PersonaStyle = keyof typeof PERSONA_STYLES
 export const PERSONA_STYLE_IDS = Object.keys(PERSONA_STYLES) as PersonaStyle[]
 
 export function personaAvatarUri(style: PersonaStyle, name: string) {
-  const uri = new DiceAvatar(PERSONA_STYLES[style], { seed: name, tags: ["animation"] }).toDataUri()
+  const uri = new DiceAvatar<unknown>(PERSONA_STYLES[style], { seed: name, animation: true }).toDataUri()
   return uri
 }
 
